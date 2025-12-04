@@ -22,6 +22,12 @@ local.properties
 # SAP Portal sensitive files
 app/src/main/java/com/kito/sap/sensitive/
 
+# Development and test files
+workin.txt
+xml_output.txt
+html_output.txt
+fetch_attendance.js
+
 # Android
 *.apk
 *.aar
