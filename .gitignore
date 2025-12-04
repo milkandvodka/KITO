@@ -1,0 +1,43 @@
+# Git Ignore for Kito - KIIT Attendance Checker
+
+# Kotlin/Android specific
+*.iml
+*.ipr
+*.iws
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# SAP Portal sensitive files
+app/src/main/java/com/kito/sap/sensitive/
+
+# Android
+*.apk
+*.aar
+*.ap_
+**/build/
+
+# Java
+*.class
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+ehthumbs.db
+Icon?
+.DS_Store
