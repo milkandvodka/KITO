@@ -325,7 +325,15 @@ class SapPortalClient {
 
         } catch (e: IOException) {
             performLogout() // Attempt logout even on error
-            AttendanceResult.Error("Network error: ${e.message ?: e.javaClass.simpleName}")
+            println("❌ IOException during network request: ${e.message}")
+            e.printStackTrace()
+            val errorMessage = if (e.message?.contains("Unable to resolve host") == true) {
+                val host = e.message?.substringAfter("Unable to resolve host ", "")?.substringBefore(":") ?: "unknown host"
+                "Network error: Unable to connect to $host. The portal URL may have changed. Please verify that the portal URL is correct. Common causes: ICT Cell has changed the server URL or there are network connectivity issues."
+            } else {
+                "Network error: ${e.message ?: e.javaClass.simpleName}"
+            }
+            AttendanceResult.Error(errorMessage)
         } catch (e: Exception) {
             performLogout() // Attempt logout even on error
             println("❌ General error during attendance fetch: ${e.message}")
@@ -333,6 +341,9 @@ class SapPortalClient {
             // Provide more user-friendly error message for specific cases
             val errorMessage = if (e.message?.contains("No attendance rows parsed") == true) {
                 "No attendance data available for the selected year and session. Please check your year/session selection and try again."
+            } else if (e.message?.contains("Unable to resolve host") == true) {
+                val host = e.message?.substringAfter("Unable to resolve host ", "")?.substringBefore(":") ?: "unknown host"
+                "Network error: Unable to connect to $host. The portal URL may have changed. Please verify that the portal URL is correct. Common causes: ICT Cell has changed the server URL or there are network connectivity issues."
             } else {
                 "Error: ${e.message ?: e.javaClass.simpleName}"
             }
@@ -373,7 +384,13 @@ class SapPortalClient {
             }
             logoutResponse.close()
         } catch (e: Exception) {
-            println("⚠️ Error during logout: ${e.message}")
+            // Don't print error if it's a host resolution issue during logout
+            // since the main fetch operation might have already failed due to network issues
+            if (!e.message.toString().contains("Unable to resolve host")) {
+                println("⚠️ Error during logout: ${e.message}")
+            } else {
+                println("⚠️ Could not complete logout (portal server unreachable)")
+            }
         }
     }
 }
