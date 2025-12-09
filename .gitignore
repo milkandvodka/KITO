@@ -33,6 +33,7 @@ fetch_attendance.js
 *.aar
 *.ap_
 **/build/
+**/release/
 
 # Java
 *.class
