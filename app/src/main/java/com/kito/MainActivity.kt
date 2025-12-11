@@ -11,14 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.kito.data.local.preferences.newpreferences.PrefsRepository
-import com.kito.ui.legacy.AttendanceApp
 import com.kito.ui.legacy.screens.AttendanceScreen
 import com.kito.ui.newUi.AppUI
 import com.kito.ui.newUi.screen.AttendanceListScreen
 import com.kito.ui.theme.KitoTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     @Inject
