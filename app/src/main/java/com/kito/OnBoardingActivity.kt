@@ -10,9 +10,16 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.kito.data.local.preferences.newpreferences.PrefsRepository
+import com.kito.ui.newUi.screen.OnBoardingScreen
 import com.kito.ui.theme.KitoTheme
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class OnBoardingActivity : ComponentActivity() {
+    @Inject
+    lateinit var prefs: PrefsRepository
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -20,7 +27,7 @@ class OnBoardingActivity : ComponentActivity() {
                 Box(
                     contentAlignment = Alignment.Center
                 ){
-                    Text("Hello OnBoardingScreen")
+                    OnBoardingScreen(prefs)
                 }
             }
         }
