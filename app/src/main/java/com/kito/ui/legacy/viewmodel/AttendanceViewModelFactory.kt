@@ -1,4 +1,4 @@
-package com.kito
+package com.kito.ui.legacy.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
