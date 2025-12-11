@@ -25,7 +25,7 @@
 -keep class com.kito.AttendanceApp
 -keep class com.kito.AttendanceViewModel
 -keep class com.kito.PreferencesKt
--keep class com.kito.AttendanceViewModelFactory
+-keep class com.kito.ui.legacy.viewmodel.AttendanceViewModelFactory
 
 # Keep the SAP portal client with all methods and fields
 -keep class com.kito.sap.SapPortalClient { *; }
