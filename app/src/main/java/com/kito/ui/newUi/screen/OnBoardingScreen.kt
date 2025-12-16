@@ -50,6 +50,7 @@ import androidx.datastore.dataStore
 import com.kito.MainActivity
 import com.kito.OnBoardingActivity
 import com.kito.data.local.preferences.newpreferences.PrefsRepository
+import com.kito.ui.animation.CollegeAnimation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -146,7 +147,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                                 .scale(pageOneScale.value),
                             contentAlignment = Alignment.Center
                         ) {
-
+                            CollegeAnimation()
                         }
                     }else if (it == 1){
                         Box(
@@ -156,7 +157,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                                 .scale(pageTwoScale.value),
                             contentAlignment = Alignment.Center
                         ) {
-
+                            CollegeAnimation()
                         }
                     }else{
                         Box(
@@ -166,7 +167,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                                 .scale(pageThreeScale.value),
                             contentAlignment = Alignment.Center
                         ) {
-
+                            CollegeAnimation()
                         }
                     }
                 }
@@ -175,7 +176,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                         modifier = Modifier.alpha(pageOneAlpha)
                     ) {
                         Text(
-                            text = "Your world, your news, in just a few bits.",
+                            text = "Your Daily College Checkpoint",
                             style = MaterialTheme.typography.headlineLarge.copy( // Slightly refined
                                 fontWeight = FontWeight.SemiBold,
                                 lineHeight = MaterialTheme.typography.headlineLarge.lineHeight * 1.1f
@@ -185,7 +186,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            text = "Category‑wise filtering, smart recommendations, and breaking alerts — all personalized for you.",
+                            text = "Check attendance, view your timetable, and stay updated all at your fingertips!",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.3f,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -200,7 +201,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                         modifier = Modifier.alpha(pageTwoAlpha)
                     ) {
                         Text(
-                            text = "Big news, small bites — stay updated in seconds",
+                            text = "No More “Kitna Attendance Hai?”",
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontWeight = FontWeight.SemiBold,
                                 lineHeight = MaterialTheme.typography.headlineLarge.lineHeight * 1.1f
@@ -212,7 +213,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            text = "AI‑powered summaries and Bit Digest keep you informed without the scroll marathon",
+                            text = "Connect your SAP and instantly track subject-wise attendance and know where you stand before it’s too late.",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.3f,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -227,7 +228,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                         modifier = Modifier.alpha(pageThreeAlpha)
                     ) {
                         Text(
-                            text = "Fast. Fresh. News Bits.",
+                            text = "Never Miss a Lecture or Event Again!",
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontWeight = FontWeight.SemiBold,
                                 lineHeight = MaterialTheme.typography.headlineLarge.lineHeight * 1.1f
@@ -239,7 +240,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            text = "From top headlines to Bit Digest recaps, stay ahead with instant, accurate news updates.",
+                            text = "Access your daily and weekly timetable and events anytime. No confusion, no last-minute panic.",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.3f,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
