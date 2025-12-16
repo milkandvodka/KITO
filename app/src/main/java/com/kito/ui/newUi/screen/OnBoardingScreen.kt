@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.dataStore
 import com.kito.MainActivity
 import com.kito.OnBoardingActivity
+import com.kito.UserSetupActivity
 import com.kito.data.local.preferences.newpreferences.PrefsRepository
 import com.kito.ui.animation.CollegeAnimation
 import kotlinx.coroutines.delay
@@ -289,11 +290,11 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                                 scope.launch {
                                     isLoading = true
                                     delay(500L)
-                                    prefRepository.setOnboardingDone(true)
+                                    prefRepository.setOnboardingDone()
                                     context.startActivity(
                                         Intent(
                                             context,
-                                            MainActivity::class.java
+                                            UserSetupActivity::class.java
                                         )
                                     )
                                     (context as? OnBoardingActivity)?.finish()
@@ -331,8 +332,8 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
             TextButton(
                 onClick = {
                     scope.launch {
-                        prefRepository.setOnboardingDone(true)
-                        context.startActivity(Intent(context, MainActivity::class.java))
+                        prefRepository.setOnboardingDone()
+                        context.startActivity(Intent(context, UserSetupActivity::class.java))
                         (context as? OnBoardingActivity)?.finish()
                     }
                 },

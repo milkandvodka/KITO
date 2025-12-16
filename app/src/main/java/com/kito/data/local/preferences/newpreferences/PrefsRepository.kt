@@ -20,6 +20,15 @@ class PrefsRepository @Inject constructor(
         private val KEY_TERM_CODE = stringPreferencesKey("term_code")
 
         private val KEY_ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
+        private val KEY_USER_SETUP_DONE = booleanPreferencesKey("user_setup_done")
+    }
+
+    suspend fun isUserSetupDone(): Boolean {
+        val prefs = dataStore.data.first()
+        return prefs[KEY_USER_SETUP_DONE] ?: false
+    }
+    suspend fun setUserSetupDone() {
+        dataStore.edit { it[KEY_USER_SETUP_DONE] = true }
     }
 
     suspend fun isOnboardingDone(): Boolean {
@@ -27,8 +36,8 @@ class PrefsRepository @Inject constructor(
         return prefs[KEY_ONBOARDING_DONE] ?: false
     }
 
-    suspend fun setOnboardingDone(done: Boolean) {
-        dataStore.edit { it[KEY_ONBOARDING_DONE] = done }
+    suspend fun setOnboardingDone() {
+        dataStore.edit { it[KEY_ONBOARDING_DONE] = true }
     }
 
     suspend fun getUsername() = dataStore.data.first()[KEY_USERNAME] ?: ""
