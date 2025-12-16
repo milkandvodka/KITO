@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.kito.data.local.preferences.newpreferences.PrefsRepository
@@ -29,9 +30,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             val onboardingDone = prefs.isOnboardingDone()
-
+            val isUserSetupDone = prefs.isUserSetupDone()
             if (!onboardingDone) {
                 startActivity(Intent(this@MainActivity, OnBoardingActivity::class.java))
+                finish() // prevent returning to MainActivity
+                return@launch
+            }else if (!isUserSetupDone){
+                startActivity(Intent(this@MainActivity, UserSetupActivity::class.java))
                 finish() // prevent returning to MainActivity
                 return@launch
             }
