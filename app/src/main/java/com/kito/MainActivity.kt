@@ -4,17 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.kito.data.local.preferences.newpreferences.PrefsRepository
-import com.kito.ui.legacy.screens.AttendanceScreen
-import com.kito.ui.newUi.AppUI
-import com.kito.ui.newUi.screen.AttendanceListScreen
+import com.kito.ui.newUi.MainUI
 import com.kito.ui.theme.KitoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -41,17 +34,8 @@ class MainActivity : ComponentActivity() {
                 return@launch
             }
             setContent {
-                val navController = rememberNavController()
                 KitoTheme() {
-                    // A surface container using the 'background' color from the theme
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    AttendanceApp(context = this)
-//                }
-//                   AppUI(navController)
-                    AttendanceListScreen()
+                    MainUI()
                 }
             }
         }

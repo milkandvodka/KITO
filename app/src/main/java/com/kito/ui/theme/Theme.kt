@@ -32,7 +32,7 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun KitoTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = /*isSystemInDarkTheme()*/true,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
