@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -38,14 +37,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.kito.data.local.preferences.newpreferences.PrefsRepository
 import com.kito.ui.components.BottomNavigationItems
 import com.kito.ui.components.NoRippleInteractionSource
 import com.kito.ui.components.UIColors
 import com.kito.ui.newUi.screen.AttendanceListScreen
 import com.kito.ui.newUi.screen.HomeScreen
 import com.kito.ui.screen.CalendarScreen
-import androidx.compose.runtime.collectAsState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
