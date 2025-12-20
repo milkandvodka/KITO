@@ -97,4 +97,8 @@ dependencies {
 
     //Lottie Animation
     implementation("com.airbnb.android:lottie-compose:6.6.7")
+
+//    //HazeEffect(Frosted Glass)
+//    implementation(libs.haze)
+//    implementation(libs.haze.ma)
 }
