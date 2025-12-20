@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
             }
             setContent {
                 KitoTheme() {
-                    MainUI()
+                    MainUI(prefsRepository = prefs)
                 }
             }
         }
