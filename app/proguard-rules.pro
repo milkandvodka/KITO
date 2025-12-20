@@ -28,11 +28,11 @@
 -keep class com.kito.ui.legacy.viewmodel.AttendanceViewModelFactory
 
 # Keep the SAP portal client with all methods and fields
--keep class com.kito.sap.SapPortalClient { *; }
--keep class com.kito.sap.AttendanceResult { *; }
--keep class com.kito.sap.AttendanceData { *; }
--keep class com.kito.sap.SubjectAttendance { *; }
--keep class com.kito.sap.PersistentCookieJar { *; }
+-keep class com.kito.sap.legacy.SapPortalClient { *; }
+-keep class com.kito.sap.legacy.AttendanceResult { *; }
+-keep class com.kito.sap.legacy.AttendanceData { *; }
+-keep class com.kito.sap.legacy.SubjectAttendance { *; }
+-keep class com.kito.sap.legacy.PersistentCookieJar { *; }
 
 # Keep necessary classes for HTTP requests (OkHttp)
 -keep class okhttp3.** { *; }
