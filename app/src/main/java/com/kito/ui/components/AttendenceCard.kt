@@ -25,72 +25,63 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun AttendanceCard(item: AttendanceItem) {
     val uiColors = UIColors()
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 100.dp)
-            .clip(RoundedCornerShape(14.dp)),
-        colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Title
-            Text(
-                text = item.title,
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.SemiBold,
-                color = uiColors.textPrimary,
-                fontSize = 16.sp
-            )
+    Column(modifier = Modifier.padding(16.dp)) {
+        // Title
+        Text(
+            text = item.title,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.SemiBold,
+            color = uiColors.textPrimary,
+            fontSize = 16.sp
+        )
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-            // Attendance row
-            Text(
-                text = "Attendance: ${item.present}/${item.total}",
-                fontFamily = FontFamily.Monospace,
-                color = uiColors.textSecondary,
-                fontSize = 14.sp
-            )
+        // Attendance row
+        Text(
+            text = "Attendance: ${item.present}/${item.total}",
+            fontFamily = FontFamily.Monospace,
+            color = uiColors.textSecondary,
+            fontSize = 14.sp
+        )
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-            // Progress bar visual (thin purple line like screenshot)
-            val progress = remember(item) {
-                (item.percentage / 100f).coerceIn(0f, 1f)
-            }
-            LinearWavyProgressIndicator(
-                progress = {
-                    progress
-                },
-                color = uiColors.accentOrangeStart,
-                trackColor = uiColors.progressAccent,
-                modifier = Modifier.fillMaxWidth(),
-                amplitude = {
-                    0.8f
-                },
-                waveSpeed = 20.dp,
-                wavelength = 50.dp
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Percentage and faculty
-            Text(
-                text = "Percentage: ${"%.2f".format(item.percentage)}%",
-                fontFamily = FontFamily.Monospace,
-                color = uiColors.textSecondary,
-                fontSize = 14.sp
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "Faculty: ${item.faculty}",
-                fontFamily = FontFamily.Monospace,
-                color = uiColors.textSecondary,
-                fontSize = 14.sp
-            )
+        // Progress bar visual (thin purple line like screenshot)
+        val progress = remember(item) {
+            (item.percentage / 100f).coerceIn(0f, 1f)
         }
+        LinearWavyProgressIndicator(
+            progress = {
+                progress
+            },
+            color = uiColors.accentOrangeStart,
+            trackColor = uiColors.progressAccent,
+            modifier = Modifier.fillMaxWidth(),
+            amplitude = {
+                0.8f
+            },
+            waveSpeed = 20.dp,
+            wavelength = 50.dp
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Percentage and faculty
+        Text(
+            text = "Percentage: ${"%.2f".format(item.percentage)}%",
+            fontFamily = FontFamily.Monospace,
+            color = uiColors.textSecondary,
+            fontSize = 14.sp
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Text(
+            text = "Faculty: ${item.faculty}",
+            fontFamily = FontFamily.Monospace,
+            color = uiColors.textSecondary,
+            fontSize = 14.sp
+        )
     }
 }
