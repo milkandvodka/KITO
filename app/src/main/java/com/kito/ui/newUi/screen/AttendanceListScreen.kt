@@ -19,13 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.ui.components.AttendanceCard
 import com.kito.ui.components.AttendanceItem
 import com.kito.ui.components.UIColors
+import com.kito.ui.newUi.viewmodel.AttendanceViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AttendanceListScreen(
+    viewModel: AttendanceViewModel = hiltViewModel(),
     items: List<AttendanceItem> = sampleAttendance,
     onRefresh: () -> Unit = {}
 ) {
