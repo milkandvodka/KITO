@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,19 +29,25 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import com.kito.data.local.preferences.newpreferences.PrefsRepository
 import com.kito.ui.components.BottomNavigationItems
 import com.kito.ui.components.NoRippleInteractionSource
 import com.kito.ui.components.UIColors
 import com.kito.ui.newUi.screen.AttendanceListScreen
+import com.kito.ui.newUi.screen.HomeScreen
 import com.kito.ui.screen.CalendarScreen
+import androidx.compose.runtime.collectAsState
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun MainUI(){
+fun MainUI(prefsRepository: PrefsRepository){
     val uiColors = UIColors()
     val navigationItems = BottomNavigationItems
     var selected by remember { mutableStateOf(0) }
+    val storedUsername by prefsRepository.usernameFlow
+        .collectAsState(initial = "")
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -56,13 +63,24 @@ fun MainUI(){
                 TopAppBar(
                     title = {
                         Text(
-                            navigationItems[selected].title,
+                            text = if (selected == 0) {
+                                ""
+                            } else {
+                                navigationItems[selected].title
+                            },
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.Medium,
                             color = uiColors.textPrimary
                         )
                     },
                     actions = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notifications",
+                                tint = uiColors.textPrimary
+                            )
+                        }
                         if (selected == 1) {
                             IconButton(onClick = {}) {
                                 Icon(
@@ -77,7 +95,8 @@ fun MainUI(){
                         containerColor = Color.Transparent
                     )
                 )
-            },
+            }
+            ,
             bottomBar = {
                 FlexibleBottomAppBar(
                     containerColor = uiColors.backgroundTop
@@ -92,6 +111,11 @@ fun MainUI(){
                                 onClick = {
                                     selected = index
                                 },
+//                                label = {
+//                                    Text(
+//                                        text = "${item.title}"
+//                                    )
+//                                },
                                 icon = {
                                     Icon(
                                         imageVector = if (isSelected) item.selectedIcon else item.unSelectedIcon,
@@ -113,7 +137,7 @@ fun MainUI(){
             ){
                 when(selected) {
                     0 -> {
-
+                        HomeScreen(username = storedUsername)
                     }
                     1 -> {
                         AttendanceListScreen()
