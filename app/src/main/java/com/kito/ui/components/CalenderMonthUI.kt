@@ -22,13 +22,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
-import dev.chrisbanes.haze.rememberHazeState
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CalendarMonthUI(
     colors: UIColors,
@@ -40,252 +35,146 @@ fun CalendarMonthUI(
         "Thursday", "Friday", "Saturday", "Sunday"
     )
 
-    Box(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp)
+
+        Text(
+            "DEC",
+            color = colors.textPrimary,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
-            Text(
-                "DEC",
-                color = colors.textPrimary,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            val weekDays = listOf("S","M","T","W","T","F","S")
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(7),
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                val weekDays = listOf("S", "M", "T", "W", "T", "F", "S")
-                repeat(7) { index ->
+                items(weekDays){weekDay->
                     Text(
-                        text = weekDays[index],
+                        text = weekDay,
                         color = colors.textSecondary,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.weight(1f).fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
+        }
 
-            Spacer(Modifier.height(8.dp))
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                repeat(6) { row ->
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Row(
-                        modifier = Modifier.weight(1f)
+        Spacer(Modifier.height(8.dp))
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(7),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            items(42) { index ->
+
+                val dayNumber = (index % 31) + 1
+                val dayName = dayNames[index % 7]
+
+                Card(
+                    modifier = Modifier
+                        .heightIn(97.dp),
+                    onClick = {
+                        onDayClick(dayNumber, dayName)
+                    },
+                    shape = RoundedCornerShape(
+                        topStart = if (index == 0) 24.dp else 4.dp,
+                        topEnd = if (index  == 6) 24.dp else 4.dp,
+                        bottomStart = if (index == 35) 24.dp else 4.dp,
+                        bottomEnd = if (index == 41) 24.dp else 4.dp
+                    ),
+                    colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground)
+                ) {
+                    Column(
                     ) {
-                        repeat(7) { col ->
-                            Spacer(modifier = Modifier.width(2.dp))
-                            val index = row * 7 + col
-                            val dayNumber = (index % 31) + 1
-                            val dayName = dayNames[dayNumber % 7]
-
-                            Card(
-                                modifier = Modifier.weight(1f).fillMaxSize(),
-                                onClick = {
-                                    onDayClick(dayNumber, dayName)
-                                },
-                                shape = RoundedCornerShape(
-                                    topStart = if (index == 0) 24.dp else 4.dp,
-                                    topEnd = if (index == 6) 24.dp else 4.dp,
-                                    bottomStart = if (index == 35) 24.dp else 4.dp,
-                                    bottomEnd = if (index == 41) 24.dp else 4.dp
-                                ),
-                                colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground)
-                            ) {
-                                Column(
-                                ) {
-                                    Text(
-                                        text = dayNumber.toString(),
-                                        color = colors.textPrimary,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        textAlign = TextAlign.Center,
-                                        style = MaterialTheme.typography.labelLargeEmphasized,
-                                    )
-                                    if (index % 7 != 0 && index % 7 != 6) {
-                                        repeat(4) {
-                                            Card(
-                                                shape = RoundedCornerShape(
-                                                    topStart = if (it == 0) {
-                                                        6.dp
-                                                    } else {
-                                                        2.dp
-                                                    },
-                                                    topEnd = if (it == 0) {
-                                                        6.dp
-                                                    } else {
-                                                        2.dp
-                                                    },
-                                                    bottomStart = if (it == 4 - 1) {
-                                                        6.dp
-                                                    } else {
-                                                        2.dp
-                                                    },
-                                                    bottomEnd = if (it == 4 - 1) {
-                                                        6.dp
-                                                    } else {
-                                                        2.dp
-                                                    }
-                                                ),
-                                                colors = CardDefaults.cardColors(
-                                                    containerColor = uiColors.cardBackgroundHigh
-                                                ),
-                                                modifier = Modifier.padding(horizontal = 2.dp)
-                                            ) {
-                                                Row(
-                                                    modifier = Modifier.padding(horizontal = 4.dp),
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                ) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .width(3.dp)
-                                                            .height(10.dp)
-                                                            .background(
-                                                                Brush.verticalGradient(
-                                                                    listOf(
-                                                                        colors.accentOrangeStart,
-                                                                        colors.accentOrangeEnd
-                                                                    )
-                                                                ),
-                                                                RoundedCornerShape(2.dp)
-                                                            )
-                                                    )
-                                                    Text(
-                                                        text = "AI",
-                                                        color = colors.textSecondary,
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .padding(start = 2.dp),
-                                                        textAlign = TextAlign.Center,
-                                                        style = MaterialTheme.typography.bodySmallEmphasized,
-                                                        maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis
-                                                    )
-                                                }
-                                            }
-                                            Spacer(modifier = Modifier.height(1.dp))
+                        Text(
+                            text = dayNumber.toString(),
+                            color = colors.textPrimary,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.labelLargeEmphasized,
+                        )
+                        if (index % 7 != 0 && index % 7 != 6) {
+                            repeat(4) {
+                                Card(
+                                    shape = RoundedCornerShape(
+                                        topStart = if (it == 0) {
+                                            6.dp
+                                        } else {
+                                            2.dp
+                                        },
+                                        topEnd = if (it == 0) {
+                                            6.dp
+                                        } else {
+                                            2.dp
+                                        },
+                                        bottomStart = if (it == 4 - 1) {
+                                            6.dp
+                                        } else {
+                                            2.dp
+                                        },
+                                        bottomEnd = if (it == 4 - 1) {
+                                            6.dp
+                                        } else {
+                                            2.dp
                                         }
+                                    ),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = uiColors.cardBackgroundHigh
+                                    ),
+                                    modifier = Modifier.padding(horizontal = 2.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .width(3.dp)
+                                                .height(10.dp)
+                                                .background(
+                                                    Brush.verticalGradient(
+                                                        listOf(
+                                                            colors.accentOrangeStart,
+                                                            colors.accentOrangeEnd
+                                                        )
+                                                    ),
+                                                    RoundedCornerShape(2.dp)
+                                                )
+                                        )
+                                        Text(
+                                            text = "AI",
+                                            color = colors.textSecondary,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 2.dp),
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.bodySmallEmphasized,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
                                     }
                                 }
+                                Spacer(modifier = Modifier.height(1.dp))
                             }
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-//        LazyVerticalGrid(
-//            modifier = Modifier.fillMaxSize(),
-//            columns = GridCells.Fixed(7),
-//            verticalArrangement = Arrangement.spacedBy(2.dp),
-//            horizontalArrangement = Arrangement.spacedBy(2.dp)
-//        ) {
-//            items(42) { index ->
-//
-//                val dayNumber = (index % 31) + 1
-//                val dayName = dayNames[index % 7]
-//
-//                Card(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .aspectRatio(0.55f) ,
-//                    onClick = {
-//                        onDayClick(dayNumber, dayName)
-//                    },
-//                    shape = RoundedCornerShape(
-//                        topStart = if (index == 0) 24.dp else 4.dp,
-//                        topEnd = if (index  == 6) 24.dp else 4.dp,
-//                        bottomStart = if (index == 35) 24.dp else 4.dp,
-//                        bottomEnd = if (index == 41) 24.dp else 4.dp
-//                    ),
-//                    colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground)
-//                ) {
-//                    Column(
-//                    ) {
-//                        Text(
-//                            text = dayNumber.toString(),
-//                            color = colors.textPrimary,
-//                            fontWeight = FontWeight.Bold,
-//                            modifier = Modifier.fillMaxWidth(),
-//                            textAlign = TextAlign.Center,
-//                            style = MaterialTheme.typography.labelLargeEmphasized,
-//                        )
-//                        if (index % 7 != 0 && index % 7 != 6) {
-//                            repeat(4) {
-//                                Card(
-//                                    shape = RoundedCornerShape(
-//                                        topStart = if (it == 0) {
-//                                            6.dp
-//                                        } else {
-//                                            2.dp
-//                                        },
-//                                        topEnd = if (it == 0) {
-//                                            6.dp
-//                                        } else {
-//                                            2.dp
-//                                        },
-//                                        bottomStart = if (it == 4 - 1) {
-//                                            6.dp
-//                                        } else {
-//                                            2.dp
-//                                        },
-//                                        bottomEnd = if (it == 4 - 1) {
-//                                            6.dp
-//                                        } else {
-//                                            2.dp
-//                                        }
-//                                    ),
-//                                    colors = CardDefaults.cardColors(
-//                                        containerColor = uiColors.cardBackgroundHigh
-//                                    ),
-//                                    modifier = Modifier.padding(horizontal = 2.dp)
-//                                ) {
-//                                    Row(
-//                                        modifier = Modifier.padding(horizontal = 4.dp),
-//                                        verticalAlignment = Alignment.CenterVertically,
-//                                    ) {
-//                                        Box(
-//                                            modifier = Modifier
-//                                                .width(3.dp)
-//                                                .height(10.dp)
-//                                                .background(
-//                                                    Brush.verticalGradient(
-//                                                        listOf(
-//                                                            colors.accentOrangeStart,
-//                                                            colors.accentOrangeEnd
-//                                                        )
-//                                                    ),
-//                                                    RoundedCornerShape(2.dp)
-//                                                )
-//                                        )
-//                                        Text(
-//                                            text = "AI",
-//                                            color = colors.textSecondary,
-//                                            modifier = Modifier
-//                                                .fillMaxWidth()
-//                                                .padding(start = 2.dp),
-//                                            textAlign = TextAlign.Center,
-//                                            style = MaterialTheme.typography.bodySmallEmphasized,
-//                                            maxLines = 1,
-//                                            overflow = TextOverflow.Ellipsis
-//                                        )
-//                                    }
-//                                }
-//                                Spacer(modifier = Modifier.height(1.dp))
-//                            }
-//                        }
-//                    }
-//                }
 //                Column(
 //                    modifier = Modifier
 //                        .height(95.dp)
@@ -334,8 +223,7 @@ fun CalendarMonthUI(
 //                        }
 //                    }
 //                }
-//            }
-//        }
+            }
         }
     }
 }
