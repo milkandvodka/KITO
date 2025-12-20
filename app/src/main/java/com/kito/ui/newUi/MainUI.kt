@@ -31,6 +31,7 @@ import com.kito.ui.components.BottomNavigationItems
 import com.kito.ui.components.NoRippleInteractionSource
 import com.kito.ui.components.UIColors
 import com.kito.ui.newUi.screen.AttendanceListScreen
+import com.kito.ui.screen.CalendarScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -110,7 +111,7 @@ fun MainUI(){
                         AttendanceListScreen()
                     }
                     2 -> {
-
+                        CalendarScreen()
                     }
                 }
             }
