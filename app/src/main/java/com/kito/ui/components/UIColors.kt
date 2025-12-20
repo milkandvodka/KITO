@@ -12,5 +12,6 @@ data class UIColors(
     val textSecondary: Color = Color(0xFFCECAD0),
     val progressAccent: Color = Color(0xFF9F5C09),
     val accentOrangeStart: Color = Color(0xFFEA850A),
-    val accentOrangeEnd: Color = Color(0xFFFF6A00)
+    val accentOrangeEnd: Color = Color(0xFFFF6A00),
+    val bottomBarColor: Color = Color(0xFF14131F),
 )
