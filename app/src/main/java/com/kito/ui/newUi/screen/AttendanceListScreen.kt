@@ -33,15 +33,18 @@ fun AttendanceListScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
+        item{
+            Spacer(modifier = Modifier.height(16.dp))
+        }
         itemsIndexed(items) { index,item ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 100.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF261E26)),
+                colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                 shape = RoundedCornerShape(
                     topStart = if (index == 0) 24.dp else 4.dp,
@@ -52,6 +55,9 @@ fun AttendanceListScreen(
             ) {
                 AttendanceCard(item)
             }
+        }
+        item{
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
