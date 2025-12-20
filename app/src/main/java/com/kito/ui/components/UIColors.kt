@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 data class UIColors(
     val backgroundTop: Color = Color(0xFF1A1423),
     val backgroundBottom: Color = Color(0xFF0F0C15),
-    val cardBackground: Color = Color(0xFF2F2A2F),
+    val cardBackground: Color = Color(0xFF261E26),
     val cardSurface: Color = Color(0xFF504953),
     val textPrimary: Color = Color(0xFFF3EFF3),
     val textSecondary: Color = Color(0xFFCECAD0),

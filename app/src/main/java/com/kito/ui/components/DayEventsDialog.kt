@@ -27,7 +27,7 @@ fun DayEventsDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(520.dp)
-                .background(colors.cardSurface, RoundedCornerShape(24.dp))
+                .background(colors.cardBackground, RoundedCornerShape(24.dp))
                 .padding(16.dp)
         ) {
             Column {
