@@ -32,7 +32,7 @@ val BottomNavigationItems = listOf<BottomNavigationModel>(
         unSelectedIcon = Icons.Outlined.CheckCircle,
     ),
     BottomNavigationModel(
-        title = "Calender",
+        title = "KIIT Calender",
         selectedIcon = Icons.Filled.CalendarMonth,
         unSelectedIcon = Icons.Outlined.CalendarMonth
     ),
