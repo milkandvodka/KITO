@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Singleton
 class PrefsRepository @Inject constructor(
@@ -22,7 +24,10 @@ class PrefsRepository @Inject constructor(
         private val KEY_ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
         private val KEY_USER_SETUP_DONE = booleanPreferencesKey("user_setup_done")
     }
-
+    val usernameFlow: Flow<String> =
+        dataStore.data.map { prefs ->
+            prefs[KEY_USERNAME] ?: ""
+        }
     suspend fun isUserSetupDone(): Boolean {
         val prefs = dataStore.data.first()
         return prefs[KEY_USER_SETUP_DONE] ?: false
