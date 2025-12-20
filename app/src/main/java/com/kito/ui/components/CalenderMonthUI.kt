@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,9 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CalendarMonthUI(
     colors: UIColors,
@@ -50,7 +55,7 @@ fun CalendarMonthUI(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            val weekDays = listOf("M","T","W","T","F","S","S")
+            val weekDays = listOf("S","M","T","W","T","F","S")
             LazyVerticalGrid(
                 columns = GridCells.Fixed(7),
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
@@ -95,49 +100,77 @@ fun CalendarMonthUI(
                     colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground)
                 ) {
                     Column(
-                        modifier = Modifier.padding(horizontal = 4.dp)
                     ) {
                         Text(
-                            dayNumber.toString(),
+                            text = dayNumber.toString(),
                             color = colors.textPrimary,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
                             modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.labelLargeEmphasized,
                         )
-
-                        Spacer(Modifier.height(2.dp))
-
-                        repeat(2) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(vertical = 1.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(3.dp)
-                                        .height(10.dp)
-                                        .background(
-                                            Brush.verticalGradient(
-                                                listOf(
-                                                    colors.accentOrangeStart,
-                                                    colors.accentOrangeEnd
+                        if (index % 7 != 0 && index % 7 != 6) {
+                            repeat(4) {
+                                Card(
+                                    shape = RoundedCornerShape(
+                                        topStart = if (it == 0) {
+                                            6.dp
+                                        } else {
+                                            2.dp
+                                        },
+                                        topEnd = if (it == 0) {
+                                            6.dp
+                                        } else {
+                                            2.dp
+                                        },
+                                        bottomStart = if (it == 4 - 1) {
+                                            6.dp
+                                        } else {
+                                            2.dp
+                                        },
+                                        bottomEnd = if (it == 4 - 1) {
+                                            6.dp
+                                        } else {
+                                            2.dp
+                                        }
+                                    ),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = uiColors.cardBackgroundHigh
+                                    ),
+                                    modifier = Modifier.padding(horizontal = 2.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .width(3.dp)
+                                                .height(10.dp)
+                                                .background(
+                                                    Brush.verticalGradient(
+                                                        listOf(
+                                                            colors.accentOrangeStart,
+                                                            colors.accentOrangeEnd
+                                                        )
+                                                    ),
+                                                    RoundedCornerShape(2.dp)
                                                 )
-                                            ),
-                                            RoundedCornerShape(2.dp)
                                         )
-                                )
-
-                                Spacer(Modifier.width(4.dp))
-
-                                Text(
-                                    "AI",
-                                    color = colors.textSecondary,
-                                    fontSize = 10.sp,
-                                    maxLines = 1,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center
-                                )
+                                        Text(
+                                            text = "AI",
+                                            color = colors.textSecondary,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 2.dp),
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.bodySmallEmphasized,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(1.dp))
                             }
                         }
                     }
