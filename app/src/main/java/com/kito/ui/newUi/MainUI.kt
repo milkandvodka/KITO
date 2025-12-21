@@ -1,6 +1,7 @@
 package com.kito.ui.newUi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,8 +9,8 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +23,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -41,6 +43,7 @@ import com.kito.ui.components.BottomNavigationItems
 import com.kito.ui.components.NoRippleInteractionSource
 import com.kito.ui.components.UIColors
 import com.kito.ui.newUi.screen.AttendanceListScreen
+import com.kito.ui.newUi.screen.HomeScreen
 import com.kito.ui.screen.CalendarScreen
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
@@ -58,7 +61,9 @@ fun MainUI() {
     val navigationItems = BottomNavigationItems
     var selected by remember { mutableStateOf(0) }
     val hazeState = rememberHazeState()
-    Box() {
+    var s1 by remember { mutableStateOf(false) }
+    var s2 by remember { mutableStateOf(false) }
+    Surface() {
         Box(
             modifier = Modifier
                 .hazeSource(hazeState)
@@ -71,32 +76,37 @@ fun MainUI() {
         ) {
             Scaffold(
                 containerColor = Color.Transparent,
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                navigationItems[selected].title,
-                                fontFamily = FontFamily.Monospace,
-                                fontWeight = FontWeight.Medium,
-                                color = uiColors.textPrimary
-                            )
-                        },
-                        actions = {
-                            if (selected == 1) {
-                                IconButton(onClick = {}) {
-                                    Icon(
-                                        imageVector = Icons.Default.Refresh,
-                                        contentDescription = "Refresh",
-                                        tint = uiColors.textPrimary
-                                    )
-                                }
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent
-                        )
-                    )
-                },
+//                topBar = {
+//                    TopAppBar(
+//                        title = {
+//                            if (selected != 0) {
+//                                Text(
+//                                    text = navigationItems[selected].title,
+//                                    fontFamily = FontFamily.Monospace,
+//                                    fontWeight = FontWeight.SemiBold,
+//                                    color = uiColors.textPrimary,
+//                                    style = MaterialTheme.typography.titleLargeEmphasized
+//                                )
+//                            }else{
+//
+//                            }
+//                        },
+//                        actions = {
+//                            if (selected == 1) {
+//                                IconButton(onClick = {}) {
+//                                    Icon(
+//                                        imageVector = Icons.Default.Refresh,
+//                                        contentDescription = "Refresh",
+//                                        tint = uiColors.textPrimary
+//                                    )
+//                                }
+//                            }
+//                        },
+//                        colors = TopAppBarDefaults.topAppBarColors(
+//                            containerColor = Color.Transparent
+//                        )
+//                    )
+//                },
                 bottomBar = {
                     FlexibleBottomAppBar(
                         containerColor = uiColors.bottomBarColor
@@ -132,7 +142,7 @@ fun MainUI() {
                 ) {
                     when (selected) {
                         0 -> {
-
+                            HomeScreen()
                         }
 
                         1 -> {
@@ -146,13 +156,13 @@ fun MainUI() {
                 }
             }
         }
-        if (selected == 1){
+        if (selected == 1 && !s1){
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.padding(
                     bottom = WindowInsets.navigationBars.asPaddingValues()
                         .calculateBottomPadding() + 63.dp,
-                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 65.dp
+                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 60.dp
                 )
             ) {
                 Box(
@@ -161,7 +171,9 @@ fun MainUI() {
                         .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())
                 )
                 Button(
-                    onClick = {},
+                    onClick = {
+                        s1 = true
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = uiColors.progressAccent,
                         contentColor = uiColors.textPrimary
@@ -173,7 +185,7 @@ fun MainUI() {
                 }
             }
         }
-        if (selected == 2)
+        if (selected == 2 && !s2)
             Box(
                 contentAlignment = Alignment.Center,
             ) {
@@ -186,13 +198,28 @@ fun MainUI() {
                         )
                         .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())
                 )
-                Text(
-                    text = "KIIT Calendar Coming Soon.....",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleLargeEmphasized,
-                    modifier = Modifier.padding(12.dp),
-                    fontWeight = FontWeight.Bold
-                )
+                Column() {
+                    Text(
+                        text = "KIIT Calendar Coming Soon.....",
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleLargeEmphasized,
+                        modifier = Modifier.padding(12.dp),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Button(
+                        onClick = {
+                            s2 = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = uiColors.progressAccent,
+                            contentColor = uiColors.textPrimary
+                        )
+                    ) {
+                        Text(
+                            text = "Temp Button",
+                        )
+                    }
+                }
             }
     }
 }
