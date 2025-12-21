@@ -1,16 +1,23 @@
 package com.kito.sap
 
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
+import com.kito.BuildConfig
+import com.kito.sap.sensitive.SapPortalHeaders
+import com.kito.sap.sensitive.SapPortalHtmlParser
+import com.kito.sap.sensitive.SapPortalParams
+import com.kito.sap.sensitive.SapPortalTokenExtractor
+import com.kito.sap.sensitive.SapPortalUrls
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.FormBody
+import okhttp3.HttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import org.jsoup.Jsoup
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-import com.kito.BuildConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import com.kito.security.StringEncryption
-import com.kito.sap.sensitive.*
 
 class SapPortalClient {
 
