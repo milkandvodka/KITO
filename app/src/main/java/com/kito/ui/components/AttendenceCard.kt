@@ -1,5 +1,8 @@
 package com.kito.ui.components
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +16,11 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
@@ -23,8 +30,23 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AttendanceCard(item: AttendanceItem) {
+fun OverallAttendanceCard(item: AttendanceItem) {
     val uiColors = UIColors()
+    var targetProgress by remember { mutableFloatStateOf(0f) }
+
+    val progress by animateFloatAsState(
+        targetValue = targetProgress,
+        animationSpec = tween(
+            durationMillis = 1000,
+            easing = FastOutSlowInEasing
+        ),
+        label = "attendance"
+    )
+
+    // 👇 This triggers the animation ONCE
+    LaunchedEffect(Unit) {
+        targetProgress = (item.percentage / 100f).coerceIn(0f, 1f)
+    }
     Column(modifier = Modifier.padding(16.dp)) {
         // Title
         Text(
@@ -47,10 +69,6 @@ fun AttendanceCard(item: AttendanceItem) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Progress bar visual (thin purple line like screenshot)
-        val progress = remember(item) {
-            (item.percentage / 100f).coerceIn(0f, 1f)
-        }
         LinearWavyProgressIndicator(
             progress = {
                 progress
