@@ -4,8 +4,17 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularWavyProgressIndicator
@@ -20,13 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-
-data class DashboardCardData(
-    val title: String,
-    val subtitle: String
-)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -55,7 +62,16 @@ fun OverallAttendanceCard(
                 ratio = 1f
             )
             .fillMaxSize()
-            .background(color = colors.cardBackground, RoundedCornerShape(26.dp))
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xfffffff),
+                        Color(0xFFB45104)
+                    ),
+                    tileMode = TileMode.Mirror
+                ),
+                shape = RoundedCornerShape(26.dp)
+            )
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -92,7 +108,7 @@ fun OverallAttendanceCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .background(color = colors.accentOrangeStart ,shape = CircleShape)
+                        .background(color = colors.accentOrangeStart, shape = CircleShape)
                         .size(12.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -104,7 +120,7 @@ fun OverallAttendanceCard(
                 Spacer(modifier = Modifier.width(24.dp))
                 Box(
                     modifier = Modifier
-                        .background(color = colors.progressAccent ,shape = CircleShape)
+                        .background(color = colors.progressAccent, shape = CircleShape)
                         .size(12.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
