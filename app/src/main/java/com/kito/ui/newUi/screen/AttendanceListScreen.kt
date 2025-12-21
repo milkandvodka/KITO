@@ -39,7 +39,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.ui.components.AttendanceItem
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.UIColors
-import com.kito.ui.newUi.viewmodel.AttendanceViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
 import dev.chrisbanes.haze.hazeEffect
@@ -53,7 +52,6 @@ import dev.chrisbanes.haze.rememberHazeState
 )
 @Composable
 fun AttendanceListScreen(
-    viewModel: AttendanceViewModel = hiltViewModel(),
     items: List<AttendanceItem> = sampleAttendance,
     onRefresh: () -> Unit = {}
 ) {
