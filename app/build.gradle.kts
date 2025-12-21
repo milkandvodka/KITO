@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -101,4 +102,15 @@ dependencies {
     //HazeEffect(Frosted Glass)
     implementation(libs.haze)
     implementation(libs.haze.materials)
+
+    //Glance
+    implementation("androidx.glance:glance-appwidget:1.1.1")
+    // For interop APIs with Material 3
+    implementation("androidx.glance:glance-material3:1.1.1")
+    // For interop APIs with Material 2
+    implementation("androidx.glance:glance-material:1.1.1")
+
+    //composeNavigation
+    implementation(libs.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
 }
