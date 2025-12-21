@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.rememberNavController
 import com.kito.data.local.preferences.newpreferences.PrefsRepository
 import com.kito.ui.newUi.MainUI
 import com.kito.ui.theme.KitoTheme

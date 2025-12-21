@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -36,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kito.MainActivity
@@ -50,14 +54,15 @@ fun UserSetupScreen(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    var Name by rememberSaveable { mutableStateOf("") }
-    var username by rememberSaveable { mutableStateOf("") }
-
+    var name by rememberSaveable { mutableStateOf("") }
+    var kiitRollNumber by rememberSaveable { mutableStateOf("") }
+    var sapPassword by rememberSaveable { mutableStateOf("")}
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 24.dp)
+            .imePadding()
     ) {
         LazyColumn(
             modifier = Modifier,
@@ -77,8 +82,8 @@ fun UserSetupScreen(
             //Name
             item {
                 OutlinedTextField(
-                    value = Name,
-                    onValueChange = { Name = it },
+                    value = name,
+                    onValueChange = { name = it },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(18.dp),
@@ -102,15 +107,58 @@ fun UserSetupScreen(
             // Username
             item {
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
+                    value = kiitRollNumber,
+                    onValueChange = { input ->
+                        kiitRollNumber = input.filter { it.isDigit() }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(18.dp),
+                    leadingIcon = {
+                        Icon(
+                            Icons.Filled.Badge,
+                            contentDescription = null,
+                            tint = Color(0xFFB8B2BC)
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "KIIT Roll Number",
+                            fontFamily = FontFamily.Monospace
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFFFF8C00),
+                        unfocusedBorderColor = Color(0xFF3F3942),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        disabledTextColor = Color.White,
+                        errorTextColor = Color.White,
+                        focusedLabelColor = Color(0xFFFF8C00),
+                        cursorColor = Color(0xFFFF8C00)
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+                Spacer(Modifier.height(12.dp))
+            }
+            item {
+                OutlinedTextField(
+                    value = sapPassword,
+                    onValueChange = { sapPassword = it },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(18.dp),
                     leadingIcon = {
                         Icon(Icons.Filled.Lock, contentDescription = null, tint = Color(0xFFB8B2BC))
                     },
-                    label = { Text(text = "Username",fontFamily = FontFamily.Monospace) },
+                    label = {
+                        Text(
+                            text = "SAP Password (Optional)",
+                            fontFamily = FontFamily.Monospace
+                        )
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFFFF8C00),
                         unfocusedBorderColor = Color(0xFF3F3942),
@@ -140,7 +188,7 @@ fun UserSetupScreen(
                             (context as? UserSetupActivity)?.finish()
                         }
                     },
-                    enabled = if (username.isNotBlank() && Name.isNotBlank()) true else false,
+                    enabled = if (name.isNotBlank() && kiitRollNumber.isNotBlank() && kiitRollNumber.length > 6) true else false,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp)
@@ -156,13 +204,17 @@ fun UserSetupScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(if (username.isNotBlank() && Name.isNotBlank()) loginGradient else disabledGradient),
+                            .background(if (kiitRollNumber.isNotBlank() && name.isNotBlank() && kiitRollNumber.length > 6) loginGradient else disabledGradient),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Login & Sync Attendance",
+                            text = if (sapPassword.isEmpty()){
+                                "Get Started"
+                            }else{
+                                "Sync Attendance and Get Started"
+                            },
                             fontFamily = FontFamily.Monospace,
-                            color = if (username.isNotBlank() && Name.isNotBlank()) Color.White else Color(0xFFC2927F),
+                            color = if (kiitRollNumber.isNotBlank() && name.isNotBlank() && kiitRollNumber.length > 6) Color.White else Color(0xFFC2927F),
                             fontWeight = FontWeight.Medium
                         )
                     }
