@@ -46,8 +46,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.datastore.dataStore
-import com.kito.MainActivity
 import com.kito.OnBoardingActivity
 import com.kito.UserSetupActivity
 import com.kito.data.local.preferences.newpreferences.PrefsRepository
