@@ -1,6 +1,7 @@
 package com.kito.ui.newUi.screen
 
 import android.content.Intent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,20 +39,22 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.MainActivity
+import com.kito.R
 import com.kito.UserSetupActivity
-import com.kito.data.local.preferences.newpreferences.PrefsRepository
+import com.kito.ui.newUi.viewmodel.UserSetupViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserSetupScreen(
-    prefsRepository: PrefsRepository
+    userSetupViewModel: UserSetupViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -68,16 +72,16 @@ fun UserSetupScreen(
             modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            item {
-                Text(
-                    text = "KITO",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 26.sp,
-                    fontFamily = FontFamily.Monospace
+            item{
+                Image(
+                    painter = painterResource(
+                        R.drawable.e_labs_logo
+                    ),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(120.dp)
                 )
-                Spacer(Modifier.height(30.dp))
+                Spacer(Modifier.height(16.dp))
             }
             //Name
             item {
@@ -183,7 +187,12 @@ fun UserSetupScreen(
                 Button(
                     onClick = {
                         scope.launch {
-                            prefsRepository.setUserSetupDone()
+                            if (sapPassword.isNotEmpty()){
+                                userSetupViewModel.setSapPassword(sapPassword)
+                            }
+                            userSetupViewModel.setUserName(name)
+                            userSetupViewModel.setUserRoll(kiitRollNumber)
+                            userSetupViewModel.setUserSetupDone()
                             context.startActivity(Intent(context, MainActivity::class.java))
                             (context as? UserSetupActivity)?.finish()
                         }

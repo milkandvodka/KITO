@@ -79,6 +79,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+//    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
 
     // if using Compose BOM, keep versions aligned
     implementation("androidx.compose.material:material-icons-extended")

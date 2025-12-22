@@ -3,6 +3,7 @@ package com.kito.ui.newUi.screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,21 +24,31 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.kito.R
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.UpcomingEventCard
+import com.kito.ui.newUi.viewmodel.HomeViewmodel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
+    viewmodel: HomeViewmodel = hiltViewModel()
 ) {
     val uiColors = UIColors()
+    val name by viewmodel.name.collectAsState()
+    val sapLoggedIn by viewmodel.sapLoggedIn.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,10 +56,15 @@ fun HomeScreen(
     ) {
         LazyColumn() {
             item {
-                Spacer(modifier = Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()))
+                Spacer(
+                    modifier = Modifier.height(
+                        8.dp + WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                    )
+                )
             }
             item {
                 Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
@@ -60,14 +76,27 @@ fun HomeScreen(
                             color = uiColors.progressAccent,
                             fontWeight = FontWeight.SemiBold,
                             fontFamily = FontFamily.Monospace,
-                            style = MaterialTheme.typography.titleLargeEmphasized
+                            style = MaterialTheme.typography.titleMediumEmphasized
                         )
                         Text(
-                            text = "Pratyusha 👋",
+                            text = "${name.trim().substringBefore(" ")} 👋",
                             color = uiColors.textPrimary,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Monospace,
-                            style = MaterialTheme.typography.displaySmallEmphasized
+                            style = MaterialTheme.typography.headlineLargeEmphasized,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+
+                        },
+                        modifier = Modifier.size(60.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.e_labs_logo),
+                            contentDescription = "Logo",
                         )
                     }
                 }
@@ -149,7 +178,8 @@ fun HomeScreen(
             // Horizontal Cards
             item {
                 OverallAttendanceCard(
-                    colors = uiColors
+                    colors = uiColors,
+                    sapLoggedIn = sapLoggedIn
                 )
             }
             if (false) {
@@ -201,7 +231,11 @@ fun HomeScreen(
             }
 
             item {
-                Spacer(Modifier.height(8.dp))
+                Spacer(
+                    modifier = Modifier.height(
+                        66.dp + WindowInsets.statusBars.asPaddingValues().calculateBottomPadding()
+                    )
+                )
             }
         }
     }
