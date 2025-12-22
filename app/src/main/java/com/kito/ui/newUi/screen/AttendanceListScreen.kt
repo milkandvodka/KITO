@@ -35,7 +35,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.ui.components.AttendanceItem
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.UIColors
@@ -118,7 +117,7 @@ fun AttendanceListScreen(
                 color = uiColors.textPrimary,
                 style = MaterialTheme.typography.titleLargeEmphasized
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
         if (login) {
             Box(
@@ -151,7 +150,6 @@ fun AttendanceListScreen(
                         }
                 )
 
-                // 2️⃣ Foreground content (receives clicks)
                 Button(
                     onClick = { login = false },
                     modifier = Modifier.align(Alignment.Center),

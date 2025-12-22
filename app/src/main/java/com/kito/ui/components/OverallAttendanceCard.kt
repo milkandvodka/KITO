@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -29,16 +31,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
+import dev.chrisbanes.haze.rememberHazeState
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeMaterialsApi::class,
+    ExperimentalHazeApi::class
+)
 @Composable
 fun OverallAttendanceCard(
-    colors: UIColors
+    colors: UIColors,
+    sapLoggedIn: Boolean
 ) {
     var targetProgress by remember { mutableFloatStateOf(0f) }
 
@@ -51,84 +64,125 @@ fun OverallAttendanceCard(
         label = "attendance"
     )
 
+    val hazeEffect = rememberHazeState()
+
     // 👇 This triggers the animation ONCE
     LaunchedEffect(Unit) {
         targetProgress = 0.9f
     }
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .aspectRatio(
-                ratio = 1f
-            )
-            .fillMaxSize()
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xfffffff),
-                        Color(0xFFB45104)
-                    ),
-                    tileMode = TileMode.Mirror
-                ),
-                shape = RoundedCornerShape(26.dp)
-            )
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+    Box() {
+        Box(
+            modifier = Modifier.hazeSource(hazeEffect)
         ) {
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize(),
                 contentAlignment = Alignment.Center,
-            ) {
-                CircularWavyProgressIndicator(
-                    progress = {
-                        progress
-                    },
-                    modifier = Modifier
-                        .size(200.dp),
-                    waveSpeed = 20.dp,
-                    wavelength = 80.dp,
-                    color = colors.accentOrangeStart,
-                    trackColor = colors.progressAccent
-                )
-                Text(
-                    text = "${(progress * 100).toInt()}%",
-                    fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.displaySmallEmphasized
-                )
-            }
-            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                    .aspectRatio(
+                        ratio = 1f
+                    )
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xfffffff),
+                                Color(0xFFB45104)
+                            ),
+                            tileMode = TileMode.Mirror
+                        ),
+                        shape = RoundedCornerShape(26.dp)
+                    )
             ) {
-                Box(
-                    modifier = Modifier
-                        .background(color = colors.accentOrangeStart, shape = CircleShape)
-                        .size(12.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Attended",
-                    fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.labelLargeEmphasized
-                )
-                Spacer(modifier = Modifier.width(24.dp))
-                Box(
-                    modifier = Modifier
-                        .background(color = colors.progressAccent, shape = CircleShape)
-                        .size(12.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Not Attended",
-                    fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.labelLargeEmphasized
-                )
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularWavyProgressIndicator(
+                            progress = {
+                                progress
+                            },
+                            modifier = Modifier
+                                .size(200.dp),
+                            waveSpeed = 20.dp,
+                            wavelength = 80.dp,
+                            color = colors.accentOrangeStart,
+                            trackColor = colors.progressAccent
+                        )
+                        Text(
+                            text = "${(progress * 100).toInt()}%",
+                            fontFamily = FontFamily.Monospace,
+                            style = MaterialTheme.typography.displaySmallEmphasized
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .background(color = colors.accentOrangeStart, shape = CircleShape)
+                                .size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Attended",
+                            fontFamily = FontFamily.Monospace,
+                            style = MaterialTheme.typography.labelLargeEmphasized
+                        )
+                        Spacer(modifier = Modifier.width(24.dp))
+                        Box(
+                            modifier = Modifier
+                                .background(color = colors.progressAccent, shape = CircleShape)
+                                .size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Not Attended",
+                            fontFamily = FontFamily.Monospace,
+                            style = MaterialTheme.typography.labelLargeEmphasized
+                        )
+                    }
+                }
+            }
+        }
+        if (!sapLoggedIn) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .aspectRatio(
+                        ratio = 1f
+                    )
+                    .fillMaxSize()
+                    .clip(
+                        shape = RoundedCornerShape(26.dp)
+                    )
+                    .hazeEffect(state = hazeEffect, style = HazeMaterials.ultraThin()) {
+                        blurRadius = 15.dp
+                        noiseFactor = 0.05f
+                        inputScale = HazeInputScale.Auto
+                    }
+            ) {
+                Button(
+                    onClick = { },
+                    modifier = Modifier.align(Alignment.Center),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.progressAccent,
+                        contentColor = colors.textPrimary
+                    )
+                ) {
+                    Text(
+                        text = "Connect to sap",
+                        fontFamily = FontFamily.Monospace,
+                        style = MaterialTheme.typography.labelMediumEmphasized
+                    )
+                }
             }
         }
     }
