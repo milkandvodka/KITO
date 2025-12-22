@@ -5,9 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,11 +21,32 @@ class PrefsRepository @Inject constructor(
 
         private val KEY_ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
         private val KEY_USER_SETUP_DONE = booleanPreferencesKey("user_setup_done")
+        private val KEY_USER_NAME = stringPreferencesKey("user_name")
+        private val KEY_USER_ROLLNUMBER = stringPreferencesKey("User_Password")
+        private val KEY_SAP_PASSWORD = stringPreferencesKey("Sap_Password")
     }
-    val usernameFlow: Flow<String> =
-        dataStore.data.map { prefs ->
-            prefs[KEY_USERNAME] ?: ""
-        }
+
+    suspend fun getUserName(): String {
+        val prefs = dataStore.data.first()
+        return prefs[KEY_USER_NAME] ?: ""
+    }
+    suspend fun setUserName(username: String) {
+        dataStore.edit { it[KEY_USER_NAME] = username }
+    }
+    suspend fun getUserPassword(): String {
+        val prefs = dataStore.data.first()
+        return prefs[KEY_USER_ROLLNUMBER] ?: ""
+    }
+    suspend fun setUserPassword(password: String) {
+        dataStore.edit { it[KEY_USER_ROLLNUMBER] = password }
+    }
+    suspend fun getSapPassword(): String {
+        val prefs = dataStore.data.first()
+        return prefs[KEY_SAP_PASSWORD] ?: ""
+    }
+    suspend fun setSapPassword(password: String) {
+        dataStore.edit { it[KEY_SAP_PASSWORD] = password }
+    }
     suspend fun isUserSetupDone(): Boolean {
         val prefs = dataStore.data.first()
         return prefs[KEY_USER_SETUP_DONE] ?: false

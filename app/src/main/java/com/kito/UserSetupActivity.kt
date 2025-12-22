@@ -8,16 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import com.kito.data.local.preferences.newpreferences.PrefsRepository
 import com.kito.ui.newUi.screen.UserSetupScreen
 import com.kito.ui.theme.KitoTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class UserSetupActivity : ComponentActivity() {
-    @Inject
-    lateinit var prefs: PrefsRepository
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -32,7 +28,7 @@ class UserSetupActivity : ComponentActivity() {
                         )
                     )
                 ) {
-                    UserSetupScreen(prefs)
+                    UserSetupScreen()
                 }
             }
         }
