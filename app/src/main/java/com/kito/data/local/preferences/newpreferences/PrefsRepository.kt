@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,6 +27,25 @@ class PrefsRepository @Inject constructor(
         private val KEY_SAP_PASSWORD = stringPreferencesKey("Sap_Password")
     }
 
+    val userNameFlow = dataStore.data
+        .map { it[KEY_USER_NAME] ?: "" }
+
+    val userRollFlow = dataStore.data
+        .map { it[KEY_USER_ROLLNUMBER] ?: "" }
+
+    val sapPasswordFlow = dataStore.data
+        .map { it[KEY_SAP_PASSWORD] ?: "" }
+
+    val sapLoggedInFlow = sapPasswordFlow
+        .map { it.isNotEmpty() }
+
+    val academicYearFlow = dataStore.data
+        .map { it[KEY_ACADEMIC_YEAR] ?: "" }
+
+    val termCodeFlow = dataStore.data
+        .map { it[KEY_TERM_CODE] ?: "" }
+
+
     suspend fun getUserName(): String {
         val prefs = dataStore.data.first()
         return prefs[KEY_USER_NAME] ?: ""
@@ -33,12 +53,12 @@ class PrefsRepository @Inject constructor(
     suspend fun setUserName(username: String) {
         dataStore.edit { it[KEY_USER_NAME] = username }
     }
-    suspend fun getUserPassword(): String {
+    suspend fun getUserROllNumber(): String {
         val prefs = dataStore.data.first()
         return prefs[KEY_USER_ROLLNUMBER] ?: ""
     }
-    suspend fun setUserPassword(password: String) {
-        dataStore.edit { it[KEY_USER_ROLLNUMBER] = password }
+    suspend fun setUserRollNumber(rollNumber: String) {
+        dataStore.edit { it[KEY_USER_ROLLNUMBER] = rollNumber }
     }
     suspend fun getSapPassword(): String {
         val prefs = dataStore.data.first()
