@@ -25,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,9 +36,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.kito.data.local.db.attendance.toAttendanceEntity
+import com.kito.sap.SubjectAttendance
+import com.kito.ui.components.AttendanceCard
 import com.kito.ui.components.AttendanceItem
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.UIColors
+import com.kito.ui.newUi.viewmodel.AttendanceListScreenViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
 import dev.chrisbanes.haze.hazeEffect
@@ -51,12 +57,13 @@ import dev.chrisbanes.haze.rememberHazeState
 )
 @Composable
 fun AttendanceListScreen(
-    items: List<AttendanceItem> = sampleAttendance,
+    viewModel: AttendanceListScreenViewModel = hiltViewModel(),
     onRefresh: () -> Unit = {}
 ) {
-    var login by remember { mutableStateOf(true) }
     val uiColors = UIColors()
     val hazeState = rememberHazeState()
+    val attendance by viewModel.attendance.collectAsState()
+    val sapLoggedIn by viewModel.sapLoggedIn.collectAsState()
     Box() {
         LazyColumn(
             contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 46.dp),
@@ -69,29 +76,63 @@ fun AttendanceListScreen(
             item {
                 Spacer(modifier = Modifier.height(16.dp))
             }
-            itemsIndexed(items) { index, item ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 100.dp),
-                    colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                    shape = RoundedCornerShape(
-                        topStart = if (index == 0) 24.dp else 4.dp,
-                        topEnd = if (index == 0) 24.dp else 4.dp,
-                        bottomStart = if (index == items.size - 1) 24.dp else 4.dp,
-                        bottomEnd = if (index == items.size - 1) 24.dp else 4.dp
-                    )
-                ) {
-                    OverallAttendanceCard(item)
+            if(sapLoggedIn) {
+                itemsIndexed(attendance) { index, item ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 100.dp),
+                        colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                        shape = RoundedCornerShape(
+                            topStart = if (index == 0) 24.dp else 4.dp,
+                            topEnd = if (index == 0) 24.dp else 4.dp,
+                            bottomStart = if (index == attendance.size - 1) 24.dp else 4.dp,
+                            bottomEnd = if (index == attendance.size - 1) 24.dp else 4.dp
+                        )
+                    ) {
+                        AttendanceCard(item)
+                    }
                 }
-            }
-            item {
-                Spacer(
-                    modifier = Modifier.height(
-                        66.dp + WindowInsets.statusBars.asPaddingValues().calculateBottomPadding()
+                item {
+                    Spacer(
+                        modifier = Modifier.height(
+                            66.dp + WindowInsets.statusBars.asPaddingValues()
+                                .calculateBottomPadding()
+                        )
                     )
-                )
+                }
+            }else{
+                itemsIndexed(sampleAttendance.map {
+                    it.toAttendanceEntity(
+                        year = "2025",
+                        term = "1"
+                    )
+                }) { index, item ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 100.dp),
+                        colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                        shape = RoundedCornerShape(
+                            topStart = if (index == 0) 24.dp else 4.dp,
+                            topEnd = if (index == 0) 24.dp else 4.dp,
+                            bottomStart = if (index == attendance.size - 1) 24.dp else 4.dp,
+                            bottomEnd = if (index == attendance.size - 1) 24.dp else 4.dp
+                        )
+                    ) {
+                        AttendanceCard(item)
+                    }
+                }
+                item {
+                    Spacer(
+                        modifier = Modifier.height(
+                            66.dp + WindowInsets.statusBars.asPaddingValues()
+                                .calculateBottomPadding()
+                        )
+                    )
+                }
             }
         }
         Column(
@@ -119,7 +160,7 @@ fun AttendanceListScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
         }
-        if (login) {
+        if (!sapLoggedIn) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -151,7 +192,9 @@ fun AttendanceListScreen(
                 )
 
                 Button(
-                    onClick = { login = false },
+                    onClick = {
+
+                    },
                     modifier = Modifier.align(Alignment.Center),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = uiColors.progressAccent,
@@ -168,13 +211,45 @@ fun AttendanceListScreen(
         }
     }
 }
-
-// ---------- Sample preview data (use in preview or call the composable) ----------
-val sampleAttendance = listOf(
-    AttendanceItem("Data Mining and Data Warehousing", 4, 41, "Amiya Ranjan Panda"),
-    AttendanceItem("Engineering Economics", 4, 39, "Arvind Kumar Yadav"),
-    AttendanceItem("Design and Analysis of Algorithms", 1, 41, "Partha Sarathi Paul"),
-    AttendanceItem("Software Engineering", 24, 52, "Ipsita Paul"),
-    AttendanceItem("Computer Networks", 10, 40, "Nitin Varyani"),
-    AttendanceItem("Algorithms Laboratory", 0, 14, "Partha Sarathi Paul")
+private val sampleAttendance = listOf(
+    SubjectAttendance(
+        subjectCode = "00F4",
+        subjectName = "Data Mining and Data Warehousing",
+        attendedClasses = 4,
+        totalClasses = 41,
+        percentage = (4.0 / 41) * 100,
+        facultyName = "Amiya Ranjan Panda"
+    ),
+    SubjectAttendance(
+        subjectCode = "00F5",
+        subjectName = "Engineering Economics",
+        attendedClasses = 4,
+        totalClasses = 39,
+        percentage = (4.0 / 39) * 100,
+        facultyName = "Arvind Kumar Yadav"
+    ),
+    SubjectAttendance(
+        subjectCode = "00F6",
+        subjectName = "Design and Analysis of Algorithms",
+        attendedClasses = 1,
+        totalClasses = 41,
+        percentage = (1.0 / 41) * 100,
+        facultyName = "Partha Sarathi Paul"
+    ),
+    SubjectAttendance(
+        subjectCode = "00F7",
+        subjectName = "Software Engineering",
+        attendedClasses = 24,
+        totalClasses = 52,
+        percentage = (24.0 / 52) * 100,
+        facultyName = "Ipsita Paul"
+    ),
+    SubjectAttendance(
+        subjectCode = "00F8",
+        subjectName = "Computer Networks",
+        attendedClasses = 10,
+        totalClasses = 40,
+        percentage = (10.0 / 40) * 100,
+        facultyName = "Nitin Varyani"
+    )
 )

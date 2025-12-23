@@ -5,10 +5,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -20,22 +24,47 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.glance.appwidget.lazy.LazyColumn
+import com.kito.data.local.db.studentsection.StudentSectionEntity
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ScheduleCard(colors: UIColors) {
-    Column(
+fun ScheduleCard(
+    colors: UIColors,
+    schedule: List<StudentSectionEntity>
+) {
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
+            .height(205.dp)
             .background(
                 colors.cardBackground,
                 RoundedCornerShape(22.dp)
             )
             .padding( horizontal = 16.dp, vertical = 8.dp)
     ) {
-        ScheduleItem("AI A-201", "8:00 - 8:30", colors)
-        ScheduleItem("ML B-102", "8:30 - 9:00", colors)
-        ScheduleItem("UHV C-101", "10:00 - 10:30", colors)
-        ScheduleItem("Extra", "12:00 - 12:30", colors)
+        if(schedule.isNotEmpty()) {
+            items(schedule) { schedule ->
+                ScheduleItem(
+                    schedule.subject,
+                    "${schedule.startTime} - ${schedule.endTime}",
+                    colors
+                )
+            }
+        }else{
+            item {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxWidth().fillParentMaxHeight()
+                ){
+                    Text(
+                        text = "No Class Today",
+                        fontFamily = FontFamily.Monospace,
+                        style = MaterialTheme.typography.labelMediumEmphasized
+                    )
+                }
+            }
+        }
     }
 }
 

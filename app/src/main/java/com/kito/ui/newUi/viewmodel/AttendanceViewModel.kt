@@ -18,10 +18,6 @@ class AttendanceViewModel @Inject constructor(
 ) : ViewModel(){
     private val sapClient = SapPortalClient()
 
-    private val _uiState = mutableStateOf<UiState>(UiState.Loading)
-    val uiState: UiState
-        get() = _uiState.value
-
     init {
         viewModelScope.launch {
             checkForSavedCredentials()
@@ -37,7 +33,7 @@ class AttendanceViewModel @Inject constructor(
             val term = prefs.getTermCode()
             login(username, password, year, term, autoLogin = true)
         } else {
-            _uiState.value = UiState.Login
+//            _uiState.value = UiState.Login
         }
     }
 
@@ -49,7 +45,7 @@ class AttendanceViewModel @Inject constructor(
         autoLogin: Boolean = false
     ) {
         viewModelScope.launch {
-            _uiState.value = UiState.Loading
+//            _uiState.value = UiState.Loading
 
             try {
                 val yearToUse = academicYear.ifEmpty { "" }
@@ -65,13 +61,13 @@ class AttendanceViewModel @Inject constructor(
 //                        _uiState.value = UiState.Attendance(result.data)
                     }
                     is AttendanceResult.Error -> {
-                        _uiState.value = UiState.Error(result.message)
+//                        _uiState.value = UiState.Error(result.message)
                     }
 
                     else -> {}
                 }
             } catch (e: Exception) {
-                _uiState.value = UiState.Error("Error: ${e.message}")
+//                _uiState.value = UiState.Error("Error: ${e.message}")
             }
         }
     }
@@ -80,7 +76,7 @@ class AttendanceViewModel @Inject constructor(
         viewModelScope.launch {
             prefs.clearCredentials()
         }
-        _uiState.value = UiState.Login
+//        _uiState.value = UiState.Login
     }
 
     fun changeYearOrSession() {
@@ -89,37 +85,37 @@ class AttendanceViewModel @Inject constructor(
             val username = prefs.getUsername()
             val password = prefs.getPassword()
             prefs.clearYearAndSession()  // Clear only year and session
-            _uiState.value = UiState.YearSessionChange(storedUsername = username, storedPassword = password)
+//            _uiState.value = UiState.YearSessionChange(storedUsername = username, storedPassword = password)
         }
     }
 
     fun handleRetry(context: Context) {
         viewModelScope.launch {
             // Check if this is a login error vs attendance fetching error
-            val currentState = _uiState.value
-            if (currentState is UiState.Error) {
-                val errorMessage = currentState.message
-                val isLoginError = errorMessage.contains("Invalid credentials") ||
-                        errorMessage.contains("authentication failed") ||
-                        errorMessage.contains("Failed to load login page")
-
-                if (isLoginError) {
-                    // For login errors, just show the login screen again (no auto-retry with bad creds)
-                    _uiState.value = UiState.Login
-                } else {
-                    // For attendance fetching errors, try to re-fetch with stored credentials
-                    val username = prefs.getUsername()
-                    val password = prefs.getPassword()
-                    val year = prefs.getAcademicYear()
-                    val term = prefs.getTermCode()
-                    if (username.isNotEmpty() && password.isNotEmpty()) {
-                        login(username, password, year, term, autoLogin = true)
-                    } else {
-                        // If no stored credentials, go back to login
-                        _uiState.value = UiState.Login
-                    }
-                }
-            }
+//            val currentState = _uiState.value
+//            if (currentState is UiState.Error) {
+//                val errorMessage = currentState.message
+//                val isLoginError = errorMessage.contains("Invalid credentials") ||
+//                        errorMessage.contains("authentication failed") ||
+//                        errorMessage.contains("Failed to load login page")
+//
+//                if (isLoginError) {
+//                    // For login errors, just show the login screen again (no auto-retry with bad creds)
+//                    _uiState.value = UiState.Login
+//                } else {
+//                    // For attendance fetching errors, try to re-fetch with stored credentials
+//                    val username = prefs.getUsername()
+//                    val password = prefs.getPassword()
+//                    val year = prefs.getAcademicYear()
+//                    val term = prefs.getTermCode()
+//                    if (username.isNotEmpty() && password.isNotEmpty()) {
+//                        login(username, password, year, term, autoLogin = true)
+//                    } else {
+//                        // If no stored credentials, go back to login
+//                        _uiState.value = UiState.Login
+//                    }
+//                }
+//            }
         }
     }
 

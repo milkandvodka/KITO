@@ -54,31 +54,10 @@ fun MainUI() {
     val currentDestination = navBackStackEntry?.destination
     Surface {
         Scaffold(
-            contentWindowInsets = WindowInsets(0),
-            containerColor = Color.Transparent,
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                NavHost(
-                    navController = navController,
-                    startDestination = Destinations.Home,
-                    modifier = Modifier.hazeSource(hazeState)
-                ) {
-                    composable<Destinations.Home> {
-                        HomeScreen()
-                    }
-                    composable<Destinations.Attendance> {
-                        AttendanceListScreen()
-                    }
-                    composable<Destinations.Profile> {
-                        CalendarScreen()
-                    }
-                }
+            bottomBar = {
                 FlexibleBottomAppBar(
                     containerColor = Color.Transparent,
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
                         .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
                             blurRadius = 15.dp
                             noiseFactor = 0.05f
@@ -118,6 +97,28 @@ fun MainUI() {
                                 )
                             )
                         }
+                    }
+                }
+            },
+            contentWindowInsets = WindowInsets(0),
+            containerColor = Color.Transparent,
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                NavHost(
+                    navController = navController,
+                    startDestination = Destinations.Home,
+                    modifier = Modifier.hazeSource(hazeState)
+                ) {
+                    composable<Destinations.Home> {
+                        HomeScreen()
+                    }
+                    composable<Destinations.Attendance> {
+                        AttendanceListScreen()
+                    }
+                    composable<Destinations.Profile> {
+                        CalendarScreen()
                     }
                 }
             }

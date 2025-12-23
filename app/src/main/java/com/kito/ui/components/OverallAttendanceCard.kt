@@ -51,7 +51,8 @@ import dev.chrisbanes.haze.rememberHazeState
 @Composable
 fun OverallAttendanceCard(
     colors: UIColors,
-    sapLoggedIn: Boolean
+    sapLoggedIn: Boolean,
+    percentage: Double
 ) {
     var targetProgress by remember { mutableFloatStateOf(0f) }
 
@@ -67,8 +68,15 @@ fun OverallAttendanceCard(
     val hazeEffect = rememberHazeState()
 
     // 👇 This triggers the animation ONCE
-    LaunchedEffect(Unit) {
-        targetProgress = 0.9f
+    LaunchedEffect(percentage, sapLoggedIn) {
+        targetProgress =
+            if (sapLoggedIn) {
+                (percentage / 100.0)
+                    .toFloat()
+                    .coerceIn(0f, 1f)
+            }else{
+                0.8f
+            }
     }
     Box() {
         Box(
@@ -113,7 +121,7 @@ fun OverallAttendanceCard(
                             trackColor = colors.progressAccent
                         )
                         Text(
-                            text = "${(progress * 100).toInt()}%",
+                            text = "${"%.1f".format(progress * 100)}%",
                             fontFamily = FontFamily.Monospace,
                             style = MaterialTheme.typography.displaySmallEmphasized
                         )
