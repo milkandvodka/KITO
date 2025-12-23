@@ -22,10 +22,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kito.data.local.db.attendance.AttendanceEntity
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun OverallAttendanceCard(item: AttendanceItem) {
+fun AttendanceCard(item: AttendanceEntity) {
     val uiColors = UIColors()
     var targetProgress by remember { mutableFloatStateOf(0f) }
 
@@ -40,12 +41,12 @@ fun OverallAttendanceCard(item: AttendanceItem) {
 
     // 👇 This triggers the animation ONCE
     LaunchedEffect(Unit) {
-        targetProgress = (item.percentage / 100f).coerceIn(0f, 1f)
+        targetProgress = (item.percentage.toFloat() / 100f).coerceIn(0f, 1f)
     }
     Column(modifier = Modifier.padding(16.dp)) {
         // Title
         Text(
-            text = item.title,
+            text = item.subjectName,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.SemiBold,
             color = uiColors.textPrimary,
@@ -56,7 +57,7 @@ fun OverallAttendanceCard(item: AttendanceItem) {
 
         // Attendance row
         Text(
-            text = "Attendance: ${item.present}/${item.total}",
+            text = "Attendance: ${item.attendedClasses}/${item.totalClasses}",
             fontFamily = FontFamily.Monospace,
             color = uiColors.textSecondary,
             fontSize = 14.sp
@@ -91,7 +92,7 @@ fun OverallAttendanceCard(item: AttendanceItem) {
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Faculty: ${item.faculty}",
+            text = "Faculty: ${item.facultyName}",
             fontFamily = FontFamily.Monospace,
             color = uiColors.textSecondary,
             fontSize = 14.sp

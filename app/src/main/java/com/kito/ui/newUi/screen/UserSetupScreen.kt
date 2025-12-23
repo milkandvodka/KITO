@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,7 +24,10 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.LoadingIndicatorDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -48,10 +53,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.MainActivity
 import com.kito.R
 import com.kito.UserSetupActivity
+import com.kito.ui.components.UIColors
 import com.kito.ui.newUi.viewmodel.UserSetupViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UserSetupScreen(
     userSetupViewModel: UserSetupViewModel = hiltViewModel()
@@ -61,6 +68,8 @@ fun UserSetupScreen(
     var name by rememberSaveable { mutableStateOf("") }
     var kiitRollNumber by rememberSaveable { mutableStateOf("") }
     var sapPassword by rememberSaveable { mutableStateOf("")}
+    var loading by rememberSaveable { mutableStateOf(false)}
+    val uiColor = UIColors()
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -86,6 +95,7 @@ fun UserSetupScreen(
             //Name
             item {
                 OutlinedTextField(
+                    enabled = !loading,
                     value = name,
                     onValueChange = { name = it },
                     modifier = Modifier.fillMaxWidth(),
@@ -111,6 +121,7 @@ fun UserSetupScreen(
             // Username
             item {
                 OutlinedTextField(
+                    enabled = !loading,
                     value = kiitRollNumber,
                     onValueChange = { input ->
                         kiitRollNumber = input.filter { it.isDigit() }
@@ -149,6 +160,7 @@ fun UserSetupScreen(
             }
             item {
                 OutlinedTextField(
+                    enabled = !loading,
                     value = sapPassword,
                     onValueChange = { sapPassword = it },
                     modifier = Modifier.fillMaxWidth(),
@@ -187,17 +199,27 @@ fun UserSetupScreen(
                 Button(
                     onClick = {
                         scope.launch {
+                            loading = true
+                            delay(2000)
                             if (sapPassword.isNotEmpty()){
                                 userSetupViewModel.setSapPassword(sapPassword)
                             }
                             userSetupViewModel.setUserName(name)
                             userSetupViewModel.setUserRoll(kiitRollNumber)
                             userSetupViewModel.setUserSetupDone()
+                            userSetupViewModel.fetchAndUpsertTimetable()
+                            if (sapPassword.isNotEmpty()) {
+                                userSetupViewModel.fetchAndUpsertAttendance(
+                                    year = "2025",
+                                    term = "1"
+                                )
+                            }
+                            userSetupViewModel.getAttendance()
                             context.startActivity(Intent(context, MainActivity::class.java))
                             (context as? UserSetupActivity)?.finish()
                         }
                     },
-                    enabled = if (name.isNotBlank() && kiitRollNumber.isNotBlank() && kiitRollNumber.length > 6) true else false,
+                    enabled = if (name.isNotBlank() && kiitRollNumber.isNotBlank() && kiitRollNumber.length > 6 && !loading) true else false,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp)
@@ -213,19 +235,33 @@ fun UserSetupScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(if (kiitRollNumber.isNotBlank() && name.isNotBlank() && kiitRollNumber.length > 6) loginGradient else disabledGradient),
+                            .background(if (kiitRollNumber.isNotBlank() && name.isNotBlank() && kiitRollNumber.length > 6 && !loading) loginGradient else disabledGradient),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = if (sapPassword.isEmpty()){
-                                "Get Started"
-                            }else{
-                                "Sync Attendance and Get Started"
-                            },
-                            fontFamily = FontFamily.Monospace,
-                            color = if (kiitRollNumber.isNotBlank() && name.isNotBlank() && kiitRollNumber.length > 6) Color.White else Color(0xFFC2927F),
-                            fontWeight = FontWeight.Medium
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (loading) {
+                                LoadingIndicator(
+                                    color = uiColor.progressAccent
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                            Text(
+                                text = if (loading) {
+                                    "Loading..."
+                                } else if (sapPassword.isEmpty()) {
+                                    "Get Started"
+                                } else {
+                                    "Sync Attendance and Get Started"
+                                },
+                                fontFamily = FontFamily.Monospace,
+                                color = if (kiitRollNumber.isNotBlank() && name.isNotBlank() && kiitRollNumber.length > 6) Color.White else Color(
+                                    0xFFC2927F
+                                ),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }

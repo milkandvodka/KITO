@@ -49,6 +49,8 @@ fun HomeScreen(
     val uiColors = UIColors()
     val name by viewmodel.name.collectAsState()
     val sapLoggedIn by viewmodel.sapLoggedIn.collectAsState()
+    val averageAttendancePercentage by viewmodel.averageAttendancePercentage.collectAsState()
+    val schedule by viewmodel.schedule.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -138,7 +140,10 @@ fun HomeScreen(
 
             // Schedule Section
             item {
-                ScheduleCard(uiColors)
+                ScheduleCard(
+                    colors = uiColors,
+                    schedule = schedule
+                )
             }
 
             item {
@@ -179,7 +184,8 @@ fun HomeScreen(
             item {
                 OverallAttendanceCard(
                     colors = uiColors,
-                    sapLoggedIn = sapLoggedIn
+                    sapLoggedIn = sapLoggedIn,
+                    percentage = averageAttendancePercentage
                 )
             }
             if (false) {

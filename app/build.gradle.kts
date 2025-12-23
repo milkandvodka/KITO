@@ -16,13 +16,30 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 4
-        versionName = "1.0"
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "PORTAL_BASE",
+            "\"https://kiitportal.kiituniversity.net\""
+        )
+        buildConfigField(
+            "String",
+            "WD_PATH",
+            "\"/sap/bc/webdynpro/sap/ZWDA_HRIQ_ST_ATTENDANCE\""
+        )
     }
 
     buildTypes {
+        debug {
+            resValue("string", "app_name", "Kito (Debug)")
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
         release {
+            resValue("string", "app_name", "Kito")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -43,20 +60,6 @@ android {
         viewBinding = true
         compose = true
         buildConfig = true
-    }
-
-    defaultConfig {
-        applicationId = "com.kito"
-        minSdk = 24
-        targetSdk = 35
-        versionCode = 4
-        versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // Add build config fields for SAP portal URLs
-        buildConfigField("String", "PORTAL_BASE", "\"https://kiitportal.kiituniversity.net\"")
-        buildConfigField("String", "WD_PATH", "\"/sap/bc/webdynpro/sap/ZWDA_HRIQ_ST_ATTENDANCE\"")
     }
 }
 
@@ -114,4 +117,13 @@ dependencies {
     //composeNavigation
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+
+    //splashScreen
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
+    // Room (Database)
+    implementation("androidx.room:room-runtime:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-paging:2.6.1")
 }
