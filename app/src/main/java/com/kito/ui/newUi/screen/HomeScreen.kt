@@ -1,5 +1,6 @@
 package com.kito.ui.newUi.screen
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -22,36 +23,74 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import com.kito.R
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.UpcomingEventCard
+import com.kito.ui.components.state.SyncUiState
+import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.HomeViewmodel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
-    viewmodel: HomeViewmodel = hiltViewModel()
+    viewmodel: HomeViewmodel = hiltViewModel(),
+    navController: NavHostController
 ) {
     val uiColors = UIColors()
     val name by viewmodel.name.collectAsState()
     val sapLoggedIn by viewmodel.sapLoggedIn.collectAsState()
     val averageAttendancePercentage by viewmodel.averageAttendancePercentage.collectAsState()
     val schedule by viewmodel.schedule.collectAsState()
+    val syncState by viewmodel.syncState.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        delay(1000)
+        viewmodel.syncOnStartup()
+    }
+
+    LaunchedEffect(Unit) {
+        viewmodel.syncEvents.collect { event ->
+            when (event) {
+                is SyncUiState.Success ->
+                    Toast.makeText(
+                        context,
+                        "Sync completed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                is SyncUiState.Error ->
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                else -> {}
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -104,6 +143,22 @@ fun HomeScreen(
                     }
                 }
             }
+
+                item {
+                    AnimatedVisibility(syncState is SyncUiState.Loading) {
+                        Column{
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LinearWavyProgressIndicator(
+                                color = uiColors.accentOrangeStart,
+                                trackColor = uiColors.progressAccent,
+                                modifier = Modifier.fillMaxWidth(),
+                                waveSpeed = 5.dp,
+                                wavelength = 70.dp,
+                            )
+                        }
+                    }
+                }
+
 
             item {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -164,7 +219,15 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(
-                        onClick = {},
+                        onClick = {
+                            navController.navigate(Destinations.Attendance) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
                         modifier = Modifier.size(28.dp)
                     ) {
                         Icon(

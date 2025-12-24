@@ -111,7 +111,9 @@ fun MainUI() {
                     modifier = Modifier.hazeSource(hazeState)
                 ) {
                     composable<Destinations.Home> {
-                        HomeScreen()
+                        HomeScreen(
+                            navController = navController
+                        )
                     }
                     composable<Destinations.Attendance> {
                         AttendanceListScreen()

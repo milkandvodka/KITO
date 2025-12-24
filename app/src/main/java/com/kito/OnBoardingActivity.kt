@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import com.kito.data.local.preferences.newpreferences.PrefsRepository
+import com.kito.data.local.preferences.PrefsRepository
 import com.kito.ui.newUi.screen.OnBoardingScreen
 import com.kito.ui.theme.KitoTheme
 import dagger.hilt.android.AndroidEntryPoint
