@@ -4,9 +4,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 data class BottomNavigationModel (
@@ -30,9 +32,9 @@ val BottomNavigationItems = listOf<BottomNavigationModel>(
         destination = Destinations.Attendance
     ),
     BottomNavigationModel(
-        title = "Profile",
-        selectedIcon = Icons.Filled.Person,
-        unSelectedIcon = Icons.Outlined.Person,
+        title = "Settings",
+        selectedIcon = Icons.Filled.Settings,
+        unSelectedIcon = Icons.Outlined.Settings,
         destination = Destinations.Profile
     )
 )
