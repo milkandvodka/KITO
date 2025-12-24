@@ -30,6 +30,7 @@ import com.kito.ui.navigation.BottomNavigationItems
 import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.screen.AttendanceListScreen
 import com.kito.ui.newUi.screen.HomeScreen
+import com.kito.ui.newUi.screen.SettingsScreen
 import com.kito.ui.screen.CalendarScreen
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
@@ -119,7 +120,7 @@ fun MainUI() {
                         AttendanceListScreen()
                     }
                     composable<Destinations.Profile> {
-                        CalendarScreen()
+                        SettingsScreen()
                     }
                 }
             }
