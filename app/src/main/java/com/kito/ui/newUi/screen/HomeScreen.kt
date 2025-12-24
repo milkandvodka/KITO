@@ -27,8 +27,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.R
+import com.kito.ui.components.AboutELabsDialog
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
 import com.kito.ui.components.UIColors
@@ -47,6 +52,7 @@ import com.kito.ui.newUi.viewmodel.HomeViewmodel
 fun HomeScreen(
     viewmodel: HomeViewmodel = hiltViewModel()
 ) {
+    var showAboutDialog by remember { mutableStateOf(false) }
     val uiColors = UIColors()
     val name by viewmodel.name.collectAsState()
     val sapLoggedIn by viewmodel.sapLoggedIn.collectAsState()
@@ -92,9 +98,7 @@ fun HomeScreen(
                         )
                     }
                     IconButton(
-                        onClick = {
-
-                        },
+                        onClick = { showAboutDialog = !showAboutDialog },
                         modifier = Modifier.size(60.dp)
                     ) {
                         Image(
@@ -245,5 +249,11 @@ fun HomeScreen(
                 )
             }
         }
+    }
+    if (showAboutDialog) {
+        AboutELabsDialog(
+            onDismiss = { showAboutDialog = false },
+            context = LocalContext.current
+        )
     }
 }
