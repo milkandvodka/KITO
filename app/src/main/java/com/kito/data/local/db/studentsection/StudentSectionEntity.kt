@@ -9,5 +9,5 @@ data class StudentSectionEntity(
     val startTime: String,
     val endTime: String,
     val subject: String,
-    val room: String
+    val room: String?
 )

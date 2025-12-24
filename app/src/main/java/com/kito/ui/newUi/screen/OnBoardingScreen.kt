@@ -193,7 +193,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                         ) {
                             Image(
                                 painter = painterResource(
-                                    R.drawable.onboarding_elabs
+                                    R.drawable.onboarding_attendence
                                 ),
                                 contentDescription = "Onboarding",
                                 modifier = Modifier
@@ -314,20 +314,18 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                         containerColor = Color.Transparent,
                         expanded = if (pagerState.currentPage != 2) false else true,
                         onClick = {
+                            if (isLoading) return@ExtendedFloatingActionButton
                             if (pagerState.currentPage != 2) {
                                 scope.launch {
                                     pagerState.animateScrollToPage(pagerState.currentPage + 1)
                                 }
-                            }else{
+                            } else {
                                 scope.launch {
                                     isLoading = true
                                     delay(500L)
                                     prefRepository.setOnboardingDone()
                                     context.startActivity(
-                                        Intent(
-                                            context,
-                                            UserSetupActivity::class.java
-                                        )
+                                        Intent(context, UserSetupActivity::class.java)
                                     )
                                     (context as? OnBoardingActivity)?.finish()
                                 }
@@ -366,7 +364,7 @@ fun OnBoardingScreen(prefRepository: PrefsRepository) {
                             Text(
                                 text = "Get Started"
                             )
-                        }
+                        },
                     )
                 }
             }
