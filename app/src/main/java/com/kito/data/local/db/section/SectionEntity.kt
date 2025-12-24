@@ -12,6 +12,6 @@ data class SectionEntity(
     val start_time: String = "",
     val end_time: String = "",
     val subject: String = "",
-    val room: String = "",
+    val room: String? = "",
     val batch: String = "",
 )

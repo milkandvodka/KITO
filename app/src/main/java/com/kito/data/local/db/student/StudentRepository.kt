@@ -14,4 +14,8 @@ class StudentRepository @Inject constructor(
         studentDAO.deleteStudent(studentEntity)
     }
 
+    suspend fun getStudentByRoll(rollNo: String): StudentEntity {
+        return studentDAO.getStudentByRoll(rollNo)
+    }
+
 }

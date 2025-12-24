@@ -17,24 +17,35 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.LoadingIndicatorDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,28 +59,57 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.MainActivity
 import com.kito.R
 import com.kito.UserSetupActivity
 import com.kito.ui.components.UIColors
+import com.kito.ui.newUi.viewmodel.SetupState
 import com.kito.ui.newUi.viewmodel.UserSetupViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UserSetupScreen(
     userSetupViewModel: UserSetupViewModel = hiltViewModel()
 ) {
-    val scope = rememberCoroutineScope()
+    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+    val years = (currentYear - 5..currentYear).map { it.toString() }.reversed()
+    val terms = listOf(
+        "Autumn",
+        "Spring"
+    )
+    var selectedTerm by rememberSaveable { mutableStateOf("Autumn") }
     val context = LocalContext.current
     var name by rememberSaveable { mutableStateOf("") }
     var kiitRollNumber by rememberSaveable { mutableStateOf("") }
     var sapPassword by rememberSaveable { mutableStateOf("")}
-    var loading by rememberSaveable { mutableStateOf(false)}
+    var sapYear by rememberSaveable { mutableStateOf(currentYear.toString())}
+    var sapTerm by rememberSaveable { mutableStateOf("010") }
     val uiColor = UIColors()
+    val setupState by userSetupViewModel.setupState.collectAsState()
+    val loading = setupState is SetupState.Loading
+    var passwordVisible by remember { mutableStateOf(false) }
+    var yearExpanded by remember { mutableStateOf(false) }
+    val yearState = rememberTextFieldState(sapYear)
+    var termExpanded by remember { mutableStateOf(false) }
+    val termState = rememberTextFieldState(selectedTerm)
+    val loginGradient = Brush.horizontalGradient(
+        colors = listOf(Color(0xFFFF8C00), Color(0xFFFF6A00))
+    )
+    val disabledGradient = Brush.horizontalGradient(
+        listOf(Color(0xFF2C2830), Color(0xFF2C2830))
+    )
+    LaunchedEffect(setupState) {
+        if (setupState is SetupState.Success) {
+            context.startActivity(Intent(context, MainActivity::class.java))
+            (context as? UserSetupActivity)?.finish()
+        }
+    }
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -104,7 +144,11 @@ fun UserSetupScreen(
                     leadingIcon = {
                         Icon(Icons.Filled.Person, contentDescription = null, tint = Color(0xFFB8B2BC))
                     },
-                    label = { Text(text = "Name",fontFamily = FontFamily.Monospace) },
+                    label = { Text(
+                        text = "Name",
+                        fontFamily = FontFamily.Monospace,
+                        style = MaterialTheme.typography.titleMediumEmphasized
+                    ) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFFFF8C00),
                         unfocusedBorderColor = Color(0xFF3F3942),
@@ -116,11 +160,16 @@ fun UserSetupScreen(
                         cursorColor = Color(0xFFFF8C00)
                     )
                 )
+                Spacer(Modifier.height(12.dp))
             }
 
             // Username
             item {
                 OutlinedTextField(
+                    textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
+                        fontFamily = FontFamily.Monospace,
+                        color = Color.White
+                    ),
                     enabled = !loading,
                     value = kiitRollNumber,
                     onValueChange = { input ->
@@ -139,7 +188,8 @@ fun UserSetupScreen(
                     label = {
                         Text(
                             text = "KIIT Roll Number",
-                            fontFamily = FontFamily.Monospace
+                            fontFamily = FontFamily.Monospace,
+                            style = MaterialTheme.typography.titleMediumEmphasized
                         )
                     },
                     colors = OutlinedTextFieldDefaults.colors(
@@ -160,6 +210,10 @@ fun UserSetupScreen(
             }
             item {
                 OutlinedTextField(
+                    textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
+                        fontFamily = FontFamily.Monospace,
+                        color = Color.White
+                    ),
                     enabled = !loading,
                     value = sapPassword,
                     onValueChange = { sapPassword = it },
@@ -172,7 +226,8 @@ fun UserSetupScreen(
                     label = {
                         Text(
                             text = "SAP Password (Optional)",
-                            fontFamily = FontFamily.Monospace
+                            fontFamily = FontFamily.Monospace,
+                            style = MaterialTheme.typography.titleSmallEmphasized
                         )
                     },
                     colors = OutlinedTextFieldDefaults.colors(
@@ -184,40 +239,187 @@ fun UserSetupScreen(
                         errorTextColor = Color.White,
                         focusedLabelColor = Color(0xFFFF8C00),
                         cursorColor = Color(0xFFFF8C00)
-                    )
+                    ),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image =
+                            if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        val description =
+                            if (passwordVisible) "Hide password" else "Show password"
+
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(imageVector = image, contentDescription = description)
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 )
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(8.dp))
             }
+            if (setupState is SetupState.Error) {
+                item {
+                    Text(
+                        text = (setupState as SetupState.Error).message,
+                        color = Color.Red,
+                        fontFamily = FontFamily.Monospace,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 2
+                    )
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+
+            item{
+                Row {
+                    ExposedDropdownMenuBox(
+                        expanded = yearExpanded,
+                        onExpandedChange = { yearExpanded = !yearExpanded },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        OutlinedTextField(
+                            textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
+                                fontFamily = FontFamily.Monospace,
+                                color = Color.White
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                            readOnly = true,
+                            value = yearState.text.toString(),
+                            onValueChange = {},
+                            label = {
+                                Text(
+                                    text ="Year",
+                                    fontFamily = FontFamily.Monospace,
+                                    style = MaterialTheme.typography.titleSmallEmphasized
+                                )
+                            },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = yearExpanded,
+                                )
+                            },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFFFF8C00),
+                                unfocusedBorderColor = Color(0xFF3F3942),
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                disabledTextColor = Color.White,
+                                errorTextColor = Color.White,
+                                focusedLabelColor = Color(0xFFFF8C00),
+                                cursorColor = Color(0xFFFF8C00)
+                            )
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = yearExpanded,
+                            onDismissRequest = { yearExpanded = false },
+                            modifier = Modifier.height(140.dp),
+                            shape = RoundedCornerShape(16.dp),
+                        ) {
+                            years.forEach { year ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = year,
+                                            fontFamily = FontFamily.Monospace,
+                                            style = MaterialTheme.typography.titleSmallEmphasized
+                                        )
+                                    },
+                                    onClick = {
+                                        sapYear = year
+                                        yearState.setTextAndPlaceCursorAtEnd(year)
+                                        yearExpanded = false
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    ExposedDropdownMenuBox(
+                        expanded = termExpanded,
+                        onExpandedChange = { termExpanded = !termExpanded },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        OutlinedTextField(
+                            textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
+                                fontFamily = FontFamily.Monospace,
+                                color = Color.White
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                            readOnly = true,
+                            value = termState.text.toString(),
+                            onValueChange = {},
+                            label = {
+                                Text(
+                                    text = "Term",
+                                    fontFamily = FontFamily.Monospace,
+                                    style = MaterialTheme.typography.titleSmallEmphasized
+                                )
+                            },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = termExpanded,
+                                )
+                            },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFFFF8C00),
+                                unfocusedBorderColor = Color(0xFF3F3942),
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                disabledTextColor = Color.White,
+                                errorTextColor = Color.White,
+                                focusedLabelColor = Color(0xFFFF8C00),
+                                cursorColor = Color(0xFFFF8C00)
+                            )
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = termExpanded,
+                            onDismissRequest = { termExpanded = false },
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            terms.forEach { term ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = term,
+                                            fontFamily = FontFamily.Monospace,
+                                            style = MaterialTheme.typography.titleSmallEmphasized
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedTerm = term
+                                        sapTerm = if (term == "Autumn") "010" else "020"
+                                        termState.setTextAndPlaceCursorAtEnd(term)
+                                        termExpanded = false
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             item {
-                val loginGradient = Brush.horizontalGradient(
-                    colors = listOf(Color(0xFFFF8C00), Color(0xFFFF6A00))
-                )
-                val disabledGradient = Brush.horizontalGradient(
-                    listOf(Color(0xFF2C2830), Color(0xFF2C2830))
-                )
+                if (setupState !is SetupState.Error) {
+                    Spacer(Modifier.height(8.dp))
+                }
 
                 Button(
                     onClick = {
-                        scope.launch {
-                            loading = true
-                            delay(2000)
-                            if (sapPassword.isNotEmpty()){
-                                userSetupViewModel.setSapPassword(sapPassword)
-                            }
-                            userSetupViewModel.setUserName(name)
-                            userSetupViewModel.setUserRoll(kiitRollNumber)
-                            userSetupViewModel.setUserSetupDone()
-                            userSetupViewModel.fetchAndUpsertTimetable()
-                            if (sapPassword.isNotEmpty()) {
-                                userSetupViewModel.fetchAndUpsertAttendance(
-                                    year = "2025",
-                                    term = "1"
-                                )
-                            }
-                            userSetupViewModel.getAttendance()
-                            context.startActivity(Intent(context, MainActivity::class.java))
-                            (context as? UserSetupActivity)?.finish()
-                        }
+                        userSetupViewModel.completeSetup(
+                            name = name,
+                            roll = kiitRollNumber,
+                            sapPassword = sapPassword,
+                            year = sapYear,
+                            term = sapTerm
+                        )
                     },
                     enabled = if (name.isNotBlank() && kiitRollNumber.isNotBlank() && kiitRollNumber.length > 6 && !loading) true else false,
                     modifier = Modifier

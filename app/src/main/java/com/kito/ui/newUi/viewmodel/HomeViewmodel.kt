@@ -21,6 +21,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewmodel @Inject constructor(
     private val prefs: PrefsRepository,
@@ -35,10 +36,14 @@ class HomeViewmodel @Inject constructor(
     val sapLoggedIn = _sapLoggedIn.asStateFlow()
 
     private val todayFlow = MutableStateFlow(
-        LocalDate.now().dayOfWeek
-            .name
-            .lowercase()
-            .replaceFirstChar { it.uppercase() }
+        when (LocalDate.now().dayOfWeek) {
+            java.time.DayOfWeek.MONDAY -> "MON"
+            java.time.DayOfWeek.TUESDAY -> "TUE"
+            java.time.DayOfWeek.WEDNESDAY -> "WED"
+            java.time.DayOfWeek.THURSDAY -> "THU"
+            java.time.DayOfWeek.FRIDAY -> "FRI"
+            else -> ""
+        }
     )
 
     private val attendance: StateFlow<List<AttendanceEntity>> =
