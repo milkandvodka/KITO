@@ -30,6 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -42,6 +45,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.kito.R
+import com.kito.ui.components.AboutELabsDialog
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
 import com.kito.ui.components.UIColors
@@ -57,6 +61,7 @@ fun HomeScreen(
     viewmodel: HomeViewmodel = hiltViewModel(),
     navController: NavHostController
 ) {
+    var showAboutDialog by remember { mutableStateOf(false) }
     val uiColors = UIColors()
     val name by viewmodel.name.collectAsState()
     val sapLoggedIn by viewmodel.sapLoggedIn.collectAsState()
@@ -131,9 +136,7 @@ fun HomeScreen(
                         )
                     }
                     IconButton(
-                        onClick = {
-
-                        },
+                        onClick = { showAboutDialog = !showAboutDialog },
                         modifier = Modifier.size(60.dp)
                     ) {
                         Image(
@@ -308,5 +311,11 @@ fun HomeScreen(
                 )
             }
         }
+    }
+    if (showAboutDialog) {
+        AboutELabsDialog(
+            onDismiss = { showAboutDialog = false },
+            context = LocalContext.current
+        )
     }
 }
