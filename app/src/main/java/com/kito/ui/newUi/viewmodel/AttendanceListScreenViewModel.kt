@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kito.data.local.db.attendance.AttendanceEntity
 import com.kito.data.local.db.attendance.AttendanceRepository
-import com.kito.data.local.preferences.newpreferences.PrefsRepository
+import com.kito.data.local.preferences.PrefsRepository
+import com.kito.data.local.preferences.SecurePrefs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AttendanceListScreenViewModel @Inject constructor(
     private val attendanceRepository: AttendanceRepository,
-    private val prefs: PrefsRepository
+    private val prefs: PrefsRepository,
+    private val securePrefs: SecurePrefs
 ): ViewModel(){
     private val _sapLoggedIn = MutableStateFlow(false)
     val sapLoggedIn = _sapLoggedIn.asStateFlow()
@@ -31,7 +33,7 @@ class AttendanceListScreenViewModel @Inject constructor(
             )
     init {
         viewModelScope.launch {
-            _sapLoggedIn.value = prefs.getSapPassword().isNotEmpty()
+            _sapLoggedIn.value = securePrefs.getSapPassword().isNotEmpty()
         }
     }
 }

@@ -10,10 +10,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.kito.data.local.preferences.newpreferences.PrefsRepository
+import com.kito.data.local.preferences.PrefsRepository
 import com.kito.ui.newUi.MainUI
 import com.kito.ui.theme.KitoTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -28,8 +29,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             var keepOnScreenCondition by remember { mutableStateOf(true) }
             LaunchedEffect(Unit) {
-                val onboardingDone = prefs.isOnboardingDone()
-                val isUserSetupDone = prefs.isUserSetupDone()
+                val onboardingDone = prefs.onBoardingFlow.first()
+                val isUserSetupDone = prefs.userSetupDoneFlow.first()
                 if (!onboardingDone) {
                     startActivity(Intent(this@MainActivity, OnBoardingActivity::class.java)
                         .apply {

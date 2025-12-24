@@ -56,7 +56,7 @@ import androidx.compose.ui.unit.dp
 import com.kito.OnBoardingActivity
 import com.kito.R
 import com.kito.UserSetupActivity
-import com.kito.data.local.preferences.newpreferences.PrefsRepository
+import com.kito.data.local.preferences.PrefsRepository
 import com.kito.ui.components.UIColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
