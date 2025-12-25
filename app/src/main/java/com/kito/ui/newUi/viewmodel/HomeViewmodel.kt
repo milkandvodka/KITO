@@ -75,7 +75,7 @@ class HomeViewmodel @Inject constructor(
     init {
         viewModelScope.launch {
             _name.value = prefs.userNameFlow.first()
-            _sapLoggedIn.value = securePrefs.getSapPassword().isNotEmpty()
+            _sapLoggedIn.value = securePrefs.isLoggedInFlow.first()
         }
     }
 
