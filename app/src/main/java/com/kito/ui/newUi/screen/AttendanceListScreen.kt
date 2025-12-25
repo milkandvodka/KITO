@@ -1,5 +1,6 @@
 package com.kito.ui.newUi.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -66,7 +69,7 @@ fun AttendanceListScreen(
     Box() {
         LazyColumn(
             contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 46.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier
                 .hazeSource(hazeState)
                 .fillMaxSize()
@@ -81,7 +84,7 @@ fun AttendanceListScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(min = 100.dp),
-                        colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground),
+                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                         shape = RoundedCornerShape(
                             topStart = if (index == 0) 24.dp else 4.dp,
@@ -90,7 +93,20 @@ fun AttendanceListScreen(
                             bottomEnd = if (index == attendance.size - 1) 24.dp else 4.dp
                         )
                     ) {
-                        AttendanceCard(item)
+                        Box(
+                            modifier = Modifier.fillMaxSize().background(
+                                 brush = Brush.linearGradient(
+                                         colors = listOf(
+                                             uiColors.cardBackground,
+                                             Color(0xFF2F222F),
+                                             Color(0xFF2F222F),
+                                             uiColors.cardBackgroundHigh
+                                         )
+                                 )
+                            )
+                        ) {
+                            AttendanceCard(item)
+                        }
                     }
                 }
                 item {
@@ -189,10 +205,9 @@ fun AttendanceListScreen(
                             }
                         }
                 )
-
                 Button(
                     onClick = {
-                        navController.navigate(Destinations.Attendance) {
+                        navController.navigate(Destinations.Profile) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
