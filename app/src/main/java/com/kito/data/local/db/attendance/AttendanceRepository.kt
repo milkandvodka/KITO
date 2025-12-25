@@ -15,4 +15,8 @@ class AttendanceRepository @Inject constructor(
     fun getAllAttendance(): Flow<List<AttendanceEntity>> {
         return attendanceDAO.getAllAttendance()
     }
+
+    suspend fun deleteAllAttendance() {
+        attendanceDAO.deleteAllAttendance()
+    }
 }
