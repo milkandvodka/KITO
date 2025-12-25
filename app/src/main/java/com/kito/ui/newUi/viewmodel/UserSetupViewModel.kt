@@ -59,6 +59,8 @@ class UserSetupViewModel @Inject constructor(
             try {
                 setUserName(name)
                 setUserRoll(roll)
+                setAcademicYear(year)
+                setTermCode(term)
                 val result = appSyncUseCase.syncAll(
                     roll = roll,
                     sapPassword = sapPassword,
@@ -70,8 +72,6 @@ class UserSetupViewModel @Inject constructor(
                     onSuccess = {
                         if (sapPassword.isNotEmpty()) {
                             setSapPassword(sapPassword)
-                            setAcademicYear(year)
-                            setTermCode(term)
                         }
                         setUserSetupDone()
                         _setupState.value = SetupState.Success

@@ -252,7 +252,16 @@ fun HomeScreen(
                 OverallAttendanceCard(
                     colors = uiColors,
                     sapLoggedIn = sapLoggedIn,
-                    percentage = averageAttendancePercentage
+                    percentage = averageAttendancePercentage,
+                    onClick = {
+                        navController.navigate(Destinations.Profile) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 )
             }
             if (false) {

@@ -27,7 +27,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 4
-        versionName = "1.5"
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -58,7 +58,6 @@ android {
     buildTypes {
         debug {
             resValue("string", "app_name", "Kito (Debug)")
-            applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }
         release {
