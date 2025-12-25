@@ -9,6 +9,7 @@ import com.kito.ui.components.AppSyncUseCase
 import com.kito.ui.components.state.SyncUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +24,7 @@ class SettingsViewModel @Inject constructor(
     private val prefs: PrefsRepository,
     private val securePrefs: SecurePrefs,
     private val attendanceRepository: AttendanceRepository,
-    private val appSyncUseCase: AppSyncUseCase
+    private val appSyncUseCase: AppSyncUseCase,
 ): ViewModel(){
     private val _syncState = MutableStateFlow<SyncUiState>(SyncUiState.Idle)
     val syncState = _syncState.asStateFlow()
@@ -60,46 +61,122 @@ class SettingsViewModel @Inject constructor(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = securePrefs.isLoggedIn()
+                initialValue = false
             )
-    suspend fun changeName(name: String){
-        prefs.setUserName(name)
+    fun syncStateIdle(){
+        _syncState.value = SyncUiState.Idle
     }
-    suspend fun changeRoll(roll: String){
-        prefs.setUserRollNumber(roll)
-        securePrefs.clearSapPassword()
-        attendanceRepository.deleteAllAttendance()
-    }
-    suspend fun changeYearTerm(year: String, term: String) {
-        prefs.setAcademicYear(year)
-        prefs.setTermCode(term)
-    }
-    suspend fun logOut(){
-        securePrefs.clearSapPassword()
-        attendanceRepository.deleteAllAttendance()
-    }
-    suspend fun logIn(password: String) {
-        _syncState.value = SyncUiState.Loading
-        val roll = prefs.userRollFlow.first()
-        val year = prefs.academicYearFlow.first()
-        val term = prefs.termCodeFlow.first()
-
-        val result = appSyncUseCase.syncAll(
-            roll = roll,
-            sapPassword = password,
-            year = year,
-            term = term
-        )
-
-        _syncState.value = result.fold(
-            onSuccess = {
-                securePrefs.saveSapPassword(password)
-                SyncUiState.Success
-            },
-            onFailure = {
-                SyncUiState.Error(it.message ?: "Sync failed")
+    fun changeName(name: String){
+        viewModelScope.launch {
+            try {
+                _syncState.value = SyncUiState.Loading
+                val formattedName = name
+                    .trim()
+                    .replace("\\s+".toRegex(), " ")
+                    .lowercase()
+                    .split(" ")
+                    .joinToString(" ") { word ->
+                        word.replaceFirstChar { it.uppercaseChar() }
+                    }
+                delay(1000)
+                prefs.setUserName(formattedName)
+                _syncState.value = SyncUiState.Success
+            } catch (e: Exception) {
+                _syncState.value = SyncUiState.Error(e.message ?: "Sync failed")
             }
-        )
+        }
+    }
+    fun changeRoll(roll: String){
+        viewModelScope.launch {
+            try {
+                _syncState.value = SyncUiState.Loading
+                delay(1000)
+                prefs.setUserRollNumber(roll)
+                securePrefs.clearSapPassword()
+                attendanceRepository.deleteAllAttendance()
+                val result = appSyncUseCase.syncAll(
+                    roll = prefs.userRollFlow.first(),
+                    sapPassword = securePrefs.getSapPassword(),
+                    year = prefs.academicYearFlow.first(),
+                    term = prefs.termCodeFlow.first()
+                )
+                _syncState.value = result.fold(
+                    onSuccess = {
+                        SyncUiState.Success
+                    },
+                    onFailure = {
+                        SyncUiState.Error(it.message ?: "Sync failed")
+                    }
+                )
+            } catch (e: Exception) {
+                _syncState.value = SyncUiState.Error(e.message ?: "Sync failed")
+            }
+        }
+    }
+    fun changeYearTerm(year: String, term: String) {
+        viewModelScope.launch {
+            try {
+                _syncState.value = SyncUiState.Loading
+                delay(1000)
+                prefs.setAcademicYear(year)
+                prefs.setTermCode(term)
+                attendanceRepository.deleteAllAttendance()
+                val result = appSyncUseCase.syncAll(
+                    roll = prefs.userRollFlow.first(),
+                    sapPassword = securePrefs.getSapPassword(),
+                    year = year,
+                    term = term
+                )
+                _syncState.value = result.fold(
+                    onSuccess = {
+                        SyncUiState.Success
+                    },
+                    onFailure = {
+                        SyncUiState.Error(it.message ?: "Sync failed")
+                    }
+                )
+            } catch (e: Exception) {
+                _syncState.value = SyncUiState.Error(e.message ?: "Sync failed")
+            }
+        }
+    }
+    fun logOut(){
+        viewModelScope.launch {
+            _syncState.value = SyncUiState.Loading
+            delay(1000)
+            try {
+                securePrefs.clearSapPassword()
+                attendanceRepository.deleteAllAttendance()
+                _syncState.value = SyncUiState.Success
+            } catch (e: Exception) {
+                _syncState.value = SyncUiState.Error(e.message ?: "Sync failed")
+            }
+        }
+    }
+    fun logIn(password: String) {
+        viewModelScope.launch {
+            _syncState.value = SyncUiState.Loading
+            delay(1000)
+            val roll = prefs.userRollFlow.first()
+            val year = prefs.academicYearFlow.first()
+            val term = prefs.termCodeFlow.first()
 
+            val result = appSyncUseCase.syncAll(
+                roll = roll,
+                sapPassword = password,
+                year = year,
+                term = term
+            )
+
+            _syncState.value = result.fold(
+                onSuccess = {
+                    securePrefs.saveSapPassword(password)
+                    SyncUiState.Success
+                },
+                onFailure = {
+                    SyncUiState.Error(it.message ?: "Sync failed")
+                }
+            )
+        }
     }
 }

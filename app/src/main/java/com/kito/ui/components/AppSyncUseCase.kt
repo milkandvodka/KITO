@@ -1,5 +1,6 @@
 package com.kito.ui.components
 
+import android.util.Log
 import com.kito.data.local.db.attendance.AttendanceRepository
 import com.kito.data.local.db.attendance.toAttendanceEntity
 import com.kito.data.local.db.section.SectionEntity
@@ -21,100 +22,92 @@ class AppSyncUseCase @Inject constructor(
     private val attendanceRepository: AttendanceRepository,
     private val sapRepository: SapRepository
 ) {
-    private suspend fun fetchStudents( roll: String ): List<StudentEntity>{
-        val students = supaBaseRepository.getStudentByRoll(roll)
-        return listOf(students)
-    }
-    private suspend fun fetchTimeTable(section: String, batch: String): List<SectionEntity>{
-        val timeTable = supaBaseRepository.getTimetableForStudent(section = section, batch = batch)
-        return timeTable
-    }
-    private suspend fun fetchAndUpsertTimetable(
-        roll: String,
-    ){
-        val students = fetchStudents(
-            roll
-        )
-        studentRepository.insertStudent(students)
-        val student = studentRepository.getStudentByRoll(roll)
-        val timeTable = fetchTimeTable(student.section,student.batch)
-        sectionRepository.insertSection(timeTable)
-    }
-    private suspend fun fetchAttendance(
-        userRollNumber: String,
-        userSapPassword: String,
-        year: String,
-        term: String
-    ): AttendanceResult {
-        return sapRepository.login(
-            username = userRollNumber,
-            password = userSapPassword,
-            academicYear = year,
-            termCode = term
-        )
-    }
-    private suspend fun fetchAndUpsertAttendance(
-        username: String,
-        password: String,
-        year: String,
-        term: String
-    ): SyncResult {
-
-        return when (
-            val response = fetchAttendance(username, password, year, term)
-        ) {
-
-            is AttendanceResult.Error -> {
-                SyncResult.Error(response.message)
-            }
-
-            is AttendanceResult.Success -> {
-                val attendanceEntities = response.data.subjects.map {
-                    it.toAttendanceEntity(year, term)
-                }
-                attendanceRepository.insertAttendance(attendanceEntities)
-                SyncResult.Success
-            }
-        }
-    }
-
     suspend fun syncAll(
         roll: String,
         sapPassword: String,
         year: String,
         term: String
     ): Result<Unit> {
-        return try {
+        try {
             val student = supaBaseRepository.getStudentByRoll(roll)
             studentRepository.insertStudent(listOf(student))
+
             val timetable = supaBaseRepository.getTimetableForStudent(
                 section = student.section,
                 batch = student.batch
             )
             sectionRepository.insertSection(timetable)
-            if (sapPassword.isNotEmpty()) {
+        } catch (e: Exception) {
+            Log.e("Supabase", "Supabase sync failed for roll=$roll")
+        }
+        if (sapPassword.isNotEmpty()) {
+            try {
                 val response = sapRepository.login(
                     username = roll,
                     password = sapPassword,
                     academicYear = year,
                     termCode = term
                 )
-                if (response is AttendanceResult.Error) {
-                    return Result.failure(
-                        IllegalStateException(response.message)
-                    )
+
+                when (response) {
+                    is AttendanceResult.Error -> {
+                        return Result.failure(
+                            IllegalStateException(response.message)
+                        )
+                    }
+
+                    is AttendanceResult.Success -> {
+                        attendanceRepository.insertAttendance(
+                            response.data.subjects.map {
+                                it.toAttendanceEntity(year, term)
+                            }
+                        )
+                    }
                 }
-                if (response is AttendanceResult.Success) {
-                    attendanceRepository.insertAttendance(
-                        response.data.subjects.map {
-                            it.toAttendanceEntity(year, term)
-                        }
-                    )
-                }
+            } catch (e: Exception) {
+                return Result.failure(e)
             }
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
         }
+        return Result.success(Unit)
     }
+
+//    suspend fun syncAll(
+//        roll: String,
+//        sapPassword: String,
+//        year: String,
+//        term: String
+//    ): Result<Unit> {
+//        return try {
+//            val student = supaBaseRepository.getStudentByRoll(roll)
+//            studentRepository.insertStudent(listOf(student))
+//            val timetable = supaBaseRepository.getTimetableForStudent(
+//                section = student.section,
+//                batch = student.batch
+//            )
+//            sectionRepository.insertSection(timetable)
+//            if (sapPassword.isNotEmpty()) {
+//                val response = sapRepository.login(
+//                    username = roll,
+//                    password = sapPassword,
+//                    academicYear = year,
+//                    termCode = term
+//                )
+//                if (response is AttendanceResult.Error) {
+//                    return Result.failure(
+//                        IllegalStateException(response.message)
+//                    )
+//                }
+//                if (response is AttendanceResult.Success) {
+//                    attendanceRepository.insertAttendance(
+//                        response.data.subjects.map {
+//                            it.toAttendanceEntity(year, term)
+//                        }
+//                    )
+//                }
+//            }
+//            Result.success(Unit)
+//        } catch (e: Exception) {
+//            Result.failure(e)
+//        }
+//    }
 }

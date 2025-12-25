@@ -42,27 +42,26 @@ class SecurePrefs @Inject constructor(
                 .commit()
         }
 
-    fun getSapPassword(): String =
-        prefs.getString(KEY_SAP_PASSWORD, "") ?: ""
-
-    fun isLoggedIn(): Boolean =
-        prefs.getBoolean(KEY_LOGGED_IN, false)
+    suspend fun getSapPassword(): String =
+        withContext(Dispatchers.IO) {
+            prefs.getString(KEY_SAP_PASSWORD, "") ?: ""
+        }
 
     val isLoggedInFlow: Flow<Boolean> = callbackFlow {
-        // emit initial value
-        trySend(isLoggedIn())
+        val sendValue = {
+            trySend(prefs.getBoolean(KEY_LOGGED_IN, false))
+        }
+
+        sendValue()
 
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_LOGGED_IN) {
-                trySend(isLoggedIn())
+                sendValue()
             }
         }
 
         prefs.registerOnSharedPreferenceChangeListener(listener)
-
-        awaitClose {
-            prefs.unregisterOnSharedPreferenceChangeListener(listener)
-        }
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
     suspend fun clearSapPassword() =

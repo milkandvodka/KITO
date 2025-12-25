@@ -22,8 +22,12 @@ class AttendanceListScreenViewModel @Inject constructor(
     private val prefs: PrefsRepository,
     private val securePrefs: SecurePrefs
 ): ViewModel(){
-    private val _sapLoggedIn = MutableStateFlow(false)
-    val sapLoggedIn = _sapLoggedIn.asStateFlow()
+    val sapLoggedIn = securePrefs.isLoggedInFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
     val attendance: StateFlow<List<AttendanceEntity>> =
         attendanceRepository
             .getAllAttendance()
@@ -32,9 +36,4 @@ class AttendanceListScreenViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = emptyList()
             )
-    init {
-        viewModelScope.launch {
-            _sapLoggedIn.value = securePrefs.isLoggedInFlow.first()
-        }
-    }
 }
