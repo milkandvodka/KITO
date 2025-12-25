@@ -3,15 +3,12 @@ package com.kito.ui.components
 import android.util.Log
 import com.kito.data.local.db.attendance.AttendanceRepository
 import com.kito.data.local.db.attendance.toAttendanceEntity
-import com.kito.data.local.db.section.SectionEntity
 import com.kito.data.local.db.section.SectionRepository
-import com.kito.data.local.db.student.StudentEntity
 import com.kito.data.local.db.student.StudentRepository
 import com.kito.data.local.preferences.PrefsRepository
 import com.kito.data.remote.SupabaseRepository
 import com.kito.sap.AttendanceResult
 import com.kito.sap.SapRepository
-import com.kito.ui.newUi.viewmodel.SyncResult
 import javax.inject.Inject
 
 class AppSyncUseCase @Inject constructor(

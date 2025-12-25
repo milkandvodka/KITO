@@ -1,7 +1,6 @@
 package com.kito.data.local.db.attendance
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
 @Entity(
     primaryKeys = ["subjectName", "year", "term"]

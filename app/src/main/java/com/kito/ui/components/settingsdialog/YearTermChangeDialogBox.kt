@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.state.SyncUiState
 import java.util.Calendar
-import kotlin.collections.map
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
