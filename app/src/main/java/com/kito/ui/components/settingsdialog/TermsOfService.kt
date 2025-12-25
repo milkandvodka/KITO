@@ -98,7 +98,7 @@ We believe in transparency and responsible development. Any updates to these Ter
 
 If you have any questions or concerns regarding these Terms of Service, please contact us at:
 
-📧 24155739@kiit.ac.in
+📧 elabs.kiito@gmail.com
                         """.trimIndent(),
                         style = MaterialTheme.typography.bodySmall,
                         fontFamily = FontFamily.Monospace,
