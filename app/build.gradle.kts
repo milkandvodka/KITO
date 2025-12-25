@@ -57,11 +57,12 @@ android {
 
     buildTypes {
         debug {
-            resValue("string", "app_name", "Kito (Debug)")
+            resValue("string", "app_name", "KIIT0 (Debug)")
+            applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }
         release {
-            resValue("string", "app_name", "Kito")
+            resValue("string", "app_name", "KIITO")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

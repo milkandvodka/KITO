@@ -1,5 +1,6 @@
 package com.kito.ui.newUi.screen
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -45,6 +46,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.kito.R
+import com.kito.ScheduleActivity
 import com.kito.ui.components.AboutELabsDialog
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
@@ -180,7 +182,10 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(
-                        onClick = {},
+                        onClick = {
+                            val intent = Intent(context, ScheduleActivity::class.java)
+                            context.startActivity(intent)
+                        },
                         modifier = Modifier.size(28.dp)
                     ) {
                         Icon(

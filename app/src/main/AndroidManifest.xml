@@ -17,6 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kito">
         <activity
+            android:name=".ScheduleActivity"
+            android:exported="false" />
+        <activity
             android:name=".UserSetupActivity"
             android:exported="false" />
         <activity
