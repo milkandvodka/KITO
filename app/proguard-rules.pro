@@ -1,88 +1,69 @@
-# ######## Enhanced ProGuard rules for the Kito app ########
+# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
 
-# Add the missing rule from R8
--dontwarn javax.lang.model.element.Modifier
+# Keep UI navigation destinations
+-keep class com.kito.ui.navigation.Destinations { *; }
+-keep class com.kito.ui.navigation.Destinations$* { *; }
 
-# Keep all activities, services, receivers, and providers
--keep public class * extends android.app.Activity
--keep public class * extends android.app.Service
--keep public class * extends android.content.BroadcastReceiver
--keep public class * extends android.content.ContentProvider
+# Keep main application class
+-keep class com.kito.KitoApplication { *; }
 
-# Keep custom views
--keep public class * extends android.view.View
--keep public class * extends androidx.appcompat.app.AppCompatActivity
--keep class androidx.compose.ui.node.LayoutNode
--keep class androidx.compose.ui.Modifier
--keep class androidx.compose.runtime.Composable
+# Keep all activities and essential UI classes
+-keep class com.kito.MainActivity { *; }
+-keep class com.kito.*Activity { *; }
+-keep class com.kito.*ViewModel { *; }
 
-# Keep classes in the app package with aggressive obfuscation
--keep class com.kito.** { *; }
--keep class com.kito.sap.** { *; }
+# Keep Hilt/Dagger classes (for dependency injection)
+-keep class * implements dagger.hilt.GeneratedComponent
+-keep @dagger.hilt.InstallIn class *
+-keep @dagger.Binds class *
+-keep @dagger.Provides class *
 
-# Keep the main application classes
--keep class com.kito.MainActivity
--keep class com.kito.AttendanceApp
--keep class com.kito.AttendanceViewModel
--keep class com.kito.PreferencesKt
--keep class com.kito.AttendanceViewModelFactory
+# Keep Supabase API interface and data models for timetable functionality
+-keep interface com.kito.data.remote.SupabaseApi { *; }
 
-# Keep the SAP portal client with all methods and fields
--keep class com.kito.sap.SapPortalClient { *; }
--keep class com.kito.sap.AttendanceResult { *; }
--keep class com.kito.sap.AttendanceData { *; }
--keep class com.kito.sap.SubjectAttendance { *; }
--keep class com.kito.sap.PersistentCookieJar { *; }
+# Keep data classes used for API serialization/deserialization
+-keep class com.kito.data.local.db.section.SectionEntity { *; }
+-keep class com.kito.data.local.db.student.StudentEntity { *; }
 
-# Keep necessary classes for HTTP requests (OkHttp)
+# Keep all fields in data classes for proper serialization/deserialization
+-keepclassmembers class * {
+    <fields>;
+}
+
+# Keep all getter and setter methods for serialization
+-keepclassmembers class * {
+    public void set*(***);
+    public *** get*();
+    public *** is*();
+}
+
+# Keep Retrofit and related networking classes
+-keep class retrofit2.** { *; }
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
+
+# Keep Room database entities and DAOs
+-keep @androidx.room.Entity class *
+-keep @androidx.room.Dao class *
+-keep class * extends androidx.room.RoomDatabase
+-keepclassmembers class * extends androidx.room.RoomDatabase {
+    <init>(...);
+}
+
+# Keep JSoup classes for SAP portal (critical for functionality)
+-keep class org.jsoup.** { *; }
+
+# Keep serialization annotations
+-keepattributes Signature
+-keepattributes *Annotation*
+
+# Don't warn about common missing dependencies
+-dontwarn javax.lang.model.element.**
+-dontwarn org.jsoup.**
 -dontwarn okhttp3.**
 -dontwarn okio.**
-
-# Keep necessary classes for HTML parsing (Jsoup)
--keep class org.jsoup.** { *; }
--dontwarn org.jsoup.**
-
-# Keep DataStore classes
--keep class androidx.datastore.** { *; }
-
-# Keep Compose classes
--keep class androidx.compose.runtime.** { *; }
--keep class androidx.compose.ui.** { *; }
--keep class androidx.compose.material.** { *; }
--keep class androidx.compose.material3.** { *; }
-
-# Keep annotations
--keepattributes *Annotation*
--keep class * extends java.lang.annotation.Annotation { *; }
-
-# Keep parameter names and other important attributes
--keepattributes Signature
--keepattributes Exceptions
--keepattributes InnerClasses
--keepattributes SourceFile,LineNumberTable
-
-# Keep the BuildConfig class
--keep class com.kito.BuildConfig { *; }
-
-# Keep resource references
--keepclassmembers class **.R$* {
-    public static <fields>;
-}
-
-# Keep methods that might be used by reflection
--keepclassmembers class * {
-    public void **(**);
-}
-
-# Optimize settings
--optimizations !code/simplification/arithmetic,!code/simplification/advanced,!class/merging/*
--optimizationpasses 5
-
-# Don't skip non-public library classes
--dontskipnonpubliclibraryclasses
--dontpreverify
-
-# Verbose output for debugging
--verbose
