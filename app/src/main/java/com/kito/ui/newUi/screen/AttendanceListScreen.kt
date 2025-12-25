@@ -35,10 +35,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import com.kito.data.local.db.attendance.toAttendanceEntity
 import com.kito.sap.SubjectAttendance
 import com.kito.ui.components.AttendanceCard
 import com.kito.ui.components.UIColors
+import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.AttendanceListScreenViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
@@ -54,7 +57,7 @@ import dev.chrisbanes.haze.rememberHazeState
 @Composable
 fun AttendanceListScreen(
     viewModel: AttendanceListScreenViewModel = hiltViewModel(),
-    onRefresh: () -> Unit = {}
+    navController: NavHostController
 ) {
     val uiColors = UIColors()
     val hazeState = rememberHazeState()
@@ -189,7 +192,13 @@ fun AttendanceListScreen(
 
                 Button(
                     onClick = {
-
+                        navController.navigate(Destinations.Attendance) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     },
                     modifier = Modifier.align(Alignment.Center),
                     colors = ButtonDefaults.buttonColors(

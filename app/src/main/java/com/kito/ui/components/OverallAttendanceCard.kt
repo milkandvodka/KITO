@@ -52,7 +52,8 @@ import dev.chrisbanes.haze.rememberHazeState
 fun OverallAttendanceCard(
     colors: UIColors,
     sapLoggedIn: Boolean,
-    percentage: Double
+    percentage: Double,
+    onClick:() -> Unit
 ) {
     var targetProgress by remember { mutableFloatStateOf(0f) }
 
@@ -178,7 +179,9 @@ fun OverallAttendanceCard(
                     }
             ) {
                 Button(
-                    onClick = { },
+                    onClick = {
+                        onClick()
+                    },
                     modifier = Modifier.align(Alignment.Center),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colors.progressAccent,

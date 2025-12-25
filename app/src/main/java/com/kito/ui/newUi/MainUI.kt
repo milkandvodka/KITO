@@ -119,7 +119,9 @@ fun MainUI() {
                         )
                     }
                     composable<Destinations.Attendance> {
-                        AttendanceListScreen()
+                        AttendanceListScreen(
+                            navController=navController
+                        )
                     }
                     composable<Destinations.Profile> {
                         SettingsScreen()
