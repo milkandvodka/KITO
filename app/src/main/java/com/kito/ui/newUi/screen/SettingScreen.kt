@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,9 +47,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.ui.components.UIColors
+import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.settingsdialog.NameChangeDialogBox
+import com.kito.ui.components.settingsdialog.PrivacyPolicyDialog
 import com.kito.ui.components.settingsdialog.RollChangeDialogBox
+import com.kito.ui.components.settingsdialog.TermsOfServiceDialog
 import com.kito.ui.components.settingsdialog.YearTermChangeDialogBox
+import com.kito.ui.components.state.SyncUiState
 import com.kito.ui.newUi.viewmodel.SettingsViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
@@ -77,6 +82,9 @@ fun SettingsScreen(
     var isNameChangeDialogOpen by remember { mutableStateOf(false) }
     var isRollChangeDialogOpen by remember { mutableStateOf(false) }
     var isYearTermChangeDialogOpen by remember { mutableStateOf(false) }
+    var isLoginDialogOpen by remember { mutableStateOf(false) }
+    var isPrivacyPolicyDialogOpen by remember { mutableStateOf(false) }
+    var isTermsOfServiceDialogOpen by remember { mutableStateOf(false) }
     val syncState by viewModel.syncState.collectAsState()
     val settingsItems = listOf(
         SettingsItem(
@@ -86,7 +94,7 @@ fun SettingsScreen(
             onClick = {
                 isNameChangeDialogOpen = true
             },
-            editButton = true
+            editButton = true,
         ),
         SettingsItem(
             title = "Roll No",
@@ -95,7 +103,7 @@ fun SettingsScreen(
             onClick = {
                 isRollChangeDialogOpen = true
             },
-            editButton = true
+            editButton = true,
         ),
         SettingsItem(
             title = "Year & Term",
@@ -104,22 +112,22 @@ fun SettingsScreen(
             onClick = {
                 isYearTermChangeDialogOpen = true
             },
-            editButton = true
+            editButton = true,
         ),
         SettingsItem(
             title = "Privacy Policy",
             value = "Read our privacy policy",
             icon = Icons.Default.PrivacyTip,
             onClick = {
-
-            }
+                isPrivacyPolicyDialogOpen = true
+            },
         ),
         SettingsItem(
             title = "Terms Of Service",
             value = "Read our terms of service",
             icon = Icons.Default.FilePresent,
             onClick = {
-
+                isTermsOfServiceDialogOpen = true
             }
         ),
         SettingsItem(
@@ -128,19 +136,32 @@ fun SettingsScreen(
             icon = Icons.Default.Info,
             onClick = {
 
-            }
+            },
         ),
         SettingsItem(
             title = if (!isLoggedIn) "Login" else "Logout",
             value = if(!isLoggedIn) "Login to SAP" else "Logout of SAP",
             icon = if (!isLoggedIn) Icons.AutoMirrored.Filled.Login else Icons.AutoMirrored.Filled.Logout,
             onClick = {
-
+                if (isLoggedIn){
+                    viewModel.logOut()
+                }else{
+                    isLoginDialogOpen = true
+                }
             },
             editButton = false,
-            isLogout = true
+            isLogout = true,
         )
     )
+    LaunchedEffect(syncState) {
+        if (syncState is SyncUiState.Success) {
+            isNameChangeDialogOpen = false
+            isRollChangeDialogOpen = false
+            isYearTermChangeDialogOpen = false
+            isLoginDialogOpen = false
+            viewModel.syncStateIdle()
+        }
+    }
     Box {
         LazyColumn(
             contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 46.dp),
@@ -258,9 +279,11 @@ fun SettingsScreen(
             onDismiss = {
                 isNameChangeDialogOpen = false
             },
-            onConfirm = {
+            onConfirm = {name->
+                viewModel.changeName(name)
 
-            }
+            },
+            syncState = syncState
         )
     }
     if (isRollChangeDialogOpen){
@@ -268,9 +291,10 @@ fun SettingsScreen(
             onDismiss = {
                 isRollChangeDialogOpen = false
             },
-            onConfirm = {
-
-            }
+            onConfirm = {roll->
+                viewModel.changeRoll(roll)
+            },
+            syncState = syncState
         )
     }
     if (isYearTermChangeDialogOpen){
@@ -279,6 +303,35 @@ fun SettingsScreen(
                 isYearTermChangeDialogOpen = false
             },
             onConfirm = { year, term ->
+                viewModel.changeYearTerm(year = year,term = term)
+            },
+            year = year,
+            term = term,
+            syncState = syncState
+        )
+    }
+    if(isLoginDialogOpen){
+        LoginDialogBox(
+            onDismiss = {
+                isLoginDialogOpen = false
+            },
+            onConfirm = {sapPassword->
+                viewModel.logIn(password = sapPassword)
+            },
+            syncState = syncState
+        )
+    }
+    if(isPrivacyPolicyDialogOpen){
+        PrivacyPolicyDialog(
+            onDismiss = {
+                isPrivacyPolicyDialogOpen = false
+            }
+        )
+    }
+    if (isTermsOfServiceDialogOpen){
+        TermsOfServiceDialog(
+            onDismiss = {
+                isTermsOfServiceDialogOpen = false
             }
         )
     }
@@ -290,5 +343,5 @@ data class SettingsItem(
     val icon: ImageVector,
     val onClick: () -> Unit ={},
     val editButton: Boolean = false,
-    val isLogout: Boolean = false
+    val isLogout: Boolean = false,
 )

@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
@@ -13,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -29,12 +32,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kito.ui.components.UIColors
+import com.kito.ui.components.state.SyncUiState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NameChangeDialogBox(
     onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
+    onConfirm: (String) -> Unit,
+    syncState: SyncUiState
 ) {
     val uiColors = UIColors()
     var name by remember { mutableStateOf("") }
@@ -52,6 +57,7 @@ fun NameChangeDialogBox(
         text = {
             Column {
                 OutlinedTextField(
+                    enabled = syncState !is SyncUiState.Loading,
                     value = name,
                     onValueChange = { name = it },
                     modifier = Modifier.fillMaxWidth(),
@@ -89,6 +95,7 @@ fun NameChangeDialogBox(
         },
         confirmButton = {
             FilledTonalButton(
+                enabled = syncState !is SyncUiState.Loading,
                 onClick = {
                     if (name.isNotBlank()) {
                         onConfirm(name)
@@ -101,11 +108,19 @@ fun NameChangeDialogBox(
                     contentColor = uiColors.textPrimary
                 )
             ) {
+                if (syncState is SyncUiState.Loading){
+                    LoadingIndicator(
+                        color = uiColors.progressAccent,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
                 Text("Save")
             }
         },
         dismissButton = {
             TextButton(
+                enabled = syncState !is SyncUiState.Loading,
                 onClick = onDismiss,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = uiColors.progressAccent

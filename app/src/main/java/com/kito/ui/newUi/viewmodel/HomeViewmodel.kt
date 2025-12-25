@@ -38,12 +38,17 @@ class HomeViewmodel @Inject constructor(
     private val appSyncUseCase: AppSyncUseCase,
     private val syncGuard: StartupSyncGuard
 ): ViewModel() {
+    val name = prefs.userNameFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = ""
+    )
 
-    private val _name = MutableStateFlow("")
-    val name = _name.asStateFlow()
-
-    private val _sapLoggedIn = MutableStateFlow(false)
-    val sapLoggedIn = _sapLoggedIn.asStateFlow()
+    val sapLoggedIn = securePrefs.isLoggedInFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = false
+    )
 
     private val todayFlow = MutableStateFlow(
         when (LocalDate.now().dayOfWeek) {
@@ -70,14 +75,6 @@ class HomeViewmodel @Inject constructor(
 
     private val _syncEvents = MutableSharedFlow<SyncUiState>()
     val syncEvents: SharedFlow<SyncUiState> = _syncEvents
-
-
-    init {
-        viewModelScope.launch {
-            _name.value = prefs.userNameFlow.first()
-            _sapLoggedIn.value = securePrefs.isLoggedInFlow.first()
-        }
-    }
 
     fun syncOnStartup() {
         if (syncGuard.hasSynced) return

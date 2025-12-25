@@ -9,14 +9,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -33,28 +35,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.state.SyncUiState
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun RollChangeDialogBox(
+fun LoginDialogBox(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
-    syncState: SyncUiState
+    syncState: SyncUiState,
 ) {
     val uiColors = UIColors()
-    var roll by remember { mutableStateOf("") }
+    var sapPassword by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
-    var showWarning by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Change Roll No",
+                text = "Login To Sap",
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.SemiBold
             )
@@ -63,18 +66,16 @@ fun RollChangeDialogBox(
             Column {
                 OutlinedTextField(
                     enabled = syncState !is SyncUiState.Loading,
-                    value = roll,
-                    onValueChange = {input ->
-                        roll = input.filter { it.isDigit() }
-                    },
+                    value = sapPassword,
+                    onValueChange = { sapPassword = it },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(18.dp),
                     leadingIcon = {
-                        Icon(Icons.Filled.Person, contentDescription = null, tint = Color(0xFFB8B2BC))
+                        Icon(Icons.Filled.Lock, contentDescription = null, tint = Color(0xFFB8B2BC))
                     },
                     label = { Text(
-                        text = "Roll No",
+                        text = "SAP Password",
                         fontFamily = FontFamily.Monospace,
                         style = MaterialTheme.typography.titleMediumEmphasized
                     ) },
@@ -88,9 +89,18 @@ fun RollChangeDialogBox(
                         focusedLabelColor = Color(0xFFFF8C00),
                         cursorColor = Color(0xFFFF8C00)
                     ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    )
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image =
+                            if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        val description =
+                            if (passwordVisible) "Hide password" else "Show password"
+
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(imageVector = image, contentDescription = description)
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 )
 
                 if (isError) {
@@ -107,8 +117,8 @@ fun RollChangeDialogBox(
             FilledTonalButton(
                 enabled = syncState !is SyncUiState.Loading,
                 onClick = {
-                    if (roll.isNotBlank()) {
-                        showWarning = true
+                    if (sapPassword.isNotBlank()) {
+                        onConfirm(sapPassword)
                     } else {
                         isError = true
                     }
@@ -125,7 +135,7 @@ fun RollChangeDialogBox(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text("Save")
+                Text("Login")
             }
         },
         dismissButton = {
@@ -137,73 +147,6 @@ fun RollChangeDialogBox(
                 )
             ) {
                 Text("Cancel")
-            }
-        },
-        containerColor = uiColors.cardBackground
-    )
-    if (showWarning) {
-        WarningDialog(
-            onDismiss = {
-                showWarning = false
-            },
-            onConfirm = {
-                showWarning = false
-                onConfirm(roll)
-            }
-        )
-    }
-}
-
-@Composable
-private fun WarningDialog(
-    onDismiss: () -> Unit,
-    onConfirm:() -> Unit
-){
-    val uiColors = UIColors()
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                imageVector = Icons.Default.Warning,
-                contentDescription = null,
-                tint = Color(0xFFB32727)
-            )
-        },
-        title = {
-            Text(
-                text = "Roll Number Change",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        text = {
-            Text(
-                text = "Are you sure you want to change your roll number? If you are Logged in to SAP, You will be logged out of SAP and will need to login again.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        confirmButton = {
-            FilledTonalButton (
-                onClick = onConfirm,
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = Color(0xFFB32727),
-                    contentColor = Color.White
-                )
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = "Cancel",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Medium
-                )
             }
         },
         containerColor = uiColors.cardBackground
