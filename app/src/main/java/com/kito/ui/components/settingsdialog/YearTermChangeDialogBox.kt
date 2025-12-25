@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -18,6 +20,7 @@ import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -35,6 +38,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kito.ui.components.UIColors
+import com.kito.ui.components.state.SyncUiState
 import java.util.Calendar
 import kotlin.collections.map
 
@@ -42,7 +46,10 @@ import kotlin.collections.map
 @Composable
 fun YearTermChangeDialogBox(
     onDismiss: () -> Unit,
-    onConfirm: (String,String) -> Unit
+    onConfirm: (String,String) -> Unit,
+    syncState: SyncUiState,
+    year: String,
+    term: String
 ) {
     val uiColors = UIColors()
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
@@ -51,9 +58,9 @@ fun YearTermChangeDialogBox(
         "Autumn",
         "Spring"
     )
-    var selectedTerm by rememberSaveable { mutableStateOf("Autumn") }
-    var sapYear by rememberSaveable { mutableStateOf(currentYear.toString())}
-    var sapTerm by rememberSaveable { mutableStateOf("010") }
+    var selectedTerm by rememberSaveable { mutableStateOf(term) }
+    var sapYear by rememberSaveable { mutableStateOf(year)}
+    var sapTerm by rememberSaveable { mutableStateOf(if (term == "Autumn") "010" else "020") }
     var yearExpanded by remember { mutableStateOf(false) }
     val yearState = rememberTextFieldState(sapYear)
     var termExpanded by remember { mutableStateOf(false) }
@@ -74,10 +81,15 @@ fun YearTermChangeDialogBox(
                 Row {
                     ExposedDropdownMenuBox(
                         expanded = yearExpanded,
-                        onExpandedChange = { yearExpanded = !yearExpanded },
+                        onExpandedChange = {
+                            if (syncState !is SyncUiState.Loading) {
+                                yearExpanded = !yearExpanded
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     ) {
                         OutlinedTextField(
+                            enabled = syncState !is SyncUiState.Loading,
                             textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
                                 fontFamily = FontFamily.Monospace,
                                 color = Color.White
@@ -141,10 +153,15 @@ fun YearTermChangeDialogBox(
                     Spacer(modifier = Modifier.padding(8.dp))
                     ExposedDropdownMenuBox(
                         expanded = termExpanded,
-                        onExpandedChange = { termExpanded = !termExpanded },
+                        onExpandedChange = {
+                            if (syncState !is SyncUiState.Loading) {
+                                termExpanded = !termExpanded
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     ) {
                         OutlinedTextField(
+                            enabled = syncState !is SyncUiState.Loading,
                             textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
                                 fontFamily = FontFamily.Monospace,
                                 color = Color.White
@@ -219,6 +236,7 @@ fun YearTermChangeDialogBox(
         },
         confirmButton = {
             FilledTonalButton(
+                enabled = syncState !is SyncUiState.Loading,
                 onClick = {
                     if (sapTerm.isNotBlank() && sapYear.isNotBlank()) {
                         onConfirm(sapYear,sapTerm)
@@ -231,11 +249,19 @@ fun YearTermChangeDialogBox(
                     contentColor = uiColors.textPrimary
                 )
             ) {
+                if (syncState is SyncUiState.Loading){
+                    LoadingIndicator(
+                        color = uiColors.progressAccent,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
                 Text("Save")
             }
         },
         dismissButton = {
             TextButton(
+                enabled = syncState !is SyncUiState.Loading,
                 onClick = onDismiss,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = uiColors.progressAccent
