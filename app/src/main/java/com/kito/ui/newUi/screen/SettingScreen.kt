@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.ui.components.UIColors
+import com.kito.ui.components.settingsdialog.AboutAppDialogBox
 import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.settingsdialog.NameChangeDialogBox
 import com.kito.ui.components.settingsdialog.PrivacyPolicyDialog
@@ -85,6 +86,7 @@ fun SettingsScreen(
     var isLoginDialogOpen by remember { mutableStateOf(false) }
     var isPrivacyPolicyDialogOpen by remember { mutableStateOf(false) }
     var isTermsOfServiceDialogOpen by remember { mutableStateOf(false) }
+    var isAboutAppDialogOpen by remember { mutableStateOf(false) }
     val syncState by viewModel.syncState.collectAsState()
     val settingsItems = listOf(
         SettingsItem(
@@ -135,7 +137,7 @@ fun SettingsScreen(
             value = "Know more about this app",
             icon = Icons.Default.Info,
             onClick = {
-
+                isAboutAppDialogOpen = true
             },
         ),
         SettingsItem(
@@ -332,6 +334,13 @@ fun SettingsScreen(
         TermsOfServiceDialog(
             onDismiss = {
                 isTermsOfServiceDialogOpen = false
+            }
+        )
+    }
+    if (isAboutAppDialogOpen){
+        AboutAppDialogBox(
+            onDismiss = {
+                isAboutAppDialogOpen = false
             }
         )
     }

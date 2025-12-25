@@ -129,7 +129,7 @@ Contact Us
 
 If you have any questions or concerns regarding this Privacy Policy, please contact us at:
 
-📧 24155739@kiit.ac.in
+📧 elabs.kiito@gmail.com
                     """.trimIndent(),
                     style = MaterialTheme.typography.bodySmall,
                     fontFamily = FontFamily.Monospace,
