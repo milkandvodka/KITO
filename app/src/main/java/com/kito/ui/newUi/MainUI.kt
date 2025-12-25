@@ -52,7 +52,9 @@ fun MainUI() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    Surface {
+    Surface(
+
+    ) {
         Scaffold(
             bottomBar = {
                 FlexibleBottomAppBar(
