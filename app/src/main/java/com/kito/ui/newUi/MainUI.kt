@@ -51,80 +51,76 @@ fun MainUI() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    Surface(
-
-    ) {
-        Scaffold(
-            bottomBar = {
-                FlexibleBottomAppBar(
+    Scaffold(
+        bottomBar = {
+            FlexibleBottomAppBar(
+                containerColor = Color.Transparent,
+                modifier = Modifier
+                    .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                        blurRadius = 15.dp
+                        noiseFactor = 0.05f
+                        inputScale = HazeInputScale.Auto
+                        alpha = 0.98f
+                    }
+            ) {
+                NavigationBar(
                     containerColor = Color.Transparent,
-                    modifier = Modifier
-                        .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
-                            blurRadius = 15.dp
-                            noiseFactor = 0.05f
-                            inputScale = HazeInputScale.Auto
-                            alpha = 0.98f
-                        }
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    NavigationBar(
-                        containerColor = Color.Transparent,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        BottomNavigationItems.forEach { item ->
-                            val isSelected =
-                                currentDestination?.hierarchy?.any { it.route == item.destination::class.qualifiedName } == true
-                            NavigationBarItem(
-                                selected = isSelected,
-                                onClick = {
-                                    if (!isSelected) {
-                                        navController.navigate(item.destination) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
-                                            }
-                                            launchSingleTop = true
-                                            restoreState = true
+                    BottomNavigationItems.forEach { item ->
+                        val isSelected =
+                            currentDestination?.hierarchy?.any { it.route == item.destination::class.qualifiedName } == true
+                        NavigationBarItem(
+                            selected = isSelected,
+                            onClick = {
+                                if (!isSelected) {
+                                    navController.navigate(item.destination) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
                                         }
+                                        launchSingleTop = true
+                                        restoreState = true
                                     }
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = if (isSelected) item.selectedIcon else item.unSelectedIcon,
-                                        contentDescription = item.title
-                                    )
-                                },
-                                interactionSource = NoRippleInteractionSource,
-                                colors = NavigationBarItemDefaults.colors(
-                                    indicatorColor = uiColors.progressAccent
+                                }
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = if (isSelected) item.selectedIcon else item.unSelectedIcon,
+                                    contentDescription = item.title
                                 )
+                            },
+                            interactionSource = NoRippleInteractionSource,
+                            colors = NavigationBarItemDefaults.colors(
+                                indicatorColor = uiColors.progressAccent
                             )
-                        }
+                        )
                     }
                 }
-            },
-            contentWindowInsets = WindowInsets(0),
-            containerColor = Color.Transparent,
+            }
+        },
+        contentWindowInsets = WindowInsets(0),
+        containerColor = Color.Transparent,
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize()
+            NavHost(
+                navController = navController,
+                startDestination = Destinations.Home,
+                modifier = Modifier.hazeSource(hazeState)
             ) {
-                NavHost(
-                    navController = navController,
-                    startDestination = Destinations.Home,
-                    modifier = Modifier.hazeSource(hazeState)
-                ) {
-                    composable<Destinations.Home> {
-                        HomeScreen(
-                            navController = navController
-                        )
-                    }
-                    composable<Destinations.Attendance> {
-                        AttendanceListScreen(
-                            navController=navController
-                        )
-                    }
-                    composable<Destinations.Profile> {
-                        SettingsScreen()
-                    }
+                composable<Destinations.Home> {
+                    HomeScreen(
+                        navController = navController
+                    )
+                }
+                composable<Destinations.Attendance> {
+                    AttendanceListScreen(
+                        navController = navController
+                    )
+                }
+                composable<Destinations.Profile> {
+                    SettingsScreen()
                 }
             }
         }
