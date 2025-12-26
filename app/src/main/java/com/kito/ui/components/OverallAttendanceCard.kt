@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,7 +54,8 @@ fun OverallAttendanceCard(
     colors: UIColors,
     sapLoggedIn: Boolean,
     percentage: Double,
-    onClick:() -> Unit
+    onClick:() -> Unit,
+    onNavigate:()-> Unit
 ) {
     var targetProgress by remember { mutableFloatStateOf(0f) }
 
@@ -79,7 +81,15 @@ fun OverallAttendanceCard(
                 0.8f
             }
     }
-    Box() {
+    Box(
+        modifier = Modifier
+            .clip(shape = RoundedCornerShape(22.dp))
+            .clickable(
+                onClick = {
+                    onNavigate()
+                }
+            )
+    ) {
         Box(
             modifier = Modifier.hazeSource(hazeEffect)
         ) {
