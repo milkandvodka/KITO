@@ -1,29 +1,40 @@
 package com.kito.ui.components.settingsdialog
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.kito.ui.components.UIColors
+import com.kito.ui.components.openLink
 
 @Composable
 fun PrivacyPolicyDialog(
     onDismiss: () -> Unit,
 ) {
     val uiColor = UIColors()
+    val context = LocalContext.current
     Dialog(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
@@ -130,12 +141,55 @@ Contact Us
 
 If you have any questions or concerns regarding this Privacy Policy, please contact us at:
 
-📧 elabs.kiito@gmail.com
                     """.trimIndent(),
                     style = MaterialTheme.typography.bodySmall,
                     fontFamily = FontFamily.Monospace,
                     lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.2
                 )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    TextButton(
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = Uri.parse("mailto:elabs.kiito@gmail.com")
+                                putExtra(Intent.EXTRA_SUBJECT, "KIITO App Feedback")
+                                putExtra(Intent.EXTRA_TEXT, "")
+                            }
+                            context.startActivity(intent)
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color.White,
+                            containerColor = Color.White.copy(alpha = 0.08f)
+                        )
+                    ) {
+                        Text(
+                            text = "Email",
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    TextButton(
+                        onClick = {
+                            openLink(context, "https://elabskiit.in/")
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color.White,
+                            containerColor = Color.White.copy(alpha = 0.08f)
+                        )
+                    ) {
+                        Text(
+                            text = "Website",
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+                }
             }
         }
     }

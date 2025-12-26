@@ -2,35 +2,34 @@ package com.kito.ui.components.settingsdialog
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Dialog
 import com.kito.ui.components.UIColors
+import com.kito.ui.components.openLink
+import com.kito.R
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AboutAppDialogBox(
-    onDismiss:() -> Unit
+    onDismiss: () -> Unit
 ) {
     val uiColors = UIColors()
+    val context = LocalContext.current
+
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -42,6 +41,7 @@ fun AboutAppDialogBox(
                     .fillMaxWidth()
                     .padding(20.dp)
             ) {
+
                 Text(
                     text = "About App",
                     fontFamily = FontFamily.Monospace,
@@ -53,129 +53,298 @@ fun AboutAppDialogBox(
 
                 Column(
                     modifier = Modifier
-                        .weight(1f, fill = false)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    val context = LocalContext.current
 
-                    val annotatedText = buildAnnotatedString {
-                        append("KITO is a student-built utility app designed to help users easily view and track their academic attendance and timetable information in one place.\n\n")
-                        append("The app is developed and maintained by members of the eLabs technical society as part of a collaborative, learning-driven initiative. KITO is not an official university application and is intended solely for personal and informational use.\n\n")
-                        append("Key Highlights\n")
-                        append("• Quick and convenient access to attendance data\n")
-                        append("• Clean and modern user interface built with Jetpack Compose\n")
-                        append("• Focus on privacy-first and minimal data usage\n")
-                        append("• Open-source and community-driven development\n\n")
-                        append("Privacy & Security\n")
-                        append("KITO does not store your login credentials permanently and does not claim ownership of any personal information. Sensitive data is handled only as required for functionality and is never shared with third parties.\n\n")
-                        append("Open-Source Project\n")
-                        append("KITO is an open-source project. The source code is publicly available for learning, review, and contribution under the applicable open-source license.\n\n")
+                    Text(
+                        text = """
+                            KIITO is a student-built utility app designed to help users easily view and track their academic attendance and timetable information in one place.
 
-                        // Add the Devs section with clickable links
-                        append("Devs\n")
-                        append("Meet the developers behind KITO:\n\n")
+                            The app is developed and maintained by members of the eLabs technical society as part of a collaborative, learning-driven initiative. KIITO is not an official university application and is intended solely for personal and informational use.
+                        """.trimIndent(),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace,
+                        color = uiColors.textPrimary
+                    )
 
-                        // Shanu - LinkedIn (correct approach)
-                        pushStringAnnotation(tag = "URL", annotation = "https://www.linkedin.com/in/shanudevcodes/")
-                        val startShanu = length
-                        append("Shanu (https://www.linkedin.com/in/shanudevcodes/)\n")
-                        val endShanu = startShanu + "Shanu (".length + "https://www.linkedin.com/in/shanudevcodes/".length - 1
-                        addStyle(
-                            style = SpanStyle(
-                                color = androidx.compose.ui.graphics.Color.Blue,
-                                textDecoration = TextDecoration.Underline
-                            ),
-                            start = startShanu + 6, // Position after "Shanu "
-                            end = endShanu
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Key Highlights",
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace
+                    )
+
+                    Text(
+                        text = """
+                            • Quick and convenient access to attendance data
+                            • Clean and modern UI built with Jetpack Compose
+                            • Privacy-first and minimal data usage
+                            • Open-source and community-driven
+                        """.trimIndent(),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Privacy & Security",
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace
+                    )
+
+                    Text(
+                        text = """
+                            KIITO does not store your login credentials permanently and does not claim ownership of any personal information. Sensitive data is handled only as required for functionality and is never shared with third parties.
+                        """.trimIndent(),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Open-Source Project",
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace
+                    )
+
+                    Text(
+                        text = """
+                            KIITO is an open-source project. The source code is publicly available for learning, review, and contribution under the applicable open-source license.
+                        """.trimIndent(),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Devs",
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Shanu",
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMediumEmphasized
                         )
-                        pop()
-
-                        // Subham Shah - LinkedIn
-                        pushStringAnnotation(tag = "URL", annotation = "https://www.linkedin.com/in/subham-shah-51b29a343/")
-                        val startSubham = length
-                        append("Subham Shah (https://www.linkedin.com/in/subham-shah-51b29a343/)\n")
-                        val endSubham = startSubham + "Subham Shah (".length + "https://www.linkedin.com/in/subham-shah-51b29a343/".length - 1
-                        addStyle(
-                            style = SpanStyle(
-                                color = androidx.compose.ui.graphics.Color.Blue,
-                                textDecoration = TextDecoration.Underline
-                            ),
-                            start = startSubham + 12, // Position after "Subham Shah "
-                            end = endSubham
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.LinkedIn,
+                            "https://www.linkedin.com/in/shanudevcodes/",
+                            context
                         )
-                        pop()
-
-                        // Pratyusha Mohanty - LinkedIn
-                        pushStringAnnotation(tag = "URL", annotation = "https://www.linkedin.com/in/pratyusha12792/")
-                        val startPratyusha = length
-                        append("Pratyusha Mohanty (https://www.linkedin.com/in/pratyusha12792/)\n")
-                        val endPratyusha = startPratyusha + "Pratyusha Mohanty (".length + "https://www.linkedin.com/in/pratyusha12792/".length - 1
-                        addStyle(
-                            style = SpanStyle(
-                                color = androidx.compose.ui.graphics.Color.Blue,
-                                textDecoration = TextDecoration.Underline
-                            ),
-                            start = startPratyusha + 17, // Position after "Pratyusha Mohanty "
-                            end = endPratyusha
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.Github,
+                            "https://github.com/ShanuDevCodes",
+                            context
                         )
-                        pop()
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Shubham Shah",
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMediumEmphasized
 
-                        // Abinash Mohanty - LinkedIn
-                        pushStringAnnotation(tag = "URL", annotation = "https://www.linkedin.com/in/abinash-mohanty-/")
-                        val startAbinash = length
-                        append("Abinash Mohanty (https://www.linkedin.com/in/abinash-mohanty-/)\n")
-                        val endAbinash = startAbinash + "Abinash Mohanty (".length + "https://www.linkedin.com/in/abinash-mohanty-/".length - 1
-                        addStyle(
-                            style = SpanStyle(
-                                color = androidx.compose.ui.graphics.Color.Blue,
-                                textDecoration = TextDecoration.Underline
-                            ),
-                            start = startAbinash + 16, // Position after "Abinash Mohanty "
-                            end = endAbinash
                         )
-                        pop()
-
-                        // Yogisha Rani - LinkedIn
-                        pushStringAnnotation(tag = "URL", annotation = "https://www.linkedin.com/in/yogisha-rani-1382a7381/")
-                        val startYogisha = length
-                        append("Yogisha Rani (https://www.linkedin.com/in/yogisha-rani-1382a7381/)\n")
-                        val endYogisha = startYogisha + "Yogisha Rani (".length + "https://www.linkedin.com/in/yogisha-rani-1382a7381/".length - 1
-                        addStyle(
-                            style = SpanStyle(
-                                color = androidx.compose.ui.graphics.Color.Blue,
-                                textDecoration = TextDecoration.Underline
-                            ),
-                            start = startYogisha + 14, // Position after "Yogisha Rani "
-                            end = endYogisha
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.LinkedIn,
+                            "https://www.linkedin.com/in/subham-shah-51b29a343/",
+                            context
                         )
-                        pop()
-
-                        append("\n")
-
-                        append("Disclaimer\n")
-                        append("KITO relies on external academic systems and network availability. While efforts are made to ensure accuracy, users are encouraged to verify important or time-sensitive information through official institutional sources.\n\n")
-                        append("Contact\n")
-                        append("For feedback, issues, or contributions, feel free to reach out:\n\n")
-                        append("📧 elabs.kiito@gmail.com")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.Github,
+                            "https://github.com/milkandvodka",
+                            context
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Pratyusha Mohanty",
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMediumEmphasized
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.LinkedIn,
+                            "https://www.linkedin.com/in/pratyusha12792/",
+                            context
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.Github,
+                            "https://github.com/pratyusha12792",
+                            context
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Abinash Mohanty",
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMediumEmphasized
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.LinkedIn,
+                            "https://www.linkedin.com/in/abinash-mohanty-/",
+                            context
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.Github,
+                            "https://github.com/abinashmohanty8059",
+                            context
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Yogisha Rani",
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMediumEmphasized
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.LinkedIn,
+                            "https://www.linkedin.com/in/yogisha-rani-1382a7381/",
+                            context
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.Github,
+                            "https://github.com/LostRunes",
+                            context
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Harsh Singh",
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMediumEmphasized
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.LinkedIn,
+                            "https://www.linkedin.com/in/harsh-singh-60a7b432b",
+                            context
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeveloperLink(
+                            SocialMedia.Github,
+                            "https://github.com/harshkumarsingh12",
+                            context
+                        )
                     }
 
-                    ClickableText(
-                        text = annotatedText,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontFamily = FontFamily.Monospace,
-                            lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.2,
-                            color = uiColors.textPrimary
-                        ),
-                        onClick = { offset ->
-                            annotatedText.getStringAnnotations(tag = "URL", start = offset, end = offset)
-                                .firstOrNull()?.let { span ->
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(span.item))
-                                    context.startActivity(intent)
-                                }
-                        }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Disclaimer",
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace
                     )
+
+                    Text(
+                        text = """
+                            KIITO relies on external academic systems and network availability. While efforts are made to ensure accuracy, users are encouraged to verify important information through official sources.
+                        """.trimIndent(),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Contact",
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace
+                    )
+
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        TextButton(
+                            onClick = {
+                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                    data = Uri.parse("mailto:elabs.kiito@gmail.com")
+                                    putExtra(Intent.EXTRA_SUBJECT, "KIITO App Feedback")
+                                    putExtra(Intent.EXTRA_TEXT, "")
+                                }
+                                context.startActivity(intent)
+                            },
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = Color.White,
+                                containerColor = Color.White.copy(alpha = 0.08f)
+                            )
+                        ) {
+                            Text(
+                                text = "Email",
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        TextButton(
+                            onClick = {
+                                openLink(context, "https://elabskiit.in/")
+                            },
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = Color.White,
+                                containerColor = Color.White.copy(alpha = 0.08f)
+                            )
+                        ) {
+                            Text(
+                                text = "Website",
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun DeveloperLink(
+    socialMedia: SocialMedia,
+    url: String,
+    context: android.content.Context
+) {
+    IconButton(
+        onClick = { openLink(context, url) },
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = Color.White.copy(alpha = 0.08f)
+        ),
+    ) {
+        Icon(
+            painter = painterResource(id = if (socialMedia == SocialMedia.LinkedIn)R.drawable.linkedin else R.drawable.github),
+            contentDescription = "Logo",
+            modifier = Modifier.size(24.dp),
+            tint = if (socialMedia == SocialMedia.LinkedIn) Color.Unspecified else Color.White
+        )
+    }
+}
+enum class SocialMedia{
+    LinkedIn,
+    Github
 }

@@ -45,6 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.ui.components.UIColors
+import com.kito.ui.components.animation.PageNotFoundAnimation
+import com.kito.ui.components.animation.SlothSleepingAnimation
+import com.kito.ui.components.formatTo12Hour
 import com.kito.ui.newUi.viewmodel.ScheduleScreenViewModel
 import com.kito.ui.newUi.viewmodel.WeekDay
 import dev.chrisbanes.haze.ExperimentalHazeApi
@@ -147,24 +150,38 @@ fun ScheduleScreen(
                                             )
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Column(
-                                        verticalArrangement = Arrangement.Center,
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(vertical = 6.dp)
-                                    ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Column(
+                                            verticalArrangement = Arrangement.Center,
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(vertical = 6.dp)
+                                                .weight(1f)
+                                        ) {
+                                            Text(
+                                                text = item.subject,
+                                                color = uiColors.textPrimary,
+                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = FontFamily.Monospace,
+                                                style = MaterialTheme.typography.headlineSmallEmphasized
+                                            )
+                                            Text(
+                                                text = "${formatTo12Hour(item.startTime)} - ${
+                                                    formatTo12Hour(
+                                                        item.endTime
+                                                    )
+                                                }",
+                                                color = uiColors.textPrimary.copy(alpha = 0.85f),
+                                                style = MaterialTheme.typography.labelLargeEmphasized,
+                                                fontFamily = FontFamily.Monospace
+                                            )
+                                        }
                                         Text(
-                                            text = item.subject,
+                                            text = item.room?:"No Room",
                                             color = uiColors.textPrimary,
                                             fontWeight = FontWeight.Bold,
                                             fontFamily = FontFamily.Monospace,
-                                            style = MaterialTheme.typography.headlineSmallEmphasized
-                                        )
-                                        Text(
-                                            text = "${item.startTime} - ${item.endTime}",
-                                            color = uiColors.textPrimary.copy(alpha = 0.85f),
-                                            style = MaterialTheme.typography.labelLargeEmphasized,
-                                            fontFamily = FontFamily.Monospace
+                                            style = MaterialTheme.typography.titleMediumEmphasized
                                         )
                                     }
                                 }
@@ -175,8 +192,7 @@ fun ScheduleScreen(
                     item{
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(100.dp),
+                                .fillMaxWidth(),
                             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                             shape = RoundedCornerShape(24.dp)
@@ -196,12 +212,7 @@ fun ScheduleScreen(
                                         )
                                     )
                             ) {
-                                Text(
-                                    text = "No Class Today",
-                                    fontFamily = FontFamily.Monospace,
-                                    style = MaterialTheme.typography.labelMediumEmphasized,
-                                    color = uiColors.textPrimary
-                                )
+                                SlothSleepingAnimation()
                             }
                         }
                     }

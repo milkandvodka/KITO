@@ -39,8 +39,8 @@ fun UpcomingEventCard(){
                 )
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            ScheduleItem("IOtronics", "9 May", colors)
-            ScheduleItem("Kiit Fest", "12 Jan", colors)
+//            ScheduleItem("IOtronics", "9 May", colors)
+//            ScheduleItem("Kiit Fest", "12 Jan", colors)
         }
         Box(
             modifier = Modifier
