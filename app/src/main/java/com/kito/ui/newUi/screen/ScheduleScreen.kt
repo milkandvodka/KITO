@@ -89,7 +89,7 @@ fun ScheduleScreen(
         pagerState.animateScrollToPage(
             page = page,
             animationSpec = tween(
-                durationMillis = 600,
+                durationMillis = 800,
                 easing = ExpressiveEasing.Emphasized
             )
         )
