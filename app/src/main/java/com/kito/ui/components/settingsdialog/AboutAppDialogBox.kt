@@ -2,30 +2,57 @@ package com.kito.ui.components.settingsdialog
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Dialog
+import com.kito.R
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.openLink
-import com.kito.R
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeMaterialsApi::class,
+    ExperimentalHazeApi::class
+)
 @Composable
 fun AboutAppDialogBox(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    hazeState: HazeState
 ) {
     val uiColors = UIColors()
     val context = LocalContext.current
@@ -33,7 +60,20 @@ fun AboutAppDialogBox(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = uiColors.cardBackground,
+            color = Color.Transparent,
+            modifier = Modifier
+                .clip(RoundedCornerShape(24.dp))
+                .shadow(
+                    elevation = 24.dp,
+                    spotColor = uiColors.progressAccent
+                )
+                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                    blurRadius = 35.dp
+                    noiseFactor = 0.00f
+                    inputScale = HazeInputScale.Auto
+                    alpha = 0.98f
+                    tints = listOf(HazeTint(uiColors.cardBackground.copy(alpha = 0.15f)))
+                },
             tonalElevation = 6.dp
         ) {
             Column(

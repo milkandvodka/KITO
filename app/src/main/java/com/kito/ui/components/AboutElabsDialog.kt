@@ -2,7 +2,6 @@ package com.kito.ui.components
 
 import android.content.Context
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,34 +19,53 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 
+@OptIn(ExperimentalHazeMaterialsApi::class, ExperimentalHazeApi::class)
 @Composable
 fun AboutELabsDialog(
     onDismiss: () -> Unit,
-    context: Context
+    context: Context,
+    hazeState: HazeState
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF181818),
-                            Color(0xFFB45104)
-                        ),
-                        tileMode = TileMode.Mirror
-                    ),
-                    shape = RoundedCornerShape(24.dp)
-                )
+//                .background(
+//                    brush = Brush.linearGradient(
+//                        colors = listOf(
+//                            Color(0xFF181818),
+//                            Color(0xFFB45104)
+//                        ),
+//                        tileMode = TileMode.Mirror
+//                    ),
+//                    shape = RoundedCornerShape(24.dp)
+//                )
+                .clip(RoundedCornerShape(24.dp))
+                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                    blurRadius = 25.dp
+                    noiseFactor = 0.05f
+                    inputScale = HazeInputScale.Auto
+                    alpha = 1f
+                    tints = listOf(
+                        HazeTint(Color(0xFF181818).copy(alpha = 0.15f)),
+                        HazeTint(Color(0xFFB45104).copy(alpha = 0.15f))
+                    )
+                }
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

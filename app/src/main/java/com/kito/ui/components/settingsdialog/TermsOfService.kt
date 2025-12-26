@@ -20,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
@@ -28,18 +30,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.openLink
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 
+@OptIn(ExperimentalHazeMaterialsApi::class, ExperimentalHazeApi::class)
 @Composable
 fun TermsOfServiceDialog(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    hazeState: HazeState
 ) {
     val uiColors = UIColors()
     val context = LocalContext.current
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = uiColors.cardBackground,
-            tonalElevation = 6.dp
+            color = Color.Transparent,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .clip(RoundedCornerShape(24.dp))
+                .shadow(
+                    elevation = 24.dp,
+                    spotColor = uiColors.progressAccent
+                )
+                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                    blurRadius = 35.dp
+                    noiseFactor = 0.00f
+                    inputScale = HazeInputScale.Auto
+                    alpha = 0.98f
+                    tints = listOf(HazeTint(uiColors.cardBackground.copy(alpha = 0.15f)))
+                },
         ) {
             Column(
                 modifier = Modifier

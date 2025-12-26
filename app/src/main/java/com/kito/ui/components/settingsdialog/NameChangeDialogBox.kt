@@ -27,19 +27,31 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.state.SyncUiState
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalHazeMaterialsApi::class, ExperimentalHazeApi::class
+)
 @Composable
 fun NameChangeDialogBox(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
-    syncState: SyncUiState
+    syncState: SyncUiState,
+    hazeState: HazeState
 ) {
     val uiColors = UIColors()
     var name by remember { mutableStateOf("") }
@@ -129,6 +141,19 @@ fun NameChangeDialogBox(
                 Text("Cancel")
             }
         },
-        containerColor = uiColors.cardBackground
+        containerColor = Color.Transparent,
+        modifier = Modifier
+            .clip(RoundedCornerShape(24.dp))
+            .shadow(
+                elevation = 24.dp,
+                spotColor = uiColors.progressAccent
+            )
+            .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                blurRadius = 35.dp
+                noiseFactor = 0.00f
+                inputScale = HazeInputScale.Auto
+                alpha = 0.98f
+                tints = listOf(HazeTint(uiColors.cardBackground.copy(alpha = 0.15f)))
+            },
     )
 }
