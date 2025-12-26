@@ -55,6 +55,8 @@ import com.kito.ui.components.UpcomingEventCard
 import com.kito.ui.components.state.SyncUiState
 import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.HomeViewmodel
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -71,7 +73,7 @@ fun HomeScreen(
     val schedule by viewmodel.schedule.collectAsState()
     val syncState by viewmodel.syncState.collectAsState()
     val context = LocalContext.current
-    val todayFlow by viewmodel.todayFlow.collectAsState()
+    val hazeState = rememberHazeState()
     LaunchedEffect(Unit) {
         delay(1000)
         viewmodel.syncOnStartup()
@@ -103,6 +105,7 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 12.dp)
+            .hazeSource(hazeState)
     ) {
         LazyColumn() {
             item {
@@ -334,7 +337,7 @@ fun HomeScreen(
             item {
                 Spacer(
                     modifier = Modifier.height(
-                        66.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                        86.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                     )
                 )
             }
@@ -343,7 +346,8 @@ fun HomeScreen(
     if (showAboutDialog) {
         AboutELabsDialog(
             onDismiss = { showAboutDialog = false },
-            context = LocalContext.current
+            context = LocalContext.current,
+            hazeState = hazeState
         )
     }
 }
