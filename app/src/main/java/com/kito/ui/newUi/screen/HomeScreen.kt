@@ -71,6 +71,7 @@ fun HomeScreen(
     val schedule by viewmodel.schedule.collectAsState()
     val syncState by viewmodel.syncState.collectAsState()
     val context = LocalContext.current
+    val todayFlow by viewmodel.todayFlow.collectAsState()
     LaunchedEffect(Unit) {
         delay(1000)
         viewmodel.syncOnStartup()
@@ -183,7 +184,7 @@ fun HomeScreen(
                     )
                     IconButton(
                         onClick = {
-                            val intent = Intent(context, ScheduleActivity::class.java)
+                            val intent = Intent(context, ScheduleActivity::class.java).putExtra("TODAY", todayFlow)
                             context.startActivity(intent)
                         },
                         modifier = Modifier.size(28.dp)
@@ -208,7 +209,7 @@ fun HomeScreen(
                     colors = uiColors,
                     schedule = schedule,
                     onCLick = {
-                        val intent = Intent(context, ScheduleActivity::class.java)
+                        val intent = Intent(context, ScheduleActivity::class.java).putExtra("TODAY", todayFlow)
                         context.startActivity(intent)
                     }
                 )

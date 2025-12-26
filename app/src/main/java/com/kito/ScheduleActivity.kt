@@ -13,9 +13,20 @@ class ScheduleActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val today = intent.getStringExtra("TODAY")
         setContent {
             KitoTheme {
-                ScheduleScreen()
+                ScheduleScreen(
+                    page = when(today){
+                        "MON" -> 0
+                        "TUE" -> 1
+                        "WED" -> 2
+                        "THU" -> 3
+                        "FRI" -> 4
+                        "SAT" -> 5
+                        else-> 0
+                    }
+                )
             }
         }
     }

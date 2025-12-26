@@ -1,5 +1,7 @@
 package com.kito.ui.newUi.screen
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,9 +48,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.kito.ui.components.ExpressiveEasing
 import com.kito.ui.components.UIColors
-import com.kito.ui.components.animation.PageNotFoundAnimation
-import com.kito.ui.components.animation.SlothSleepingAnimation
+import com.kito.ui.components.animation.PandaSleepingAnimation
 import com.kito.ui.components.formatTo12Hour
 import com.kito.ui.newUi.viewmodel.ScheduleScreenViewModel
 import com.kito.ui.newUi.viewmodel.WeekDay
@@ -58,6 +61,7 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -66,7 +70,8 @@ import kotlin.math.absoluteValue
 )
 @Composable
 fun ScheduleScreen(
-    viewModel: ScheduleScreenViewModel = hiltViewModel()
+    viewModel: ScheduleScreenViewModel = hiltViewModel(),
+    page: Int
 ) {
     val uiColors = UIColors()
     val coroutineScope = rememberCoroutineScope()
@@ -79,6 +84,16 @@ fun ScheduleScreen(
         }
     )
     val schedule by viewModel.weeklySchedule.collectAsState()
+    LaunchedEffect(Unit) {
+        delay(100)
+        pagerState.animateScrollToPage(
+            page = page,
+            animationSpec = tween(
+                durationMillis = 600,
+                easing = ExpressiveEasing.Emphasized
+            )
+        )
+    }
     Surface {
         Box() {
             HorizontalPager(
@@ -220,7 +235,7 @@ fun ScheduleScreen(
                                             )
                                         )
                                 ) {
-                                    SlothSleepingAnimation()
+                                    PandaSleepingAnimation()
                                 }
                             }
                         }
