@@ -50,7 +50,7 @@ class HomeViewmodel @Inject constructor(
         initialValue = false
     )
 
-    private val todayFlow = MutableStateFlow(
+    private val _todayFlow = MutableStateFlow(
         when (LocalDate.now().dayOfWeek) {
             java.time.DayOfWeek.MONDAY -> "MON"
             java.time.DayOfWeek.TUESDAY -> "TUE"
@@ -60,6 +60,8 @@ class HomeViewmodel @Inject constructor(
             else -> ""
         }
     )
+
+    val todayFlow = _todayFlow.asStateFlow()
 
     private val attendance: StateFlow<List<AttendanceEntity>> =
         attendanceRepository
@@ -111,7 +113,7 @@ class HomeViewmodel @Inject constructor(
             .flatMapLatest { roll ->
                 studentSectionRepository.getScheduleForStudent(
                     rollNo = roll,
-                    day = todayFlow.value
+                    day = _todayFlow.value
                 )
             }
             .stateIn(

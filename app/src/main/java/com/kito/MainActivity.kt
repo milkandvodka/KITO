@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -92,7 +93,9 @@ class MainActivity : ComponentActivity() {
             splashScreen.setKeepOnScreenCondition { keepOnScreenCondition }
 
             KitoTheme {
-                MainUI()
+                Surface {
+                    MainUI()
+                }
             }
         }
     }

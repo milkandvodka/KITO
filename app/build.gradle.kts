@@ -162,4 +162,8 @@ dependencies {
     //PlayCore
     implementation("com.google.android.play:app-update:2.1.0")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
+
+    //System UI Controller
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.34.0")
+
 }

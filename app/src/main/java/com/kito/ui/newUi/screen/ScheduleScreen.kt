@@ -1,5 +1,7 @@
 package com.kito.ui.newUi.screen
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,10 +29,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,9 +48,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.kito.ui.components.ExpressiveEasing
 import com.kito.ui.components.UIColors
-import com.kito.ui.components.animation.PageNotFoundAnimation
-import com.kito.ui.components.animation.SlothSleepingAnimation
+import com.kito.ui.components.animation.PandaSleepingAnimation
 import com.kito.ui.components.formatTo12Hour
 import com.kito.ui.newUi.viewmodel.ScheduleScreenViewModel
 import com.kito.ui.newUi.viewmodel.WeekDay
@@ -57,6 +61,7 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -65,7 +70,8 @@ import kotlin.math.absoluteValue
 )
 @Composable
 fun ScheduleScreen(
-    viewModel: ScheduleScreenViewModel = hiltViewModel()
+    viewModel: ScheduleScreenViewModel = hiltViewModel(),
+    page: Int
 ) {
     val uiColors = UIColors()
     val coroutineScope = rememberCoroutineScope()
@@ -78,6 +84,16 @@ fun ScheduleScreen(
         }
     )
     val schedule by viewModel.weeklySchedule.collectAsState()
+    LaunchedEffect(Unit) {
+        delay(100)
+        pagerState.animateScrollToPage(
+            page = page,
+            animationSpec = tween(
+                durationMillis = 800,
+                easing = ExpressiveEasing.Emphasized
+            )
+        )
+    }
     Box() {
         HorizontalPager(
             contentPadding = PaddingValues(
@@ -98,9 +114,14 @@ fun ScheduleScreen(
                     .horizontalCarouselTransition(page, pagerState),
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 132.dp))
+                    Spacer(
+                        modifier = Modifier.height(
+                            WindowInsets.statusBars.asPaddingValues()
+                                .calculateTopPadding() + 132.dp
+                        )
+                    )
                 }
-                if(daySchedule.isNotEmpty()) {
+                if (daySchedule.isNotEmpty()) {
                     itemsIndexed(daySchedule) { index, item ->
                         Card(
                             modifier = Modifier
@@ -177,7 +198,7 @@ fun ScheduleScreen(
                                             )
                                         }
                                         Text(
-                                            text = item.room?:"No Room",
+                                            text = item.room ?: "No Room",
                                             color = uiColors.textPrimary,
                                             fontWeight = FontWeight.Bold,
                                             fontFamily = FontFamily.Monospace,
@@ -188,8 +209,8 @@ fun ScheduleScreen(
                             }
                         }
                     }
-                }else{
-                    item{
+                } else {
+                    item {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -201,6 +222,7 @@ fun ScheduleScreen(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
                                     .fillMaxSize()
+                                    .height(600.dp)
                                     .background(
                                         brush = Brush.linearGradient(
                                             colors = listOf(
@@ -212,7 +234,7 @@ fun ScheduleScreen(
                                         )
                                     )
                             ) {
-                                SlothSleepingAnimation()
+                                PandaSleepingAnimation()
                             }
                         }
                     }
