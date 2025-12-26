@@ -71,6 +71,7 @@ fun HomeScreen(
     val schedule by viewmodel.schedule.collectAsState()
     val syncState by viewmodel.syncState.collectAsState()
     val context = LocalContext.current
+    val todayFlow by viewmodel.todayFlow.collectAsState()
     LaunchedEffect(Unit) {
         delay(1000)
         viewmodel.syncOnStartup()

@@ -18,8 +18,8 @@ fun PageNotFoundAnimation() {
     )
 }
 @Composable
-fun SlothSleepingAnimation() {
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("sloth_sleeping.json"))
+fun PandaSleepingAnimation() {
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("panda_sleeping.json"))
     val progress by animateLottieCompositionAsState(composition, iterations = LottieConstants.IterateForever)
     LottieAnimation(
         composition = composition,
