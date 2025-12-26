@@ -337,7 +337,7 @@ fun HomeScreen(
             item {
                 Spacer(
                     modifier = Modifier.height(
-                        86.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                        106.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                     )
                 )
             }
