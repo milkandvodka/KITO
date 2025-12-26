@@ -289,7 +289,8 @@ fun SettingsScreen(
                 viewModel.changeName(name)
 
             },
-            syncState = syncState
+            syncState = syncState,
+            hazeState = hazeState
         )
     }
     if (isRollChangeDialogOpen){
@@ -300,7 +301,8 @@ fun SettingsScreen(
             onConfirm = {roll->
                 viewModel.changeRoll(roll)
             },
-            syncState = syncState
+            syncState = syncState,
+            hazeState = hazeState
         )
     }
     if (isYearTermChangeDialogOpen){
@@ -313,7 +315,8 @@ fun SettingsScreen(
             },
             year = year,
             term = term,
-            syncState = syncState
+            syncState = syncState,
+            hazeState = hazeState
         )
     }
     if(isLoginDialogOpen){
@@ -324,28 +327,32 @@ fun SettingsScreen(
             onConfirm = {sapPassword->
                 viewModel.logIn(password = sapPassword)
             },
-            syncState = syncState
+            syncState = syncState,
+            hazeState = hazeState
         )
     }
     if(isPrivacyPolicyDialogOpen){
         PrivacyPolicyDialog(
             onDismiss = {
                 isPrivacyPolicyDialogOpen = false
-            }
+            },
+            hazeState = hazeState
         )
     }
     if (isTermsOfServiceDialogOpen){
         TermsOfServiceDialog(
             onDismiss = {
                 isTermsOfServiceDialogOpen = false
-            }
+            },
+            hazeState = hazeState
         )
     }
     if (isAboutAppDialogOpen){
         AboutAppDialogBox(
             onDismiss = {
                 isAboutAppDialogOpen = false
-            }
+            },
+            hazeState = hazeState
         )
     }
 }

@@ -1,7 +1,5 @@
 package com.kito.ui.newUi.screen
 
-import kotlin.math.ceil
-import kotlin.math.max
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -42,8 +40,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -63,11 +61,15 @@ import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.AttendanceListScreenViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
+import kotlin.math.ceil
+import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
     ExperimentalHazeMaterialsApi::class, ExperimentalHazeApi::class
@@ -77,12 +79,15 @@ fun AttendanceListScreen(
     viewModel: AttendanceListScreenViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
+    val cardHaze = rememberHazeState()
     val uiColors = UIColors()
     val hazeState = rememberHazeState()
     val attendance by viewModel.attendance.collectAsState()
     val sapLoggedIn by viewModel.sapLoggedIn.collectAsState()
     val currentAttendance = remember { mutableStateOf<AttendanceEntity?>(null) }
-    Box() {
+    Box(
+        modifier = Modifier.hazeSource(cardHaze)
+    ) {
         LazyColumn(
             contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 46.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -131,7 +136,7 @@ fun AttendanceListScreen(
                 item {
                     Spacer(
                         modifier = Modifier.height(
-                            66.dp + WindowInsets.navigationBars.asPaddingValues()
+                            86.dp + WindowInsets.navigationBars.asPaddingValues()
                                 .calculateBottomPadding()
                         )
                     )
@@ -162,7 +167,7 @@ fun AttendanceListScreen(
                 item {
                     Spacer(
                         modifier = Modifier.height(
-                            66.dp + WindowInsets.navigationBars.asPaddingValues()
+                            86.dp + WindowInsets.navigationBars.asPaddingValues()
                                 .calculateBottomPadding()
                         )
                     )
@@ -251,6 +256,7 @@ fun AttendanceListScreen(
     }
     currentAttendance.value?.let { attendance ->
         AttendanceDialog(
+            hazeState = cardHaze,
             attendance = attendance,
             onDismiss = { currentAttendance.value = null }
         )
@@ -266,9 +272,12 @@ private fun classesRequiredFor75(
 }
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeMaterialsApi::class,
+    ExperimentalHazeApi::class
+)
 @Composable
 private fun AttendanceDialog(
+    hazeState: HazeState,
     attendance: AttendanceEntity,
     onDismiss: () -> Unit
 ){
@@ -296,19 +305,29 @@ private fun AttendanceDialog(
                     elevation = 24.dp,
                     spotColor = uiColors.progressAccent
                 )
-                .background(
-//                    color = uiColors.cardBackground,
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            uiColors.cardBackground,
-                            Color(0xFF2F222F),
-                            Color(0xFF2F222F),
-                            uiColors.cardBackgroundHigh,
-                            Color(0xFF6E4B37),
-                        )
-                    ),
+                .clip(
                     shape = RoundedCornerShape(24.dp)
                 )
+                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                    blurRadius = 30.dp
+                    noiseFactor = 0.05f
+                    inputScale = HazeInputScale.Auto
+                    alpha = 0.98f
+                    tints = listOf(HazeTint(Color(0xFF86431D).copy(alpha = 0.15f)))
+                }
+//                .background(
+////                    color = uiColors.cardBackground,
+//                    brush = Brush.linearGradient(
+//                        colors = listOf(
+//                            uiColors.cardBackground,
+//                            Color(0xFF2F222F),
+//                            Color(0xFF2F222F),
+//                            uiColors.cardBackgroundHigh,
+//                            Color(0xFF6E4B37),
+//                        )
+//                    ),
+//                    shape = RoundedCornerShape(24.dp)
+//                )
 
         ) {
             Spacer(modifier = Modifier.height(16.dp))
