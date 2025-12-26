@@ -206,7 +206,11 @@ fun HomeScreen(
             item {
                 ScheduleCard(
                     colors = uiColors,
-                    schedule = schedule
+                    schedule = schedule,
+                    onCLick = {
+                        val intent = Intent(context, ScheduleActivity::class.java)
+                        context.startActivity(intent)
+                    }
                 )
             }
 
@@ -260,6 +264,15 @@ fun HomeScreen(
                     percentage = averageAttendancePercentage,
                     onClick = {
                         navController.navigate(Destinations.Profile) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onNavigate = {
+                        navController.navigate(Destinations.Attendance){
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
