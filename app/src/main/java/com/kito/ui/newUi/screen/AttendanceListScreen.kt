@@ -136,7 +136,7 @@ fun AttendanceListScreen(
                 item {
                     Spacer(
                         modifier = Modifier.height(
-                            86.dp + WindowInsets.navigationBars.asPaddingValues()
+                            106.dp + WindowInsets.navigationBars.asPaddingValues()
                                 .calculateBottomPadding()
                         )
                     )
@@ -167,7 +167,7 @@ fun AttendanceListScreen(
                 item {
                     Spacer(
                         modifier = Modifier.height(
-                            86.dp + WindowInsets.navigationBars.asPaddingValues()
+                            106.dp + WindowInsets.navigationBars.asPaddingValues()
                                 .calculateBottomPadding()
                         )
                     )
