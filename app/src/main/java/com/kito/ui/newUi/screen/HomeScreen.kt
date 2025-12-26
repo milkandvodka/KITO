@@ -184,7 +184,7 @@ fun HomeScreen(
                     )
                     IconButton(
                         onClick = {
-                            val intent = Intent(context, ScheduleActivity::class.java).putExtra("TODAY", todayFlow)
+                            val intent = Intent(context, ScheduleActivity::class.java)
                             context.startActivity(intent)
                         },
                         modifier = Modifier.size(28.dp)
@@ -209,7 +209,7 @@ fun HomeScreen(
                     colors = uiColors,
                     schedule = schedule,
                     onCLick = {
-                        val intent = Intent(context, ScheduleActivity::class.java).putExtra("TODAY", todayFlow)
+                        val intent = Intent(context, ScheduleActivity::class.java)
                         context.startActivity(intent)
                     }
                 )
