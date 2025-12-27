@@ -257,7 +257,7 @@ fun SettingsScreen(
             item{
                 Spacer(
                     modifier = Modifier.height(
-                        106.dp + WindowInsets.navigationBars.asPaddingValues()
+                        86.dp + WindowInsets.navigationBars.asPaddingValues()
                             .calculateBottomPadding()
                     )
                 )

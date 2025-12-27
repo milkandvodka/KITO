@@ -92,7 +92,7 @@ fun MainUI() {
             Box(
                 modifier = Modifier
                     .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
-                    .padding(vertical = 24.dp, horizontal = 64.dp)
+                    .padding(vertical = 10.dp, horizontal = 64.dp)
                     .fillMaxWidth()
                     .height(64.dp)
                     .clip(CircleShape)
