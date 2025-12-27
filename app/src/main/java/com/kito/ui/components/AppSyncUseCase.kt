@@ -18,7 +18,7 @@ class AppSyncUseCase @Inject constructor(
     private val sectionRepository: SectionRepository,
     private val attendanceRepository: AttendanceRepository,
     private val sapRepository: SapRepository
-) {
+){
     suspend fun syncAll(
         roll: String,
         sapPassword: String,

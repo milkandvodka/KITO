@@ -1,5 +1,6 @@
 package com.kito.ui.newUi.screen
 
+import android.widget.Toast
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -30,6 +31,9 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,11 +48,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -57,6 +67,7 @@ import com.kito.data.local.db.attendance.toAttendanceEntity
 import com.kito.sap.SubjectAttendance
 import com.kito.ui.components.AttendanceCard
 import com.kito.ui.components.UIColors
+import com.kito.ui.components.state.SyncUiState
 import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.AttendanceListScreenViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
@@ -85,94 +96,160 @@ fun AttendanceListScreen(
     val attendance by viewModel.attendance.collectAsState()
     val sapLoggedIn by viewModel.sapLoggedIn.collectAsState()
     val currentAttendance = remember { mutableStateOf<AttendanceEntity?>(null) }
+    val pullToRefreshState = rememberPullToRefreshState()
+    val density = LocalDensity.current
+    val fraction = pullToRefreshState.distanceFraction.coerceIn(0f, 1f)
+    val syncState by viewModel.syncState.collectAsState()
+    val context = LocalContext.current
+
+    val pullOffsetPx = with(density) {
+        (42.dp * fraction).toPx()
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.syncEvents.collect { event ->
+            when (event) {
+                is SyncUiState.Success -> {
+                    Toast.makeText(
+                        context,
+                        "Sync completed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    viewModel.setSyncStateIdle()
+                }
+
+
+                is SyncUiState.Error ->
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                else -> {}
+            }
+        }
+    }
+
     Box(
         modifier = Modifier.hazeSource(cardHaze)
     ) {
-        LazyColumn(
-            contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 46.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier
-                .hazeSource(hazeState)
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+        PullToRefreshBox(
+            state = pullToRefreshState,
+            isRefreshing = syncState is SyncUiState.Loading,
+            onRefresh = {
+                viewModel.refresh()
+            },
+            indicator = {
+//                PullToRefreshDefaults.LoadingIndicator(
+//                    state = pullToRefreshState,
+//                    isRefreshing = isRefreshing,
+//                    modifier = Modifier
+//                        .align(Alignment.TopCenter)
+//                        .offset(y = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 62.dp)
+//                    ,
+//                    containerColor = uiColors.progressAccent,
+//                    color = uiColors.textPrimary
+//                )
+            },
         ) {
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            if(sapLoggedIn) {
-                itemsIndexed(attendance) { index, item ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 100.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                        shape = RoundedCornerShape(
-                            topStart = if (index == 0) 24.dp else 4.dp,
-                            topEnd = if (index == 0) 24.dp else 4.dp,
-                            bottomStart = if (index == attendance.size - 1) 24.dp else 4.dp,
-                            bottomEnd = if (index == attendance.size - 1) 24.dp else 4.dp
-                        ),
-                        onClick = {
-                            currentAttendance.value = item
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 46.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .graphicsLayer {
+                        translationY =
+                            if (syncState is SyncUiState.Loading) pullOffsetPx
+                            else pullOffsetPx
+                    }
+                    .hazeSource(hazeState)
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                if (sapLoggedIn) {
+                    itemsIndexed(attendance) { index, item ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 100.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                            shape = RoundedCornerShape(
+                                topStart = if (index == 0) 24.dp else 4.dp,
+                                topEnd = if (index == 0) 24.dp else 4.dp,
+                                bottomStart = if (index == attendance.size - 1) 24.dp else 4.dp,
+                                bottomEnd = if (index == attendance.size - 1) 24.dp else 4.dp
+                            ),
+                            onClick = {
+                                currentAttendance.value = item
+                            }
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize().background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(
+                                            uiColors.cardBackground,
+                                            Color(0xFF2F222F),
+                                            Color(0xFF2F222F),
+                                            uiColors.cardBackgroundHigh
+                                        )
+                                    )
+                                )
+                            ) {
+                                AttendanceCard(item)
+                            }
                         }
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize().background(
-                                 brush = Brush.linearGradient(
-                                         colors = listOf(
-                                             uiColors.cardBackground,
-                                             Color(0xFF2F222F),
-                                             Color(0xFF2F222F),
-                                             uiColors.cardBackgroundHigh
-                                         )
-                                 )
+                    }
+                    item {
+                        Spacer(
+                            modifier = Modifier.height(
+                                86.dp + WindowInsets.navigationBars.asPaddingValues()
+                                    .calculateBottomPadding()
+                            )
+                        )
+                    }
+                } else {
+                    itemsIndexed(sampleAttendance.map {
+                        it.toAttendanceEntity(
+                            year = "2025",
+                            term = "1"
+                        )
+                    }) { index, item ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 100.dp),
+                            colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                            shape = RoundedCornerShape(
+                                topStart = if (index == 0) 24.dp else 4.dp,
+                                topEnd = if (index == 0) 24.dp else 4.dp,
+                                bottomStart = if (index == attendance.size - 1) 24.dp else 4.dp,
+                                bottomEnd = if (index == attendance.size - 1) 24.dp else 4.dp
                             )
                         ) {
                             AttendanceCard(item)
                         }
                     }
-                }
-                item {
-                    Spacer(
-                        modifier = Modifier.height(
-                            106.dp + WindowInsets.navigationBars.asPaddingValues()
-                                .calculateBottomPadding()
+                    item {
+                        Spacer(
+                            modifier = Modifier.height(
+                                86.dp + WindowInsets.navigationBars.asPaddingValues()
+                                    .calculateBottomPadding()
+                            )
                         )
-                    )
-                }
-            }else{
-                itemsIndexed(sampleAttendance.map {
-                    it.toAttendanceEntity(
-                        year = "2025",
-                        term = "1"
-                    )
-                }) { index, item ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 100.dp),
-                        colors = CardDefaults.cardColors(containerColor = uiColors.cardBackground),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                        shape = RoundedCornerShape(
-                            topStart = if (index == 0) 24.dp else 4.dp,
-                            topEnd = if (index == 0) 24.dp else 4.dp,
-                            bottomStart = if (index == attendance.size - 1) 24.dp else 4.dp,
-                            bottomEnd = if (index == attendance.size - 1) 24.dp else 4.dp
-                        )
-                    ) {
-                        AttendanceCard(item)
                     }
                 }
-                item {
-                    Spacer(
-                        modifier = Modifier.height(
-                            106.dp + WindowInsets.navigationBars.asPaddingValues()
-                                .calculateBottomPadding()
-                        )
-                    )
-                }
             }
+            InstagramPullIndicator(
+                pullState = pullToRefreshState,
+                isRefreshing = syncState is SyncUiState.Loading
+            )
         }
         Column(
             modifier = Modifier
@@ -459,3 +536,69 @@ private val sampleAttendance = listOf(
         facultyName = "Nitin Varyani"
     )
 )
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun InstagramPullIndicator(
+    pullState: PullToRefreshState,
+    isRefreshing: Boolean
+) {
+    val uiColors = UIColors()
+    val haptic = LocalHapticFeedback.current
+    val density = LocalDensity.current
+
+    val fraction = pullState.distanceFraction.coerceIn(0f, 1f)
+
+    val topInset =
+        WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 46.dp
+
+    // --- haptic on threshold ---
+    var thresholdHapticTriggered by remember { mutableStateOf(false) }
+
+    LaunchedEffect(pullState.distanceFraction) {
+        if (pullState.distanceFraction >= 1f && !thresholdHapticTriggered) {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            thresholdHapticTriggered = true
+        }
+        if (pullState.distanceFraction < 1f) {
+            thresholdHapticTriggered = false
+        }
+    }
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+    }
+
+    if (fraction > 0f || isRefreshing) {
+        Box(
+            modifier = Modifier
+                .zIndex(2f) // 🔥 important
+                .fillMaxWidth()
+                .height(48.dp)
+                .graphicsLayer {
+                    val maxOffset = with(density) { 12.dp.toPx() }
+
+                    translationY =
+                        with(density) {
+                            topInset.toPx() +
+                                    if (isRefreshing) maxOffset
+                                    else fraction * maxOffset
+                        }
+
+                    alpha = if (isRefreshing) 1f else fraction
+                    scaleX = if (isRefreshing) 1f else 0.8f + (0.2f * fraction)
+                    scaleY = scaleX
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            LinearWavyProgressIndicator(
+                color = uiColors.accentOrangeStart,
+                trackColor = uiColors.progressAccent,
+                modifier = Modifier.fillMaxWidth(),
+                waveSpeed = 5.dp,
+                wavelength = 70.dp,
+            )
+        }
+    }
+}
