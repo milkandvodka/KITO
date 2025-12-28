@@ -102,7 +102,7 @@ fun ScheduleScreen(
     val context = LocalContext.current
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
-//            .drop(1) // skip initial emission
+            .drop(1) // skip initial emission
             .distinctUntilChanged()
             .collect {
                 haptics.performHapticFeedback(
@@ -115,7 +115,7 @@ fun ScheduleScreen(
         pagerState.animateScrollToPage(
             page = page,
             animationSpec = tween(
-                durationMillis = 1200,
+                durationMillis = 800,
                 easing = ExpressiveEasing.Emphasized
             )
         )
