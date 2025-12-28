@@ -1,5 +1,7 @@
 package com.kito.ui.newUi.screen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +25,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Balance
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.FilePresent
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
@@ -47,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,6 +61,7 @@ import com.kito.ui.components.settingsdialog.AboutAppDialogBox
 import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.settingsdialog.NameChangeDialogBox
 import com.kito.ui.components.settingsdialog.PrivacyPolicyDialog
+import com.kito.ui.components.settingsdialog.RequiredAttendanceDialogBox
 import com.kito.ui.components.settingsdialog.RollChangeDialogBox
 import com.kito.ui.components.settingsdialog.TermsOfServiceDialog
 import com.kito.ui.components.settingsdialog.YearTermChangeDialogBox
@@ -82,15 +88,18 @@ fun SettingsScreen(
     val roll by viewModel.rollNumber.collectAsState()
     val year by viewModel.year.collectAsState()
     val term by viewModel.term.collectAsState()
+    val requiredAttendance by viewModel.requiredAttendance.collectAsState()
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
     var isNameChangeDialogOpen by remember { mutableStateOf(false) }
     var isRollChangeDialogOpen by remember { mutableStateOf(false) }
     var isYearTermChangeDialogOpen by remember { mutableStateOf(false) }
+    var isAttendanceChangeDialogOpen by remember { mutableStateOf(false) }
     var isLoginDialogOpen by remember { mutableStateOf(false) }
     var isPrivacyPolicyDialogOpen by remember { mutableStateOf(false) }
     var isTermsOfServiceDialogOpen by remember { mutableStateOf(false) }
     var isAboutAppDialogOpen by remember { mutableStateOf(false) }
     val syncState by viewModel.syncState.collectAsState()
+    val context = LocalContext.current
     val settingsItems = listOf(
         SettingsItem(
             title = "Name",
@@ -118,6 +127,30 @@ fun SettingsScreen(
                 isYearTermChangeDialogOpen = true
             },
             editButton = true,
+        ),
+        SettingsItem(
+            title = "Required Attendance",
+            value = "$requiredAttendance%",
+            icon = Icons.Default.Balance,
+            onClick = {
+                isAttendanceChangeDialogOpen = true
+            },
+            editButton = true,
+        ),
+        SettingsItem(
+            title = "FedBack",
+            value = "Submit your feedback",
+            icon = Icons.Default.Feedback,
+            onClick = {
+                val subject = Uri.encode("KIITO Feedback")
+                val body = Uri.encode("")
+                val intent = Intent(
+                    Intent.ACTION_SENDTO,
+                    Uri.parse("mailto:elabs.kiito@gmail.com?subject=$subject&body=$body")
+                )
+
+                context.startActivity(intent)
+            }
         ),
         SettingsItem(
             title = "Privacy Policy",
@@ -164,6 +197,7 @@ fun SettingsScreen(
             isRollChangeDialogOpen = false
             isYearTermChangeDialogOpen = false
             isLoginDialogOpen = false
+            isAttendanceChangeDialogOpen = false
             viewModel.syncStateIdle()
         }
     }
@@ -324,6 +358,18 @@ fun SettingsScreen(
             },
             year = year,
             term = term,
+            syncState = syncState,
+            hazeState = hazeState
+        )
+    }
+    if(isAttendanceChangeDialogOpen){
+        RequiredAttendanceDialogBox(
+            onDismiss = {
+                isAttendanceChangeDialogOpen = false
+            },
+            onConfirm = {attendance->
+                viewModel.changeAttendance(attendance.toInt())
+            },
             syncState = syncState,
             hazeState = hazeState
         )
