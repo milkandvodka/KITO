@@ -57,6 +57,12 @@ class SettingsViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = "Unknown"
             )
+    val requiredAttendance = prefs.requiredAttendanceFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = 0
+        )
     val isLoggedIn = securePrefs.isLoggedInFlow
             .stateIn(
                 scope = viewModelScope,
@@ -109,6 +115,19 @@ class SettingsViewModel @Inject constructor(
                     }
                 )
             } catch (e: Exception) {
+                _syncState.value = SyncUiState.Error(e.message ?: "Sync failed")
+            }
+        }
+    }
+
+    fun changeAttendance(attendance: Int){
+        viewModelScope.launch {
+            try {
+                _syncState.value = SyncUiState.Loading
+                delay(1000)
+                prefs.setRequiredAttendance(attendance)
+                _syncState.value = SyncUiState.Success
+            }catch (e: Exception) {
                 _syncState.value = SyncUiState.Error(e.message ?: "Sync failed")
             }
         }

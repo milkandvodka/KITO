@@ -21,7 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
@@ -31,6 +33,7 @@ fun BottomBarTabs(
     selectedTab: Int,
     onTabSelected: (BottomBarTab) -> Unit
 ){
+    val haptic = LocalHapticFeedback.current
     CompositionLocalProvider(
         LocalTextStyle provides LocalTextStyle.current.copy(
             fontSize = 12.sp,
@@ -70,6 +73,7 @@ fun BottomBarTabs(
                         .weight(1f)
                         .pointerInput(Unit){
                             detectTapGestures {
+                                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                                 onTabSelected(tab)
                             }
                         },

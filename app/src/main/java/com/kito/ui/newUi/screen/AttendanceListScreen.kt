@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -101,7 +102,8 @@ fun AttendanceListScreen(
     val fraction = pullToRefreshState.distanceFraction.coerceIn(0f, 1f)
     val syncState by viewModel.syncState.collectAsState()
     val context = LocalContext.current
-
+    val requiredAttendance = viewModel.requiredAttendance.collectAsState()
+    val haptic = LocalHapticFeedback.current
     val pullOffsetPx = with(density) {
         (42.dp * fraction).toPx()
     }
@@ -110,6 +112,7 @@ fun AttendanceListScreen(
         viewModel.syncEvents.collect { event ->
             when (event) {
                 is SyncUiState.Success -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                     Toast.makeText(
                         context,
                         "Sync completed",
@@ -186,6 +189,7 @@ fun AttendanceListScreen(
                                 bottomEnd = if (index == attendance.size - 1) 24.dp else 4.dp
                             ),
                             onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                                 currentAttendance.value = item
                             }
                         ) {
@@ -267,13 +271,15 @@ fun AttendanceListScreen(
                     16.dp + WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
                 )
             )
-            Text(
-                text = "Attendance",
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.SemiBold,
-                color = uiColors.textPrimary,
-                style = MaterialTheme.typography.titleLargeEmphasized
-            )
+            Row {
+                Text(
+                    text = "Attendance",
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold,
+                    color = uiColors.textPrimary,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
         }
         if (!sapLoggedIn) {
@@ -333,27 +339,39 @@ fun AttendanceListScreen(
     }
     currentAttendance.value?.let { attendance ->
         AttendanceDialog(
+            requiredAttendance = requiredAttendance.value,
             hazeState = cardHaze,
             attendance = attendance,
-            onDismiss = { currentAttendance.value = null }
+            onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                currentAttendance.value = null
+            }
         )
     }
 }
 
 
-private fun classesRequiredFor75(
+private fun classesRequiredForPercentage(
     attended: Int,
-    total: Int
+    total: Int,
+    requiredPercentage: Double
 ): Int {
-    return max(0, ceil(3 * total - 4 * attended.toDouble()).toInt())
-}
+    val r = requiredPercentage / 100.0
 
+    if (attended >= r * total) return 0
+
+    return max(
+        0,
+        ceil((r * total - attended) / (1 - r)).toInt()
+    )
+}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeMaterialsApi::class,
     ExperimentalHazeApi::class
 )
 @Composable
 private fun AttendanceDialog(
+    requiredAttendance: Int,
     hazeState: HazeState,
     attendance: AttendanceEntity,
     onDismiss: () -> Unit
@@ -473,15 +491,16 @@ private fun AttendanceDialog(
                     .padding(horizontal = 20.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            if (attendance.percentage < 75.0){
-                val requiredClassesFor75 = remember(attendance) {
-                    classesRequiredFor75(
+            if (attendance.percentage < requiredAttendance.toDouble()){
+                val requiredClasses = remember(attendance) {
+                    classesRequiredForPercentage(
                         attended = attendance.attendedClasses,
-                        total = attendance.totalClasses
+                        total = attendance.totalClasses,
+                        requiredPercentage = requiredAttendance.toDouble()
                     )
                 }
                 Text(
-                    text = "Classes for 75% - $requiredClassesFor75",
+                    text = "Classes for $requiredAttendance% - $requiredClasses",
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
                     color = uiColors.textPrimary,

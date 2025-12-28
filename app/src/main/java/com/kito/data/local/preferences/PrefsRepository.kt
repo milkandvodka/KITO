@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -21,8 +22,11 @@ class PrefsRepository @Inject constructor(
         private val KEY_USER_SETUP_DONE = booleanPreferencesKey("user_setup_done")
         private val KEY_USER_NAME = stringPreferencesKey("user_name")
         private val KEY_USER_ROLLNUMBER = stringPreferencesKey("User_Password")
+        private val KEY_REQUIRED_ATTENDANCE = intPreferencesKey("required_attendance")
     }
 
+    val requiredAttendanceFlow = dataStore.data
+        .map { it[KEY_REQUIRED_ATTENDANCE] ?: 75 }
     val userNameFlow = dataStore.data
         .map { it[KEY_USER_NAME] ?: "" }
 
@@ -65,4 +69,9 @@ class PrefsRepository @Inject constructor(
         dataStore.edit { it[KEY_TERM_CODE] = term }
     }
 
+    suspend fun setRequiredAttendance(attendance: Int) {
+        dataStore.edit {
+            it[KEY_REQUIRED_ATTENDANCE] = attendance
+        }
+    }
 }

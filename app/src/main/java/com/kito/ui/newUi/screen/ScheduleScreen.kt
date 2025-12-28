@@ -1,6 +1,9 @@
 package com.kito.ui.newUi.screen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,10 +28,15 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
@@ -37,11 +46,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,6 +74,8 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -83,12 +98,24 @@ fun ScheduleScreen(
         }
     )
     val schedule by viewModel.weeklySchedule.collectAsState()
+    val haptics = LocalHapticFeedback.current
+    val context = LocalContext.current
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }
+//            .drop(1) // skip initial emission
+            .distinctUntilChanged()
+            .collect {
+                haptics.performHapticFeedback(
+                    HapticFeedbackType.Confirm
+                )
+            }
+    }
     LaunchedEffect(Unit) {
         delay(100)
         pagerState.animateScrollToPage(
             page = page,
             animationSpec = tween(
-                durationMillis = 800,
+                durationMillis = 1200,
                 easing = ExpressiveEasing.Emphasized
             )
         )
@@ -264,15 +291,45 @@ fun ScheduleScreen(
                 16.dp + WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
             )
         )
-        Text(
-            text = "Schedule",
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.SemiBold,
-            color = uiColors.textPrimary,
-            style = MaterialTheme.typography.titleLargeEmphasized,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-        )
+        ) {
+            Text(
+                text = "Schedule",
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold,
+                color = uiColors.textPrimary,
+                style = MaterialTheme.typography.titleLargeEmphasized,
+                modifier = Modifier
+                    .weight(1f)
+            )
+            IconButton(
+                onClick = {
+                    val subject = Uri.encode("KIITO Schedule Report")
+                    val body = Uri.encode("")
+
+                    val intent = Intent(
+                        Intent.ACTION_SENDTO,
+                        Uri.parse("mailto:elabs.kiito@gmail.com?subject=$subject&body=$body")
+                    )
+
+                    context.startActivity(intent)
+                },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.White.copy(alpha = 0.08f),
+                    contentColor = Color(0xFFB32727)
+                ),
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Report,
+                    contentDescription = "Report",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
         LazyRow(
             contentPadding = PaddingValues(horizontal = 12.dp),
