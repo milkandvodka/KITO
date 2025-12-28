@@ -33,16 +33,15 @@ class ScheduleActivity : ComponentActivity() {
             KitoTheme {
                 Surface {
                     ScheduleScreen(
-//                        page = when (today) {
-//                            "MON" -> 0
-//                            "TUE" -> 1
-//                            "WED" -> 2
-//                            "THU" -> 3
-//                            "FRI" -> 4
-//                            "SAT" -> 5
-//                            else -> 4
-//                        }
-                        page = 5
+                        page = when (today) {
+                            "MON" -> 0
+                            "TUE" -> 1
+                            "WED" -> 2
+                            "THU" -> 3
+                            "FRI" -> 4
+                            "SAT" -> 5
+                            else -> 4
+                        }
                     )
                 }
             }
