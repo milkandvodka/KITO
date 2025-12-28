@@ -61,8 +61,6 @@ class HomeViewmodel @Inject constructor(
         }
     )
 
-    val todayFlow = _todayFlow.asStateFlow()
-
     private val attendance: StateFlow<List<AttendanceEntity>> =
         attendanceRepository
             .getAllAttendance()
@@ -82,8 +80,8 @@ class HomeViewmodel @Inject constructor(
         if (syncGuard.hasSynced) return
         syncGuard.hasSynced = true
         viewModelScope.launch {
+            _syncEvents.emit(SyncUiState.Loading)
             _syncState.value = SyncUiState.Loading
-
             val roll = prefs.userRollFlow.first()
             val sapPassword = securePrefs.getSapPassword()
             val year = prefs.academicYearFlow.first()
