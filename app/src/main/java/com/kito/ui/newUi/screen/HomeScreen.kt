@@ -56,7 +56,6 @@ import com.kito.ScheduleActivity
 import com.kito.ui.components.AboutELabsDialog
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
-import com.kito.ui.components.StartupSyncGuard
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.UpcomingEventCard
 import com.kito.ui.components.state.SyncUiState
