@@ -1,6 +1,7 @@
 package com.kito.ui.newUi.screen
 
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -21,9 +22,11 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,7 +39,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -74,6 +80,7 @@ fun HomeScreen(
     val syncState by viewmodel.syncState.collectAsState()
     val context = LocalContext.current
     val hazeState = rememberHazeState()
+    val haptic = LocalHapticFeedback.current
     LaunchedEffect(Unit) {
         delay(1000)
         viewmodel.syncOnStartup()
@@ -82,20 +89,25 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         viewmodel.syncEvents.collect { event ->
             when (event) {
-                is SyncUiState.Success ->
+                is SyncUiState.Success -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOff)
                     Toast.makeText(
                         context,
                         "Sync completed",
                         Toast.LENGTH_SHORT
                     ).show()
-
-                is SyncUiState.Error ->
+                }
+                is SyncUiState.Error -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.Reject)
                     Toast.makeText(
                         context,
                         event.message,
                         Toast.LENGTH_LONG
                     ).show()
-
+                }
+                is SyncUiState.Loading -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                }
                 else -> {}
             }
         }
@@ -185,6 +197,28 @@ fun HomeScreen(
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.weight(1f)
                     )
+                    IconButton(
+                        onClick = {
+                            val subject = Uri.encode("KIITO Schedule Report")
+                            val body = Uri.encode("")
+                            val intent = Intent(
+                                Intent.ACTION_SENDTO,
+                                Uri.parse("mailto:elabs.kiito@gmail.com?subject=$subject&body=$body")
+                            )
+
+                            context.startActivity(intent)
+                        },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = Color(0xFFB32727)
+                        ),
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Report,
+                            contentDescription = "Report",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     IconButton(
                         onClick = {
                             val intent = Intent(context, ScheduleActivity::class.java)
