@@ -54,6 +54,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        checkForUpdate()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -83,11 +88,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 keepOnScreenCondition = false
-            }
-
-            // 🔔 Check for update once on launch
-            LaunchedEffect(Unit) {
-                checkForUpdate()
             }
 
             splashScreen.setKeepOnScreenCondition { keepOnScreenCondition }
@@ -134,8 +134,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onPause() {
+        super.onPause()
         appUpdateManager.unregisterListener(installStateListener)
     }
 

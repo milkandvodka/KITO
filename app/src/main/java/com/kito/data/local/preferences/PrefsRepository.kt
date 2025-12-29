@@ -23,7 +23,12 @@ class PrefsRepository @Inject constructor(
         private val KEY_USER_NAME = stringPreferencesKey("user_name")
         private val KEY_USER_ROLLNUMBER = stringPreferencesKey("User_Password")
         private val KEY_REQUIRED_ATTENDANCE = intPreferencesKey("required_attendance")
+
+        private val KEY_RESET_FIX = booleanPreferencesKey("reset_fix")
     }
+
+    val resetFixFlow = dataStore.data
+        .map { it[KEY_RESET_FIX] ?: false }
 
     val requiredAttendanceFlow = dataStore.data
         .map { it[KEY_REQUIRED_ATTENDANCE] ?: 75 }
@@ -72,6 +77,12 @@ class PrefsRepository @Inject constructor(
     suspend fun setRequiredAttendance(attendance: Int) {
         dataStore.edit {
             it[KEY_REQUIRED_ATTENDANCE] = attendance
+        }
+    }
+
+    suspend fun setResetDone(){
+        dataStore.edit {
+            it[KEY_RESET_FIX] = true
         }
     }
 }

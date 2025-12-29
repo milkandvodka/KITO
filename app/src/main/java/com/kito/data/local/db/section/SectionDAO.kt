@@ -2,6 +2,7 @@ package com.kito.data.local.db.section
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Query
 import androidx.room.Upsert
 
 @Dao
@@ -12,4 +13,7 @@ interface SectionDAO {
 
     @Delete
     suspend fun deleteSection(sectionEntity: SectionEntity)
+
+    @Query("DELETE FROM SectionEntity")
+    suspend fun deleteAllSection()
 }

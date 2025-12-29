@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -51,6 +52,7 @@ import com.kito.ui.navigation.tabs
 import com.kito.ui.newUi.screen.AttendanceListScreen
 import com.kito.ui.newUi.screen.HomeScreen
 import com.kito.ui.newUi.screen.SettingsScreen
+import com.kito.ui.newUi.viewmodel.AppViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
 import dev.chrisbanes.haze.hazeEffect
@@ -65,13 +67,18 @@ import dev.chrisbanes.haze.rememberHazeState
     ExperimentalHazeMaterialsApi::class, ExperimentalHazeApi::class
 )
 @Composable
-fun MainUI() {
+fun MainUI(
+    appViewModel: AppViewModel = hiltViewModel()
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
+    LaunchedEffect(Unit) {
+        appViewModel.checkResetFix()
+    }
     // Sync selectedTabIndex with currentDestination
     LaunchedEffect(currentDestination) {
         currentDestination?.let { dest ->

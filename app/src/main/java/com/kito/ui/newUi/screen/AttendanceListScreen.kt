@@ -452,7 +452,7 @@ private fun AttendanceDialog(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Teacher - " + attendance.facultyName,
+                text = "Faculty - " + attendance.facultyName,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Bold,
                 color = uiColors.textPrimary,

@@ -14,4 +14,7 @@ class SectionRepository @Inject constructor(
         sectionDAO.deleteSection(sectionEntity)
     }
 
+    suspend fun deleteAllSection() {
+        sectionDAO.deleteAllSection()
+    }
 }
