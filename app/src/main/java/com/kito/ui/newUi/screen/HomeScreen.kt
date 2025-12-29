@@ -50,6 +50,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.kito.R
@@ -70,6 +73,8 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeApi::class,
     ExperimentalHazeMaterialsApi::class
@@ -89,6 +94,23 @@ fun HomeScreen(
     val context = LocalContext.current
     val hazeState = rememberHazeState()
     val haptic = LocalHapticFeedback.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(
+            Lifecycle.State.STARTED
+        ) {
+            val today = when (LocalDate.now().dayOfWeek) {
+                DayOfWeek.MONDAY -> "MON"
+                DayOfWeek.TUESDAY -> "TUE"
+                DayOfWeek.WEDNESDAY -> "WED"
+                DayOfWeek.THURSDAY -> "THU"
+                DayOfWeek.FRIDAY -> "FRI"
+                else -> "MON"
+            }
+
+            viewmodel.updateDay(today)
+        }
+    }
     LaunchedEffect(Unit) {
         delay(1000)
         viewmodel.syncOnStartup()
@@ -193,6 +215,7 @@ fun HomeScreen(
                         }
                         IconButton(
                             onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                                 val intent = Intent(context, ScheduleActivity::class.java)
                                 context.startActivity(intent)
                             },
@@ -218,6 +241,7 @@ fun HomeScreen(
                         colors = uiColors,
                         schedule = schedule,
                         onCLick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                             val intent = Intent(context, ScheduleActivity::class.java)
                             context.startActivity(intent)
                         }
@@ -242,6 +266,7 @@ fun HomeScreen(
                         )
                         IconButton(
                             onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                                 navController.navigate(Destinations.Attendance) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
@@ -282,6 +307,7 @@ fun HomeScreen(
                             }
                         },
                         onNavigate = {
+                            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                             navController.navigate(Destinations.Attendance) {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true

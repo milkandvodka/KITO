@@ -1,6 +1,5 @@
 import java.io.FileInputStream
 import java.util.Properties
-import kotlin.apply
 
 plugins {
     id("com.android.application")

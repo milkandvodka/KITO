@@ -40,7 +40,7 @@ class ScheduleActivity : ComponentActivity() {
                             "THU" -> 3
                             "FRI" -> 4
                             "SAT" -> 5
-                            else -> 4
+                            else -> 5
                         }
                     )
                 }

@@ -51,7 +51,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -83,6 +85,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiColors = UIColors()
+    val haptic = LocalHapticFeedback.current
     val hazeState = rememberHazeState()
     val name by viewModel.name.collectAsState()
     val roll by viewModel.rollNumber.collectAsState()
@@ -106,6 +109,7 @@ fun SettingsScreen(
             value = name,
             icon = Icons.Default.Person,
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 isNameChangeDialogOpen = true
             },
             editButton = true,
@@ -115,6 +119,7 @@ fun SettingsScreen(
             value = roll,
             icon = Icons.Default.Badge,
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 isRollChangeDialogOpen = true
             },
             editButton = true,
@@ -124,6 +129,7 @@ fun SettingsScreen(
             value = "$year · $term",
             icon = Icons.Default.School,
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 isYearTermChangeDialogOpen = true
             },
             editButton = true,
@@ -133,6 +139,7 @@ fun SettingsScreen(
             value = "$requiredAttendance%",
             icon = Icons.Default.Balance,
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 isAttendanceChangeDialogOpen = true
             },
             editButton = true,
@@ -142,6 +149,7 @@ fun SettingsScreen(
             value = "Submit your feedback",
             icon = Icons.Default.Feedback,
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 val subject = Uri.encode("KIITO Feedback")
                 val body = Uri.encode("")
                 val intent = Intent(
@@ -157,6 +165,7 @@ fun SettingsScreen(
             value = "Read our privacy policy",
             icon = Icons.Default.PrivacyTip,
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 isPrivacyPolicyDialogOpen = true
             },
         ),
@@ -165,6 +174,7 @@ fun SettingsScreen(
             value = "Read our terms of service",
             icon = Icons.Default.FilePresent,
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 isTermsOfServiceDialogOpen = true
             }
         ),
@@ -173,6 +183,7 @@ fun SettingsScreen(
             value = "Know more about this app",
             icon = Icons.Default.Info,
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 isAboutAppDialogOpen = true
             },
         ),
@@ -181,6 +192,7 @@ fun SettingsScreen(
             value = if(!isLoggedIn) "Login to SAP" else "Logout of SAP",
             icon = if (!isLoggedIn) Icons.AutoMirrored.Filled.Login else Icons.AutoMirrored.Filled.Logout,
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 if (isLoggedIn){
                     viewModel.logOut()
                 }else{
@@ -193,6 +205,7 @@ fun SettingsScreen(
     )
     LaunchedEffect(syncState) {
         if (syncState is SyncUiState.Success) {
+            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
             isNameChangeDialogOpen = false
             isRollChangeDialogOpen = false
             isYearTermChangeDialogOpen = false
@@ -326,11 +339,12 @@ fun SettingsScreen(
     if (isNameChangeDialogOpen){
         NameChangeDialogBox(
             onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isNameChangeDialogOpen = false
             },
             onConfirm = {name->
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 viewModel.changeName(name)
-
             },
             syncState = syncState,
             hazeState = hazeState
@@ -339,9 +353,11 @@ fun SettingsScreen(
     if (isRollChangeDialogOpen){
         RollChangeDialogBox(
             onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isRollChangeDialogOpen = false
             },
             onConfirm = {roll->
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 viewModel.changeRoll(roll)
             },
             syncState = syncState,
@@ -351,9 +367,11 @@ fun SettingsScreen(
     if (isYearTermChangeDialogOpen){
         YearTermChangeDialogBox(
             onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isYearTermChangeDialogOpen = false
             },
             onConfirm = { year, term ->
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 viewModel.changeYearTerm(year = year,term = term)
             },
             year = year,
@@ -365,9 +383,11 @@ fun SettingsScreen(
     if(isAttendanceChangeDialogOpen){
         RequiredAttendanceDialogBox(
             onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isAttendanceChangeDialogOpen = false
             },
             onConfirm = {attendance->
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 viewModel.changeAttendance(attendance.toInt())
             },
             syncState = syncState,
@@ -377,9 +397,11 @@ fun SettingsScreen(
     if(isLoginDialogOpen){
         LoginDialogBox(
             onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isLoginDialogOpen = false
             },
             onConfirm = {sapPassword->
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 viewModel.logIn(password = sapPassword)
             },
             syncState = syncState,
@@ -389,6 +411,7 @@ fun SettingsScreen(
     if(isPrivacyPolicyDialogOpen){
         PrivacyPolicyDialog(
             onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isPrivacyPolicyDialogOpen = false
             },
             hazeState = hazeState
@@ -397,6 +420,7 @@ fun SettingsScreen(
     if (isTermsOfServiceDialogOpen){
         TermsOfServiceDialog(
             onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isTermsOfServiceDialogOpen = false
             },
             hazeState = hazeState
@@ -405,6 +429,7 @@ fun SettingsScreen(
     if (isAboutAppDialogOpen){
         AboutAppDialogBox(
             onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isAboutAppDialogOpen = false
             },
             hazeState = hazeState

@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 
@@ -50,16 +49,12 @@ class HomeViewmodel @Inject constructor(
         initialValue = false
     )
 
-    private val _todayFlow = MutableStateFlow(
-        when (LocalDate.now().dayOfWeek) {
-            java.time.DayOfWeek.MONDAY -> "MON"
-            java.time.DayOfWeek.TUESDAY -> "TUE"
-            java.time.DayOfWeek.WEDNESDAY -> "WED"
-            java.time.DayOfWeek.THURSDAY -> "THU"
-            java.time.DayOfWeek.FRIDAY -> "FRI"
-            else -> ""
-        }
-    )
+    private val _day = MutableStateFlow<String>("")
+    val day: StateFlow<String> = _day
+
+    fun updateDay(day: String) {
+        _day.value = day
+    }
 
     private val attendance: StateFlow<List<AttendanceEntity>> =
         attendanceRepository
@@ -109,15 +104,17 @@ class HomeViewmodel @Inject constructor(
     val schedule: StateFlow<List<StudentSectionEntity>> =
         prefs.userRollFlow
             .flatMapLatest { roll ->
-                studentSectionRepository.getScheduleForStudent(
-                    rollNo = roll,
-                    day = _todayFlow.value
-                )
+                day.flatMapLatest { day ->
+                    studentSectionRepository.getScheduleForStudent(
+                        rollNo = roll,
+                        day = day
+                    )
+                }
             }
             .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList()
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                emptyList()
             )
     val averageAttendancePercentage: StateFlow<Double> =
         attendance

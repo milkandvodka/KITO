@@ -2,7 +2,6 @@ package com.kito.ui.newUi.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kito.data.local.db.attendance.AttendanceRepository
 import com.kito.data.local.db.section.SectionRepository
 import com.kito.data.local.preferences.PrefsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
