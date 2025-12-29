@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -61,11 +62,18 @@ import com.kito.ui.components.UpcomingEventCard
 import com.kito.ui.components.state.SyncUiState
 import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.HomeViewmodel
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeApi::class,
+    ExperimentalHazeMaterialsApi::class
+)
 @Composable
 fun HomeScreen(
     viewmodel: HomeViewmodel = hiltViewModel(),
@@ -113,61 +121,25 @@ fun HomeScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 12.dp)
-            .hazeSource(hazeState)
-    ) {
-        LazyColumn() {
-            item {
-                Spacer(
-                    modifier = Modifier.height(
-                        8.dp + WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    Box() {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp)
+                .hazeSource(hazeState)
+        ) {
+            LazyColumn() {
+                item {
+                    Spacer(
+                        modifier = Modifier.height(
+                            72.dp + WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                        )
                     )
-                )
-            }
-            item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        Text(
-                            text = "Welcome",
-                            color = uiColors.progressAccent,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = FontFamily.Monospace,
-                            style = MaterialTheme.typography.titleMediumEmphasized
-                        )
-                        Text(
-                            text = "${name.trim().substringBefore(" ")} 👋",
-                            color = uiColors.textPrimary,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Monospace,
-                            style = MaterialTheme.typography.headlineLargeEmphasized,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    IconButton(
-                        onClick = { showAboutDialog = !showAboutDialog },
-                        modifier = Modifier.size(60.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.e_labs_logo),
-                            contentDescription = "Logo",
-                        )
-                    }
                 }
-            }
 
                 item {
                     AnimatedVisibility(syncState is SyncUiState.Loading) {
-                        Column{
+                        Column {
                             Spacer(modifier = Modifier.height(8.dp))
                             LinearWavyProgressIndicator(
                                 color = uiColors.accentOrangeStart,
@@ -181,148 +153,8 @@ fun HomeScreen(
                 }
 
 
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Today's Schedule",
-                        color = uiColors.textPrimary,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(
-                        onClick = {
-                            val subject = Uri.encode("KIITO Schedule Report")
-                            val body = Uri.encode("")
-                            val intent = Intent(
-                                Intent.ACTION_SENDTO,
-                                Uri.parse("mailto:elabs.kiito@gmail.com?subject=$subject&body=$body")
-                            )
-
-                            context.startActivity(intent)
-                        },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = Color(0xFFB32727)
-                        ),
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Report,
-                            contentDescription = "Report",
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            val intent = Intent(context, ScheduleActivity::class.java)
-                            context.startActivity(intent)
-                        },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
-                            contentDescription = "Notifications",
-                            tint = uiColors.textPrimary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-            }
-
-            item {
-                Spacer(Modifier.height(8.dp))
-            }
-
-            // Schedule Section
-            item {
-                ScheduleCard(
-                    colors = uiColors,
-                    schedule = schedule,
-                    onCLick = {
-                        val intent = Intent(context, ScheduleActivity::class.java)
-                        context.startActivity(intent)
-                    }
-                )
-            }
-
-            item {
-                Spacer(Modifier.height(8.dp))
-            }
-
-            item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Overall Attendance",
-                        color = uiColors.textPrimary,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Destinations.Attendance) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
-                            contentDescription = "Notifications",
-                            tint = uiColors.textPrimary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-            }
-
-            item {
-                Spacer(Modifier.height(8.dp))
-            }
-
-            // Horizontal Cards
-            item {
-                OverallAttendanceCard(
-                    colors = uiColors,
-                    sapLoggedIn = sapLoggedIn,
-                    percentage = averageAttendancePercentage,
-                    onClick = {
-                        navController.navigate(Destinations.Profile) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    onNavigate = {
-                        navController.navigate(Destinations.Attendance){
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                )
-            }
-            if (false) {
                 item {
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
 
                 item {
@@ -330,7 +162,7 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Upcoming KIIT Events",
+                            text = "Today's Schedule",
                             color = uiColors.textPrimary,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Monospace,
@@ -338,7 +170,32 @@ fun HomeScreen(
                             modifier = Modifier.weight(1f)
                         )
                         IconButton(
-                            onClick = {},
+                            onClick = {
+                                val subject = Uri.encode("KIITO Schedule Report")
+                                val body = Uri.encode("")
+                                val intent = Intent(
+                                    Intent.ACTION_SENDTO,
+                                    Uri.parse("mailto:elabs.kiito@gmail.com?subject=$subject&body=$body")
+                                )
+
+                                context.startActivity(intent)
+                            },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = Color(0xFFB32727)
+                            ),
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Report,
+                                contentDescription = "Report",
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                val intent = Intent(context, ScheduleActivity::class.java)
+                                context.startActivity(intent)
+                            },
                             modifier = Modifier.size(28.dp)
                         ) {
                             Icon(
@@ -350,13 +207,21 @@ fun HomeScreen(
                         }
                     }
                 }
-                item{
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn() + expandVertically()
-                    ) {
-                        Text("Updating")
-                    }
+
+                item {
+                    Spacer(Modifier.height(8.dp))
+                }
+
+                // Schedule Section
+                item {
+                    ScheduleCard(
+                        colors = uiColors,
+                        schedule = schedule,
+                        onCLick = {
+                            val intent = Intent(context, ScheduleActivity::class.java)
+                            context.startActivity(intent)
+                        }
+                    )
                 }
 
                 item {
@@ -364,17 +229,178 @@ fun HomeScreen(
                 }
 
                 item {
-                    UpcomingEventCard()
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Overall Attendance",
+                            color = uiColors.textPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = {
+                                navController.navigate(Destinations.Attendance) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
+                                contentDescription = "Notifications",
+                                tint = uiColors.textPrimary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(Modifier.height(8.dp))
+                }
+
+                // Horizontal Cards
+                item {
+                    OverallAttendanceCard(
+                        colors = uiColors,
+                        sapLoggedIn = sapLoggedIn,
+                        percentage = averageAttendancePercentage,
+                        onClick = {
+                            navController.navigate(Destinations.Profile) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        onNavigate = {
+                            navController.navigate(Destinations.Attendance) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+                if (false) {
+                    item {
+                        Spacer(Modifier.height(8.dp))
+                    }
+
+                    item {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Upcoming KIIT Events",
+                                color = uiColors.textPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.weight(1f)
+                            )
+                            IconButton(
+                                onClick = {},
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
+                                    contentDescription = "Notifications",
+                                    tint = uiColors.textPrimary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn() + expandVertically()
+                        ) {
+                            Text("Updating")
+                        }
+                    }
+
+                    item {
+                        Spacer(Modifier.height(8.dp))
+                    }
+
+                    item {
+                        UpcomingEventCard()
+                    }
+                }
+
+                item {
+                    Spacer(
+                        modifier = Modifier.height(
+                            86.dp + WindowInsets.navigationBars.asPaddingValues()
+                                .calculateBottomPadding()
+                        )
+                    )
                 }
             }
-
-            item {
-                Spacer(
-                    modifier = Modifier.height(
-                        86.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        }
+        Column(
+            modifier = Modifier
+                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                    blurRadius = 15.dp
+                    noiseFactor = 0.05f
+                    inputScale = HazeInputScale.Auto
+                    alpha = 0.98f
+                }
+                .padding(horizontal = 12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(
+                        top = 8.dp + WindowInsets.statusBars.asPaddingValues()
+                            .calculateTopPadding()
                     )
-                )
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = "Welcome",
+                        color = uiColors.progressAccent,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = FontFamily.Monospace,
+                        style = MaterialTheme.typography.titleMediumEmphasized
+                    )
+                    Text(
+                        text = "${name.trim().substringBefore(" ")} 👋",
+                        color = uiColors.textPrimary,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace,
+                        style = MaterialTheme.typography.headlineLargeEmphasized,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                IconButton(
+                    onClick = { showAboutDialog = !showAboutDialog },
+                    modifier = Modifier.size(60.dp)
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.e_labs_logo),
+                        contentDescription = "Logo",
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(6.dp))
         }
     }
     if (showAboutDialog) {
