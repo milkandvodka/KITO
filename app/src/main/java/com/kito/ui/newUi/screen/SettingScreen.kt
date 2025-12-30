@@ -145,7 +145,7 @@ fun SettingsScreen(
             editButton = true,
         ),
         SettingsItem(
-            title = "FedBack",
+            title = "FeedBack",
             value = "Submit your feedback",
             icon = Icons.Default.Feedback,
             onClick = {
