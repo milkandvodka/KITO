@@ -9,4 +9,8 @@ class StudentSectionRepository @Inject constructor(
     fun getScheduleForStudent(rollNo: String, day: String): Flow<List<StudentSectionEntity>> {
         return studentSectionDAO.getScheduleForStudent(rollNo, day)
     }
+
+    fun getScheduleForStudentBlocking(rollNo: String, day: String): List<StudentSectionEntity> {
+        return studentSectionDAO.getScheduleForStudentBlocking(rollNo, day)
+    }
 }

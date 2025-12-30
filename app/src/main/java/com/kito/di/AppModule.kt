@@ -47,7 +47,7 @@ object AppModule {
             context,
             AppDB::class.java,
             "kito_db"
-        ).build()
+        ).allowMainThreadQueries().build()
 
     @Provides
     fun provideUserDao(db: AppDB): AttendanceDAO =
