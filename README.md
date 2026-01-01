@@ -49,7 +49,7 @@ This project uses Gradle for dependency management and building:
 
 ```
 app/
-├── src/main/java/com/KIITO/
+├── src/main/java/com/kito/
 │   ├── MainActivity.kt          # Main UI
 │   ├── SapPortalClient.kt       # Public interface (no sensitive details)
 │   └── sap/
@@ -61,7 +61,7 @@ app/
 
 ## 🚫 Important Notes
 
-- The `app/src/main/java/com/KIITO/sap/sensitive/` directory contains the actual SAP Portal interaction code and is excluded from the repository via `.gitignore`
+- The `app/src/main/java/com/kito/sap/sensitive/` directory contains the actual SAP Portal interaction code and is excluded from the repository via `.gitignore`
 - This ensures that the reverse-engineered SAP Portal details are not exposed publicly
 - The application works by combining the public interface with the local sensitive code
 
