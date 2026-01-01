@@ -2,6 +2,8 @@
 
 A Kotlin-based Android application that securely fetches attendance data from the KIIT University SAP Portal. This app is designed to provide students with easy access to their attendance records without storing any sensitive information.
 
+The app is Krazzy.
+
 ## 🚀 Features
 
 - **Secure Login**: Enter your KIIT credentials to access attendance data
