@@ -1,4 +1,4 @@
-# Kito - KIIT Attendance Checker
+# KIITO - KIIT Attendance Checker
 
 A Kotlin-based Android application that securely fetches attendance data from the KIIT University SAP Portal. This app is designed to provide students with easy access to their attendance records without storing any sensitive information.
 
@@ -49,7 +49,7 @@ This project uses Gradle for dependency management and building:
 
 ```
 app/
-├── src/main/java/com/kito/
+├── src/main/java/com/KIITO/
 │   ├── MainActivity.kt          # Main UI
 │   ├── SapPortalClient.kt       # Public interface (no sensitive details)
 │   └── sap/
@@ -61,7 +61,7 @@ app/
 
 ## 🚫 Important Notes
 
-- The `app/src/main/java/com/kito/sap/sensitive/` directory contains the actual SAP Portal interaction code and is excluded from the repository via `.gitignore`
+- The `app/src/main/java/com/KIITO/sap/sensitive/` directory contains the actual SAP Portal interaction code and is excluded from the repository via `.gitignore`
 - This ensures that the reverse-engineered SAP Portal details are not exposed publicly
 - The application works by combining the public interface with the local sensitive code
 
