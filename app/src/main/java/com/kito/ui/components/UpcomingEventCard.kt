@@ -3,7 +3,10 @@ package com.kito.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -31,6 +34,7 @@ fun UpcomingEventCard(){
     Box {
         Column(
             modifier = Modifier
+                .heightIn(max = 205.dp)
                 .hazeSource(hazeState)
                 .fillMaxWidth()
                 .background(
@@ -39,26 +43,36 @@ fun UpcomingEventCard(){
                 )
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-//            ScheduleItem("IOtronics", "9 May", colors)
-//            ScheduleItem("Kiit Fest", "12 Jan", colors)
-        }
-        Box(
-            modifier = Modifier
-                .matchParentSize() // 🔥 THIS IS THE KEY
-                .clip(RoundedCornerShape(22.dp))
-                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()){
-                    blurRadius = 5.dp
-                },
-            contentAlignment = Alignment.Center
-        ){
-            Text(
-                text = "KIIT Events Coming Soon.....",
-                fontFamily = FontFamily.Monospace,
-                color = Color.White,
-                style = MaterialTheme.typography.titleSmallEmphasized,
-                modifier = Modifier.padding(12.dp),
-                fontWeight = FontWeight.Bold
+            UpcomingItem(
+                title = "KIIT Fest",
+                society = "KSAC",
+                date = "14 - 16 Feb",
+                colors = colors
+            )
+            UpcomingItem(
+                title = "IOtronics",
+                society = "E-Labs",
+                date = "1 Nov",
+                colors = colors
             )
         }
+//        Box(
+//            modifier = Modifier
+//                .matchParentSize()
+//                .clip(RoundedCornerShape(22.dp))
+//                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()){
+//                    blurRadius = 5.dp
+//                },
+//            contentAlignment = Alignment.Center
+//        ){
+//            Text(
+//                text = "KIIT Events Coming Soon.....",
+//                fontFamily = FontFamily.Monospace,
+//                color = Color.White,
+//                style = MaterialTheme.typography.titleSmallEmphasized,
+//                modifier = Modifier.padding(12.dp),
+//                fontWeight = FontWeight.Bold
+//            )
+//        }
     }
 }
