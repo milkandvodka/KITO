@@ -4,7 +4,9 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -65,6 +67,7 @@ import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.UpcomingEventCard
+import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.state.SyncUiState
 import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.HomeViewmodel
@@ -81,6 +84,7 @@ import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeApi::class,
     ExperimentalHazeMaterialsApi::class
 )
@@ -100,6 +104,15 @@ fun HomeScreen(
     val hazeState = rememberHazeState()
     val haptic = LocalHapticFeedback.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    var isLoginDialogOpen by remember { mutableStateOf(false) }
+    val loginState by viewmodel.loginState.collectAsState()
+    LaunchedEffect(loginState) {
+        if (loginState is SyncUiState.Success) {
+            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+            isLoginDialogOpen = false
+            viewmodel.setLoginStateIdle()
+        }
+    }
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(
             Lifecycle.State.STARTED
@@ -311,13 +324,8 @@ fun HomeScreen(
                         sapLoggedIn = sapLoggedIn,
                         percentage = averageAttendancePercentage,
                         onClick = {
-                            navController.navigate(Destinations.Profile) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
+                            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                            isLoginDialogOpen = true
                         },
                         onNavigate = {
                             haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
@@ -446,6 +454,20 @@ fun HomeScreen(
         AboutELabsDialog(
             onDismiss = { showAboutDialog = false },
             context = LocalContext.current,
+            hazeState = hazeState
+        )
+    }
+    if(isLoginDialogOpen){
+        LoginDialogBox(
+            onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                isLoginDialogOpen = false
+            },
+            onConfirm = {sapPassword->
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                viewmodel.login(password = sapPassword)
+            },
+            syncState = loginState,
             hazeState = hazeState
         )
     }

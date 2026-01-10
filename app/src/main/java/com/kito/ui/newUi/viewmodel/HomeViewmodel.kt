@@ -13,6 +13,7 @@ import com.kito.ui.components.StartupSyncGuard
 import com.kito.ui.components.state.SyncUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -67,10 +68,11 @@ class HomeViewmodel @Inject constructor(
 
     private val _syncState = MutableStateFlow<SyncUiState>(SyncUiState.Idle)
     val syncState = _syncState.asStateFlow()
-
     private val _syncEvents = MutableSharedFlow<SyncUiState>()
     val syncEvents: SharedFlow<SyncUiState> = _syncEvents
 
+    private val _loginState = MutableStateFlow<SyncUiState>(SyncUiState.Idle)
+    val loginState = _loginState.asStateFlow()
     fun syncOnStartup() {
         if (syncGuard.hasSynced) return
         syncGuard.hasSynced = true
@@ -130,4 +132,35 @@ class HomeViewmodel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = 0.0
             )
+    fun login(
+        password: String
+    ){
+        viewModelScope.launch {
+            _loginState.value = SyncUiState.Loading
+            delay(1000)
+            val roll = prefs.userRollFlow.first()
+            val year = prefs.academicYearFlow.first()
+            val term = prefs.termCodeFlow.first()
+
+            val result = appSyncUseCase.syncAll(
+                roll = roll,
+                sapPassword = password,
+                year = year,
+                term = term
+            )
+
+            _loginState.value = result.fold(
+                onSuccess = {
+                    securePrefs.saveSapPassword(password)
+                    SyncUiState.Success
+                },
+                onFailure = {
+                    SyncUiState.Error(it.message ?: "Sync failed")
+                }
+            )
+        }
+    }
+    fun setLoginStateIdle(){
+        _loginState.value = SyncUiState.Idle
+    }
 }

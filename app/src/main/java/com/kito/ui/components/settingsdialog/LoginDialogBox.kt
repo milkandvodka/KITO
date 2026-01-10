@@ -122,6 +122,14 @@ fun LoginDialogBox(
                         style = MaterialTheme.typography.labelSmall
                     )
                 }
+                if (syncState is SyncUiState.Error){
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = syncState.message,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
             }
         },
         confirmButton = {

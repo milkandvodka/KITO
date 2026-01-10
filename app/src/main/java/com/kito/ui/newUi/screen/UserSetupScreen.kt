@@ -76,27 +76,39 @@ import java.util.Calendar
 fun UserSetupScreen(
     userSetupViewModel: UserSetupViewModel = hiltViewModel()
 ) {
-    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-    val years = (currentYear - 5..currentYear).map { it.toString() }.reversed()
-    val terms = listOf(
-        "Autumn",
-        "Spring"
-    )
-    var selectedTerm by rememberSaveable { mutableStateOf("Autumn") }
+//    val years = (currentYear - 5..currentYear).map { it.toString() }.reversed()
+//    val terms = listOf(
+//        "Autumn",
+//        "Spring"
+//    )
+//    var selectedTerm by rememberSaveable { mutableStateOf("Autumn") }
     val context = LocalContext.current
     var name by rememberSaveable { mutableStateOf("") }
     var kiitRollNumber by rememberSaveable { mutableStateOf("") }
     var sapPassword by rememberSaveable { mutableStateOf("")}
-    var sapYear by rememberSaveable { mutableStateOf(currentYear.toString())}
-    var sapTerm by rememberSaveable { mutableStateOf("010") }
+    val calendar = Calendar.getInstance()
+    val currentYear = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH) + 1
+    val derivedYear = if (month < 5) {
+        currentYear - 1
+    } else {
+        currentYear
+    }
+    val derivedTerm = when (month) {
+        12, 1, 2, 3, 4 -> "020"
+        in 7..11 -> "010"
+        else -> "020"
+    }
+    var sapYear by rememberSaveable { mutableStateOf(derivedYear.toString()) }
+    var sapTerm by rememberSaveable { mutableStateOf(derivedTerm) }
     val uiColor = UIColors()
     val setupState by userSetupViewModel.setupState.collectAsState()
     val loading = setupState is SetupState.Loading
-    var passwordVisible by remember { mutableStateOf(false) }
-    var yearExpanded by remember { mutableStateOf(false) }
-    val yearState = rememberTextFieldState(sapYear)
-    var termExpanded by remember { mutableStateOf(false) }
-    val termState = rememberTextFieldState(selectedTerm)
+//    var passwordVisible by remember { mutableStateOf(false) }
+//    var yearExpanded by remember { mutableStateOf(false) }
+//    val yearState = rememberTextFieldState(sapYear)
+//    var termExpanded by remember { mutableStateOf(false) }
+//    val termState = rememberTextFieldState(selectedTerm)
     val loginGradient = Brush.horizontalGradient(
         colors = listOf(Color(0xFFFF8C00), Color(0xFFFF6A00))
     )
@@ -208,53 +220,53 @@ fun UserSetupScreen(
                 )
                 Spacer(Modifier.height(12.dp))
             }
-            item {
-                OutlinedTextField(
-                    textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
-                        fontFamily = FontFamily.Monospace,
-                        color = Color.White
-                    ),
-                    enabled = !loading,
-                    value = sapPassword,
-                    onValueChange = { sapPassword = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(18.dp),
-                    leadingIcon = {
-                        Icon(Icons.Filled.Lock, contentDescription = null, tint = Color(0xFFB8B2BC))
-                    },
-                    label = {
-                        Text(
-                            text = "SAP Password (Optional)",
-                            fontFamily = FontFamily.Monospace,
-                            style = MaterialTheme.typography.titleSmallEmphasized
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFFFF8C00),
-                        unfocusedBorderColor = Color(0xFF3F3942),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        disabledTextColor = Color.White,
-                        errorTextColor = Color.White,
-                        focusedLabelColor = Color(0xFFFF8C00),
-                        cursorColor = Color(0xFFFF8C00)
-                    ),
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        val image =
-                            if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                        val description =
-                            if (passwordVisible) "Hide password" else "Show password"
-
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(imageVector = image, contentDescription = description)
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                )
-                Spacer(Modifier.height(8.dp))
-            }
+//            item {
+//                OutlinedTextField(
+//                    textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
+//                        fontFamily = FontFamily.Monospace,
+//                        color = Color.White
+//                    ),
+//                    enabled = !loading,
+//                    value = sapPassword,
+//                    onValueChange = { sapPassword = it },
+//                    modifier = Modifier.fillMaxWidth(),
+//                    singleLine = true,
+//                    shape = RoundedCornerShape(18.dp),
+//                    leadingIcon = {
+//                        Icon(Icons.Filled.Lock, contentDescription = null, tint = Color(0xFFB8B2BC))
+//                    },
+//                    label = {
+//                        Text(
+//                            text = "SAP Password (Optional)",
+//                            fontFamily = FontFamily.Monospace,
+//                            style = MaterialTheme.typography.titleSmallEmphasized
+//                        )
+//                    },
+//                    colors = OutlinedTextFieldDefaults.colors(
+//                        focusedBorderColor = Color(0xFFFF8C00),
+//                        unfocusedBorderColor = Color(0xFF3F3942),
+//                        focusedTextColor = Color.White,
+//                        unfocusedTextColor = Color.White,
+//                        disabledTextColor = Color.White,
+//                        errorTextColor = Color.White,
+//                        focusedLabelColor = Color(0xFFFF8C00),
+//                        cursorColor = Color(0xFFFF8C00)
+//                    ),
+//                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+//                    trailingIcon = {
+//                        val image =
+//                            if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+//                        val description =
+//                            if (passwordVisible) "Hide password" else "Show password"
+//
+//                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+//                            Icon(imageVector = image, contentDescription = description)
+//                        }
+//                    },
+//                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+//                )
+//                Spacer(Modifier.height(8.dp))
+//            }
             if (setupState is SetupState.Error) {
                 item {
                     Text(
@@ -268,144 +280,143 @@ fun UserSetupScreen(
                 }
             }
 
-            item{
-                Row {
-                    ExposedDropdownMenuBox(
-                        expanded = yearExpanded,
-                        onExpandedChange = { yearExpanded = !yearExpanded },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        OutlinedTextField(
-                            textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
-                                fontFamily = FontFamily.Monospace,
-                                color = Color.White
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-                            readOnly = true,
-                            value = yearState.text.toString(),
-                            onValueChange = {},
-                            label = {
-                                Text(
-                                    text ="Year",
-                                    fontFamily = FontFamily.Monospace,
-                                    style = MaterialTheme.typography.titleSmallEmphasized
-                                )
-                            },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(
-                                    expanded = yearExpanded,
-                                )
-                            },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color(0xFFFF8C00),
-                                unfocusedBorderColor = Color(0xFF3F3942),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                disabledTextColor = Color.White,
-                                errorTextColor = Color.White,
-                                focusedLabelColor = Color(0xFFFF8C00),
-                                cursorColor = Color(0xFFFF8C00)
-                            )
-                        )
-
-                        ExposedDropdownMenu(
-                            expanded = yearExpanded,
-                            onDismissRequest = { yearExpanded = false },
-                            modifier = Modifier.height(140.dp),
-                            shape = RoundedCornerShape(16.dp),
-                        ) {
-                            years.forEach { year ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = year,
-                                            fontFamily = FontFamily.Monospace,
-                                            style = MaterialTheme.typography.titleSmallEmphasized
-                                        )
-                                    },
-                                    onClick = {
-                                        sapYear = year
-                                        yearState.setTextAndPlaceCursorAtEnd(year)
-                                        yearExpanded = false
-                                    },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                )
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    ExposedDropdownMenuBox(
-                        expanded = termExpanded,
-                        onExpandedChange = { termExpanded = !termExpanded },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        OutlinedTextField(
-                            textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
-                                fontFamily = FontFamily.Monospace,
-                                color = Color.White
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-                            readOnly = true,
-                            value = termState.text.toString(),
-                            onValueChange = {},
-                            label = {
-                                Text(
-                                    text = "Term",
-                                    fontFamily = FontFamily.Monospace,
-                                    style = MaterialTheme.typography.titleSmallEmphasized
-                                )
-                            },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(
-                                    expanded = termExpanded,
-                                )
-                            },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color(0xFFFF8C00),
-                                unfocusedBorderColor = Color(0xFF3F3942),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                disabledTextColor = Color.White,
-                                errorTextColor = Color.White,
-                                focusedLabelColor = Color(0xFFFF8C00),
-                                cursorColor = Color(0xFFFF8C00)
-                            )
-                        )
-
-                        ExposedDropdownMenu(
-                            expanded = termExpanded,
-                            onDismissRequest = { termExpanded = false },
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            terms.forEach { term ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = term,
-                                            fontFamily = FontFamily.Monospace,
-                                            style = MaterialTheme.typography.titleSmallEmphasized
-                                        )
-                                    },
-                                    onClick = {
-                                        selectedTerm = term
-                                        sapTerm = if (term == "Autumn") "010" else "020"
-                                        termState.setTextAndPlaceCursorAtEnd(term)
-                                        termExpanded = false
-                                    },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
+//            item{
+//                Row {
+//                    ExposedDropdownMenuBox(
+//                        expanded = yearExpanded,
+//                        onExpandedChange = { yearExpanded = !yearExpanded },
+//                        modifier = Modifier.weight(1f)
+//                    ) {
+//                        OutlinedTextField(
+//                            textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
+//                                fontFamily = FontFamily.Monospace,
+//                                color = Color.White
+//                            ),
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+//                            readOnly = true,
+//                            value = yearState.text.toString(),
+//                            onValueChange = {},
+//                            label = {
+//                                Text(
+//                                    text ="Year",
+//                                    fontFamily = FontFamily.Monospace,
+//                                    style = MaterialTheme.typography.titleSmallEmphasized
+//                                )
+//                            },
+//                            trailingIcon = {
+//                                ExposedDropdownMenuDefaults.TrailingIcon(
+//                                    expanded = yearExpanded,
+//                                )
+//                            },
+//                            shape = RoundedCornerShape(16.dp),
+//                            colors = OutlinedTextFieldDefaults.colors(
+//                                focusedBorderColor = Color(0xFFFF8C00),
+//                                unfocusedBorderColor = Color(0xFF3F3942),
+//                                focusedTextColor = Color.White,
+//                                unfocusedTextColor = Color.White,
+//                                disabledTextColor = Color.White,
+//                                errorTextColor = Color.White,
+//                                focusedLabelColor = Color(0xFFFF8C00),
+//                                cursorColor = Color(0xFFFF8C00)
+//                            )
+//                        )
+//
+//                        ExposedDropdownMenu(
+//                            expanded = yearExpanded,
+//                            onDismissRequest = { yearExpanded = false },
+//                            modifier = Modifier.height(140.dp),
+//                            shape = RoundedCornerShape(16.dp),
+//                        ) {
+//                            years.forEach { year ->
+//                                DropdownMenuItem(
+//                                    text = {
+//                                        Text(
+//                                            text = year,
+//                                            fontFamily = FontFamily.Monospace,
+//                                            style = MaterialTheme.typography.titleSmallEmphasized
+//                                        )
+//                                    },
+//                                    onClick = {
+//                                        sapYear = year
+//                                        yearState.setTextAndPlaceCursorAtEnd(year)
+//                                        yearExpanded = false
+//                                    },
+//                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+//                                )
+//                            }
+//                        }
+//                    }
+//                    Spacer(modifier = Modifier.padding(8.dp))
+//                    ExposedDropdownMenuBox(
+//                        expanded = termExpanded,
+//                        onExpandedChange = { termExpanded = !termExpanded },
+//                        modifier = Modifier.weight(1f)
+//                    ) {
+//                        OutlinedTextField(
+//                            textStyle = MaterialTheme.typography.titleSmallEmphasized.copy(
+//                                fontFamily = FontFamily.Monospace,
+//                                color = Color.White
+//                            ),
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+//                            readOnly = true,
+//                            value = termState.text.toString(),
+//                            onValueChange = {},
+//                            label = {
+//                                Text(
+//                                    text = "Term",
+//                                    fontFamily = FontFamily.Monospace,
+//                                    style = MaterialTheme.typography.titleSmallEmphasized
+//                                )
+//                            },
+//                            trailingIcon = {
+//                                ExposedDropdownMenuDefaults.TrailingIcon(
+//                                    expanded = termExpanded,
+//                                )
+//                            },
+//                            shape = RoundedCornerShape(16.dp),
+//                            colors = OutlinedTextFieldDefaults.colors(
+//                                focusedBorderColor = Color(0xFFFF8C00),
+//                                unfocusedBorderColor = Color(0xFF3F3942),
+//                                focusedTextColor = Color.White,
+//                                unfocusedTextColor = Color.White,
+//                                disabledTextColor = Color.White,
+//                                errorTextColor = Color.White,
+//                                focusedLabelColor = Color(0xFFFF8C00),
+//                                cursorColor = Color(0xFFFF8C00)
+//                            )
+//                        )
+//
+//                        ExposedDropdownMenu(
+//                            expanded = termExpanded,
+//                            onDismissRequest = { termExpanded = false },
+//                            shape = RoundedCornerShape(16.dp)
+//                        ) {
+//                            terms.forEach { term ->
+//                                DropdownMenuItem(
+//                                    text = {
+//                                        Text(
+//                                            text = term,
+//                                            fontFamily = FontFamily.Monospace,
+//                                            style = MaterialTheme.typography.titleSmallEmphasized
+//                                        )
+//                                    },
+//                                    onClick = {
+//                                        selectedTerm = term
+//                                        sapTerm = if (term == "Autumn") "010" else "020"
+//                                        termState.setTextAndPlaceCursorAtEnd(term)
+//                                        termExpanded = false
+//                                    },
+//                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+//                                )
+//                            }
+//                        }
+//                    }
+//                }
+//            }
             item {
                 if (setupState !is SetupState.Error) {
                     Spacer(Modifier.height(8.dp))
