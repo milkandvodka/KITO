@@ -1,6 +1,8 @@
 package com.kito.ui.newUi
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -16,15 +18,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
@@ -45,15 +50,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.kito.ui.navigation.BottomBarTab
 import com.kito.ui.navigation.BottomBarTabs
 import com.kito.ui.navigation.Destinations
 import com.kito.ui.navigation.tabs
 import com.kito.ui.newUi.screen.AttendanceListScreen
+import com.kito.ui.newUi.screen.FacultyDetailScreen
 import com.kito.ui.newUi.screen.FacultyScreen
 import com.kito.ui.newUi.screen.HomeScreen
 import com.kito.ui.newUi.screen.SettingsScreen
 import com.kito.ui.newUi.viewmodel.AppViewModel
+import com.kito.ui.newUi.viewmodel.FacultyDetailViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
 import dev.chrisbanes.haze.hazeEffect
@@ -63,6 +71,7 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
     ExperimentalHazeMaterialsApi::class, ExperimentalHazeApi::class
@@ -88,7 +97,7 @@ fun MainUI(
                 dest.hasRoute<Destinations.Attendance>() -> 1
                 dest.hasRoute<Destinations.Faculty>() -> 2
                 dest.hasRoute<Destinations.Profile>() -> 3
-                else -> 0
+                else -> selectedTabIndex
             }
         }
     }
@@ -236,6 +245,39 @@ fun MainUI(
             composable<Destinations.Profile> {
                 SettingsScreen()
             }
+            composable<Destinations.FacultyDetail> {
+
+                val viewModel: FacultyDetailViewModel = hiltViewModel()
+
+                val faculty by viewModel.faculty.collectAsState()
+                val schedule by viewModel.schedule.collectAsState()
+
+                LaunchedEffect(Unit) {
+                    val backStackEntry = navController.currentBackStackEntry
+                    val facultyId =
+                        backStackEntry?.toRoute<Destinations.FacultyDetail>()?.facultyId
+                            ?: return@LaunchedEffect
+
+                    viewModel.loadFacultyDetail(facultyId)
+                }
+
+                if (faculty == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    FacultyDetailScreen(
+                        facultyName = faculty!!.name,
+                        facultyRoom = faculty!!.office_room,
+                        facultyEmail = faculty!!.email,
+                        schedule = schedule
+                    )
+                }
+            }
+
         }
     }
 }

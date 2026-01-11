@@ -29,41 +29,6 @@ fun FacultyCardContent(
             style = MaterialTheme.typography.titleMediumEmphasized
         )
 
-//        Text(
-//            text = "Subject : ${faculty.subject}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
-//
-//        Text(
-//            text = "Batch: ${faculty.batch}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
-//
-//        Text(
-//            text = "Day: ${faculty.day}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
-//
-//        Text(
-//            text = "Slot: ${faculty.slot}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
-//
-//        Text(
-//            text = "Classroom: ${faculty.class_room}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
-
         Text(
             text = "Faculty Room: $facultyOffice",
             fontFamily = FontFamily.Monospace,

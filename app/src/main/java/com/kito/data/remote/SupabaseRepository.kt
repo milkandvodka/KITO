@@ -60,4 +60,10 @@ class SupabaseRepository @Inject constructor(
             )
         )
     }
+
+    suspend fun getTeacherDetailByID(teacherId: Long): List<TeacherModel>{
+        return api.getTeacherDetailByID(
+            teacherId = "eq.$teacherId"
+        )
+    }
 }

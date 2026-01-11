@@ -46,4 +46,9 @@ interface SupabaseApi {
         @Body request: TeacherScheduleByIDRequest
     ): List<TeacherScheduleByIDModel>
 
+    @GET("rest/v1/v_teachers_with_details")
+    suspend fun getTeacherDetailByID(
+        @Query("teacher_id") teacherId: String
+    ): List<TeacherModel>
+
 }

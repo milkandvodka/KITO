@@ -75,6 +75,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.kito.ui.components.FacultyCardContent
 import com.kito.ui.components.UIColors
+import com.kito.ui.navigation.Destinations
 import com.kito.ui.components.state.SearchResultState
 import com.kito.ui.newUi.viewmodel.FacultyScreenViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
@@ -87,11 +88,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
-//@Composable
-//fun FacultyScreen() {
-//    val facultyList = dummyFacultyList
-//
-//}
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalHazeApi::class,
@@ -350,6 +346,19 @@ fun FacultyScreen(
                                     tint = uiColors.textSecondary
                                 )
                             }
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = "Open",
+                                tint = uiColors.textSecondary,
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .clickable {
+                                        navController.navigate(
+                                            Destinations.FacultyDetail(faculty.teacher_id)
+                                        )
+                                    }
+                            )
+
                         }
                     }
                 }
