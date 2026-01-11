@@ -68,6 +68,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -75,8 +76,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.kito.ui.components.FacultyCardContent
 import com.kito.ui.components.UIColors
-import com.kito.ui.navigation.Destinations
 import com.kito.ui.components.state.SearchResultState
+import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.FacultyScreenViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.hazeEffect
@@ -111,6 +112,7 @@ fun FacultyScreen(
     val textFieldState = rememberTextFieldState()
     val searchBarState = rememberSearchBarState()
     val scope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
     if(
         searchBarState.currentValue == SearchBarValue.Expanded
     ){
@@ -139,9 +141,7 @@ fun FacultyScreen(
                 searchBarState = searchBarState,
                 textFieldState = textFieldState,
                 onSearch = {
-                    scope.launch {
-
-                    }
+                    keyboardController?.hide()
                 },
                 placeholder = {
                     Text(
@@ -170,18 +170,16 @@ fun FacultyScreen(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(uiColors.progressAccent)
+                            .background(uiColors.accentOrangeStart)
                             .clickable(onClick = {
-                                scope.launch {
-
-                                }
+                                keyboardController?.hide()
                             }),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "Search",
-                            tint = MaterialTheme.colorScheme.surfaceContainerLow,
+                            tint = Color.Black,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -240,7 +238,7 @@ fun FacultyScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 100.dp),
+                            .height(100.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                         shape = RoundedCornerShape(
@@ -250,7 +248,10 @@ fun FacultyScreen(
                             bottomEnd = if (index == facultyList.size - 1) 24.dp else 4.dp
                         ),
                         onClick = {
-                            // handle click (navigate / open dialog)
+                            navController.navigate(Destinations.FacultyDetail(faculty.teacher_id)) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     ) {
                         Box(
@@ -283,11 +284,21 @@ fun FacultyScreen(
                                     )
                                 }
 
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = "Open",
-                                    tint = uiColors.textSecondary
-                                )
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(Destinations.FacultyDetail(faculty.teacher_id)) {
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        contentDescription = "Open",
+                                        tint = uiColors.textSecondary,
+                                        modifier = Modifier.size(35.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -307,7 +318,10 @@ fun FacultyScreen(
                             bottomEnd = if (index == facultySearchResult.size - 1) 24.dp else 4.dp
                         ),
                         onClick = {
-                            // handle click (navigate / open dialog)
+                            navController.navigate(Destinations.FacultyDetail(faculty.teacher_id)) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     ) {
                         Box(
@@ -340,25 +354,22 @@ fun FacultyScreen(
                                     )
                                 }
 
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = "Open",
-                                    tint = uiColors.textSecondary
-                                )
-                            }
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                contentDescription = "Open",
-                                tint = uiColors.textSecondary,
-                                modifier = Modifier
-                                    .padding(start = 8.dp)
-                                    .clickable {
-                                        navController.navigate(
-                                            Destinations.FacultyDetail(faculty.teacher_id)
-                                        )
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(Destinations.FacultyDetail(faculty.teacher_id)) {
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
                                     }
-                            )
-
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        contentDescription = "Open",
+                                        tint = uiColors.textSecondary,
+                                        modifier = Modifier.size(35.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

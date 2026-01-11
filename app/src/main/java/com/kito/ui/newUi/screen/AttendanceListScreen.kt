@@ -57,8 +57,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
@@ -512,8 +515,24 @@ private fun AttendanceDialog(
                         requiredPercentage = requiredAttendance.toDouble()
                     )
                 }
+                val classesText = buildAnnotatedString {
+                    append("Classes for $requiredAttendance% - ")
+
+                    if (requiredClasses < 50) {
+                        append(requiredClasses.toString())
+                    } else {
+                        withStyle(
+                            style = SpanStyle(
+                                color = uiColors.accentOrangeStart,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        ) {
+                            append("Tumse na ho payega")
+                        }
+                    }
+                }
                 Text(
-                    text = "Classes for $requiredAttendance% - $requiredClasses",
+                    text = classesText,
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
                     color = uiColors.textPrimary,

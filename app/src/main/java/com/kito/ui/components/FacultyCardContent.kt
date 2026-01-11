@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun FacultyCardContent(
     facultyName: String,
-    facultyOffice: String,
-    facultyEmail: String
+    facultyOffice: String?,
+    facultyEmail: String?
 ) {
     val uiColors = UIColors()
 
@@ -30,14 +30,14 @@ fun FacultyCardContent(
         )
 
         Text(
-            text = "Faculty Room: $facultyOffice",
+            text = "Faculty Room: ${facultyOffice?:""}",
             fontFamily = FontFamily.Monospace,
             color = uiColors.textSecondary,
             style = MaterialTheme.typography.bodySmall
         )
 
         Text(
-            text = "Email: $facultyEmail",
+            text = "Email: ${facultyEmail?:""}",
             fontFamily = FontFamily.Monospace,
             color = uiColors.textSecondary,
             style = MaterialTheme.typography.bodySmall

@@ -45,11 +45,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.kito.ui.navigation.BottomBarTab
 import com.kito.ui.navigation.BottomBarTabs
@@ -95,7 +97,7 @@ fun MainUI(
             selectedTabIndex = when {
                 dest.hasRoute<Destinations.Home>() -> 0
                 dest.hasRoute<Destinations.Attendance>() -> 1
-                dest.hasRoute<Destinations.Faculty>() -> 2
+                dest.hierarchy.any { it.hasRoute<Destinations.FacultyGraph>() } -> 2
                 dest.hasRoute<Destinations.Profile>() -> 3
                 else -> selectedTabIndex
             }
@@ -114,13 +116,6 @@ fun MainUI(
                     .fillMaxWidth()
                     .height(64.dp)
                     .clip(CircleShape)
-//                    .hazeEffect(
-//                        state = hazeState,
-//                        style = HazeStyle(
-//                            tint = HazeTint(Color.White.copy(alpha = 0.05f)),
-//                            blurRadius = 25.dp
-//                        )
-//                    )
                     .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
                         blurRadius = 15.dp
                         noiseFactor = 0.05f
@@ -205,7 +200,7 @@ fun MainUI(
                         val destination = when (tab) {
                             is BottomBarTab.Home -> Destinations.Home
                             is BottomBarTab.Attendance -> Destinations.Attendance
-                            is BottomBarTab.Faculty -> Destinations.Faculty
+                            is BottomBarTab.Faculty -> Destinations.FacultyGraph
                             is BottomBarTab.Settings -> Destinations.Profile
                         }
                         navController.navigate(destination) {
@@ -237,47 +232,51 @@ fun MainUI(
                     navController = navController
                 )
             }
-            composable<Destinations.Faculty> {
-                FacultyScreen(
-                    navController = navController
-                )
-            }
             composable<Destinations.Profile> {
                 SettingsScreen()
             }
-            composable<Destinations.FacultyDetail> {
 
-                val viewModel: FacultyDetailViewModel = hiltViewModel()
-
-                val faculty by viewModel.faculty.collectAsState()
-                val schedule by viewModel.schedule.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    val backStackEntry = navController.currentBackStackEntry
-                    val facultyId =
-                        backStackEntry?.toRoute<Destinations.FacultyDetail>()?.facultyId
-                            ?: return@LaunchedEffect
-
-                    viewModel.loadFacultyDetail(facultyId)
-                }
-
-                if (faculty == null) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    FacultyDetailScreen(
-                        facultyName = faculty!!.name,
-                        facultyRoom = faculty!!.office_room,
-                        facultyEmail = faculty!!.email,
-                        schedule = schedule
+            navigation<Destinations.FacultyGraph>(
+                startDestination = Destinations.Faculty
+            ) {
+                composable<Destinations.Faculty> {
+                    FacultyScreen(
+                        navController = navController
                     )
                 }
-            }
+                composable<Destinations.FacultyDetail> {
 
+                    val viewModel: FacultyDetailViewModel = hiltViewModel()
+
+                    val faculty by viewModel.faculty.collectAsState()
+                    val schedule by viewModel.schedule.collectAsState()
+
+                    LaunchedEffect(Unit) {
+                        val backStackEntry = navController.currentBackStackEntry
+                        val facultyId =
+                            backStackEntry?.toRoute<Destinations.FacultyDetail>()?.facultyId
+                                ?: return@LaunchedEffect
+
+                        viewModel.loadFacultyDetail(facultyId)
+                    }
+
+                    if (faculty == null) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        FacultyDetailScreen(
+                            facultyName = faculty!!.name,
+                            facultyRoom = faculty!!.office_room,
+                            facultyEmail = faculty!!.email,
+                            schedule = schedule
+                        )
+                    }
+                }
+            }
         }
     }
 }
