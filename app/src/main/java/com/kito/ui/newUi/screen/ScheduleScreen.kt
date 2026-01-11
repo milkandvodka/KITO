@@ -133,7 +133,7 @@ fun ScheduleScreen(
             val day = weekDays[page]
             val daySchedule = schedule[day].orEmpty()
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(2.5.dp),
                 modifier = Modifier
                     .fillMaxSize()
                     .horizontalCarouselTransition(page, pagerState),

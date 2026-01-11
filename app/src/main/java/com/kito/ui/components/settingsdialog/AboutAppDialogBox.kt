@@ -190,7 +190,7 @@ fun AboutAppDialogBox(
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Shubham Shah",
+                            text = "Subham Shah",
                             fontFamily = FontFamily.Monospace,
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.titleMediumEmphasized

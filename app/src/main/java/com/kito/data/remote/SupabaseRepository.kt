@@ -1,6 +1,5 @@
 package com.kito.data.remote
 
-import android.view.PixelCopy.request
 import com.kito.data.local.db.section.SectionEntity
 import com.kito.data.local.db.student.StudentEntity
 import com.kito.data.remote.model.TeacherFuzzySearchModel

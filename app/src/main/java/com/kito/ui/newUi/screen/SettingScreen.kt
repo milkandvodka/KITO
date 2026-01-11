@@ -217,7 +217,7 @@ fun SettingsScreen(
     Box {
         LazyColumn(
             contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 46.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(2.5.dp),
             modifier = Modifier
                 .hazeSource(hazeState)
                 .fillMaxSize()

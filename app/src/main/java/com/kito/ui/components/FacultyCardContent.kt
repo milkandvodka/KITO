@@ -9,8 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.kito.data.remote.model.FacultyModel
-import com.kito.data.remote.model.TeacherModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
