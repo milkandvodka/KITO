@@ -1,6 +1,7 @@
 package com.kito.ui.newUi.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,9 +41,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.kito.data.remote.model.dummyFacultyList
 import com.kito.ui.components.FacultyCardContent
 import com.kito.ui.components.UIColors
+import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.FacultyScreenViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.hazeEffect
@@ -51,11 +52,6 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 
-//@Composable
-//fun FacultyScreen() {
-//    val facultyList = dummyFacultyList
-//
-//}
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalHazeApi::class,
@@ -138,8 +134,16 @@ fun FacultyScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 contentDescription = "Open",
-                                tint = uiColors.textSecondary
+                                tint = uiColors.textSecondary,
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .clickable {
+                                        navController.navigate(
+                                            Destinations.FacultyDetail(faculty.teacher_id)
+                                        )
+                                    }
                             )
+
                         }
                     }
                 }

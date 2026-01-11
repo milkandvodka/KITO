@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.kito.data.remote.model.FacultyModel
 import com.kito.data.remote.model.TeacherModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -26,41 +25,6 @@ fun FacultyCardContent(faculty: TeacherModel) {
             color = uiColors.textPrimary,
             style = MaterialTheme.typography.titleMediumEmphasized
         )
-
-//        Text(
-//            text = "Subject : ${faculty.subject}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
-//
-//        Text(
-//            text = "Batch: ${faculty.batch}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
-//
-//        Text(
-//            text = "Day: ${faculty.day}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
-//
-//        Text(
-//            text = "Slot: ${faculty.slot}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
-//
-//        Text(
-//            text = "Classroom: ${faculty.class_room}",
-//            fontFamily = FontFamily.Monospace,
-//            color = uiColors.textSecondary,
-//            style = MaterialTheme.typography.bodySmall
-//        )
 
         Text(
             text = "Faculty Room: ${faculty.office_room}",

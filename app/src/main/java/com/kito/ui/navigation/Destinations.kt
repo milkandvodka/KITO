@@ -12,4 +12,6 @@ sealed class Destinations {
     object Faculty: Destinations()
     @Serializable
     object Profile: Destinations()
+    @Serializable
+    data class FacultyDetail(val facultyId: Long) : Destinations()
 }

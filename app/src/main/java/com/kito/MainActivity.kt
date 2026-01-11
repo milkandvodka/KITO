@@ -26,6 +26,7 @@ import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.kito.data.local.preferences.PrefsRepository
 import com.kito.ui.newUi.MainUI
+import com.kito.ui.newUi.screen.FacultyDetailScreen
 import com.kito.ui.theme.KitoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
