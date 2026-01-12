@@ -7,7 +7,6 @@ import com.kito.data.remote.model.TeacherModel
 import com.kito.data.remote.model.TeacherScheduleByIDModel
 import com.kito.data.remote.request.TeacherScheduleByIDRequest
 import com.kito.data.remote.request.TeacherSearchRequest
-import okhttp3.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

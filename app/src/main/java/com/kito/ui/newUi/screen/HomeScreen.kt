@@ -7,16 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector4D
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -76,7 +66,6 @@ import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.UpcomingEventCard
-import com.kito.ui.components.meshGradient
 import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.state.SyncUiState
 import com.kito.ui.navigation.Destinations
@@ -91,7 +80,6 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 
