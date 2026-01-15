@@ -84,7 +84,6 @@ Please ensure that any contributions respect user privacy and maintain the trans
 
 ## 📄 License
 
-This project is licensed under the MIT License.
 See the `LICENSE` file for more details.
 
 ---
