@@ -223,8 +223,7 @@ fun FacultyDetailScreen(
                                         Offset(1f, 1f) to meshColorAnimators[14].value,
                                     ),
                                 ),
-                                resolutionX = 55,
-                                resolutionY = 55
+                                resolutionX = 30
                             )
                             .padding(20.dp)
                     ) {

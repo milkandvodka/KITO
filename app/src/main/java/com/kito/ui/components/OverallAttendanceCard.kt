@@ -243,8 +243,7 @@ fun OverallAttendanceCard(
                                 Offset(1f, 1f) to meshColorAnimators[14].value,
                             ),
                             ),
-                        resolutionX = 55,
-                        resolutionY = 55
+                        resolutionX = 30,
                     )
 //                    .background(
 //                        brush = Brush.linearGradient(
