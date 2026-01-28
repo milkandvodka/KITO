@@ -196,7 +196,7 @@ fun OverallAttendanceCard(
     }
     Box(
         modifier = Modifier
-            .clip(shape = RoundedCornerShape(22.dp))
+            .clip(shape = RoundedCornerShape(26.dp))
             .clickable(
                 onClick = {
                     onNavigate()

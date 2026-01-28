@@ -5,7 +5,7 @@
     android:resizeMode="none"
     android:targetCellWidth="3"
     android:targetCellHeight="2"
-    android:updatePeriodMillis="0"
+    android:updatePeriodMillis="3600000"
     android:widgetCategory="home_screen"
     android:label="@string/widget_schedule_beta"
     android:description="@string/app_widget_description"
