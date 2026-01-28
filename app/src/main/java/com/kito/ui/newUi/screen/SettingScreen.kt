@@ -58,6 +58,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.settingsdialog.AboutAppDialogBox
 import com.kito.ui.components.settingsdialog.LoginDialogBox
@@ -68,6 +70,7 @@ import com.kito.ui.components.settingsdialog.RollChangeDialogBox
 import com.kito.ui.components.settingsdialog.TermsOfServiceDialog
 import com.kito.ui.components.settingsdialog.YearTermChangeDialogBox
 import com.kito.ui.components.state.SyncUiState
+import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.SettingsViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
@@ -82,7 +85,8 @@ import dev.chrisbanes.haze.rememberHazeState
 )
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    navController: NavHostController
 ) {
     val uiColors = UIColors()
     val haptic = LocalHapticFeedback.current
@@ -205,6 +209,15 @@ fun SettingsScreen(
     )
     LaunchedEffect(syncState) {
         if (syncState is SyncUiState.Success) {
+            if (isLoginDialogOpen){
+                navController.navigate(Destinations.Home) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
             haptic.performHapticFeedback(HapticFeedbackType.Confirm)
             isNameChangeDialogOpen = false
             isRollChangeDialogOpen = false
@@ -399,6 +412,7 @@ fun SettingsScreen(
             onDismiss = {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isLoginDialogOpen = false
+                viewModel.syncStateIdle()
             },
             onConfirm = {sapPassword->
                 haptic.performHapticFeedback(HapticFeedbackType.ContextClick)

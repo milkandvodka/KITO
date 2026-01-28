@@ -67,15 +67,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.glance.appwidget.updateAll
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.kito.data.local.db.attendance.AttendanceEntity
 import com.kito.data.local.db.attendance.toAttendanceEntity
 import com.kito.sap.SubjectAttendance
 import com.kito.ui.components.AttendanceCard
 import com.kito.ui.components.UIColors
+import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.state.SyncUiState
-import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.AttendanceListScreenViewModel
 import com.kito.widget.TimeTableAppWidget
 import com.kito.widget.TimetableWidget
@@ -115,7 +114,15 @@ fun AttendanceListScreen(
     val pullOffsetPx = with(density) {
         (42.dp * fraction).toPx()
     }
-
+    var isLoginDialogOpen by remember { mutableStateOf(false) }
+    val loginState by viewModel.loginState.collectAsState()
+    LaunchedEffect(loginState) {
+        if (loginState is SyncUiState.Success) {
+            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+            isLoginDialogOpen = false
+            viewModel.setLoginStateIdle()
+        }
+    }
     LaunchedEffect(Unit) {
         viewModel.syncEvents.collect { event ->
             when (event) {
@@ -330,13 +337,8 @@ fun AttendanceListScreen(
                 )
                 Button(
                     onClick = {
-                        navController.navigate(Destinations.Profile) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                        isLoginDialogOpen = true
                     },
                     modifier = Modifier.align(Alignment.Center),
                     colors = ButtonDefaults.buttonColors(
@@ -362,6 +364,21 @@ fun AttendanceListScreen(
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 currentAttendance.value = null
             }
+        )
+    }
+    if (isLoginDialogOpen){
+        LoginDialogBox(
+            onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                isLoginDialogOpen = false
+                viewModel.setLoginStateIdle()
+            },
+            onConfirm = { sapPassword->
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                viewModel.login(sapPassword)
+            },
+            syncState = loginState,
+            hazeState = hazeState
         )
     }
 }

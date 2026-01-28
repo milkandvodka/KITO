@@ -3,6 +3,7 @@ package com.kito.ui.components.animation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieClipSpec
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
@@ -21,6 +22,23 @@ fun PageNotFoundAnimation() {
 fun PandaSleepingAnimation() {
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("panda_sleeping.json"))
     val progress by animateLottieCompositionAsState(composition, iterations = LottieConstants.IterateForever)
+    LottieAnimation(
+        composition = composition,
+        progress = { progress },
+    )
+}
+
+@Composable
+fun LockAnimation() {
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("lock.json"))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = 1,
+        clipSpec = LottieClipSpec.Progress(
+            min = 0.30f,
+            max = 1f
+        )
+    )
     LottieAnimation(
         composition = composition,
         progress = { progress },

@@ -9,6 +9,7 @@ import com.kito.data.local.preferences.SecurePrefs
 import com.kito.ui.components.AppSyncUseCase
 import com.kito.ui.components.state.SyncUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -86,4 +87,40 @@ class AttendanceListScreenViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = 0
         )
+
+    private val _loginState = MutableStateFlow<SyncUiState>(SyncUiState.Idle)
+    val loginState = _loginState.asStateFlow()
+
+    fun login(
+        password: String
+    ){
+        viewModelScope.launch {
+            _loginState.value = SyncUiState.Loading
+            delay(1000)
+            val roll = prefs.userRollFlow.first()
+            val year = prefs.academicYearFlow.first()
+            val term = prefs.termCodeFlow.first()
+
+            val result = appSyncUseCase.syncAll(
+                roll = roll,
+                sapPassword = password,
+                year = year,
+                term = term
+            )
+
+            _loginState.value = result.fold(
+                onSuccess = {
+                    securePrefs.saveSapPassword(password)
+                    SyncUiState.Success
+                },
+                onFailure = {
+                    SyncUiState.Error(it.message ?: "Sync failed")
+                }
+            )
+        }
+    }
+
+    fun setLoginStateIdle(){
+        _loginState.value = SyncUiState.Idle
+    }
 }

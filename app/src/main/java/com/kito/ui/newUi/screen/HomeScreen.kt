@@ -566,7 +566,9 @@ fun HomeScreen(
     if (isLoginDialogOpen){
         LoginDialogBox(
             onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 isLoginDialogOpen = false
+                viewmodel.setLoginStateIdle()
             },
             onConfirm = { sapPassword->
                 haptic.performHapticFeedback(HapticFeedbackType.ContextClick)

@@ -231,7 +231,9 @@ fun MainUI(
                 )
             }
             composable<Destinations.Profile> {
-                SettingsScreen()
+                SettingsScreen(
+                    navController = navController
+                )
             }
 
             navigation<Destinations.FacultyGraph>(
