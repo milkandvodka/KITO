@@ -44,3 +44,16 @@ fun LockAnimation() {
         progress = { progress },
     )
 }
+
+@Composable
+fun NoInternetAnimation() {
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("no_internet_connection.json"))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = 1,
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress },
+    )
+}

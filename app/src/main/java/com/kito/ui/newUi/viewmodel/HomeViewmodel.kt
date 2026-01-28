@@ -9,6 +9,7 @@ import com.kito.data.local.db.studentsection.StudentSectionRepository
 import com.kito.data.local.preferences.PrefsRepository
 import com.kito.data.local.preferences.SecurePrefs
 import com.kito.ui.components.AppSyncUseCase
+import com.kito.ui.components.ConnectivityObserver
 import com.kito.ui.components.StartupSyncGuard
 import com.kito.ui.components.state.SyncUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,8 +37,10 @@ class HomeViewmodel @Inject constructor(
     private val attendanceRepository: AttendanceRepository,
     private val studentSectionRepository: StudentSectionRepository,
     private val appSyncUseCase: AppSyncUseCase,
-    private val syncGuard: StartupSyncGuard
+    private val syncGuard: StartupSyncGuard,
+    private val connectivityObserver: ConnectivityObserver
 ): ViewModel() {
+    val isOnline = connectivityObserver.isOnline
     val name = prefs.userNameFlow.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),

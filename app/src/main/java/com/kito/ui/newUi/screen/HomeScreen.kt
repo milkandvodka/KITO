@@ -107,6 +107,7 @@ fun HomeScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     var isLoginDialogOpen by remember { mutableStateOf(false) }
     val loginState by viewmodel.loginState.collectAsState()
+    val isOnline by viewmodel.isOnline.collectAsState()
 //    val meshColors = listOf(
 //        Color(0xFF9A3412).copy(alpha = 0.82f), // burnt orange
 //        Color(0xFFB45309).copy(alpha = 0.82f), // amber-700
@@ -209,7 +210,15 @@ fun HomeScreen(
     }
     LaunchedEffect(Unit) {
         delay(1000)
-        viewmodel.syncOnStartup()
+        if (isOnline) {
+            viewmodel.syncOnStartup()
+        }else{
+            Toast.makeText(
+                context,
+                "No Internet Connection",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     LaunchedEffect(Unit) {

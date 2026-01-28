@@ -1,10 +1,12 @@
 package com.kito.ui.newUi.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kito.data.remote.SupabaseRepository
 import com.kito.data.remote.model.TeacherFuzzySearchModel
 import com.kito.data.remote.model.TeacherModel
+import com.kito.ui.components.ConnectivityObserver
 import com.kito.ui.components.state.SearchResultState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,8 +16,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FacultyScreenViewModel @Inject constructor(
-    private val repository : SupabaseRepository
+    private val repository : SupabaseRepository,
+    private val connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
+
+    val isOnline = connectivityObserver.isOnline
     private val _faculty = MutableStateFlow<List<TeacherModel>>(emptyList())
     val faculty = _faculty.asStateFlow()
     private val _searchResultState = MutableStateFlow<SearchResultState>(SearchResultState.Idle)
@@ -25,7 +30,11 @@ class FacultyScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _faculty.value = repository.getAllTeacherDetail()
+            try {
+                _faculty.value = repository.getAllTeacherDetail()
+            }catch (e: Exception){
+                Log.d("faculty vm",e.message?:"")
+            }
         }
     }
     fun getSearchResult(query: String){
@@ -47,5 +56,15 @@ class FacultyScreenViewModel @Inject constructor(
     fun clearSearchResult(){
         _facultySearchResult.value = emptyList()
         _searchResultState.value = SearchResultState.Idle
+    }
+
+    fun retry(){
+        viewModelScope.launch {
+            try {
+                _faculty.value = repository.getAllTeacherDetail()
+            }catch (e: Exception){
+                Log.d("faculty vm",e.message?:"")
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@ import com.kito.data.local.db.attendance.AttendanceRepository
 import com.kito.data.local.preferences.PrefsRepository
 import com.kito.data.local.preferences.SecurePrefs
 import com.kito.ui.components.AppSyncUseCase
+import com.kito.ui.components.ConnectivityObserver
 import com.kito.ui.components.state.SyncUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -26,9 +27,11 @@ class AttendanceListScreenViewModel @Inject constructor(
     private val attendanceRepository: AttendanceRepository,
     private val prefs: PrefsRepository,
     private val securePrefs: SecurePrefs,
-    private val appSyncUseCase: AppSyncUseCase
+    private val appSyncUseCase: AppSyncUseCase,
+    private val connectivityObserver: ConnectivityObserver
 ): ViewModel(){
 
+    val isOnline = connectivityObserver.isOnline
     private val _syncState = MutableStateFlow<SyncUiState>(SyncUiState.Idle)
     val syncState = _syncState.asStateFlow()
 

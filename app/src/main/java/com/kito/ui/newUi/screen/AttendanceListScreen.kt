@@ -116,6 +116,7 @@ fun AttendanceListScreen(
     }
     var isLoginDialogOpen by remember { mutableStateOf(false) }
     val loginState by viewModel.loginState.collectAsState()
+    val isOnline by viewModel.isOnline.collectAsState()
     LaunchedEffect(loginState) {
         if (loginState is SyncUiState.Success) {
             haptic.performHapticFeedback(HapticFeedbackType.Confirm)
@@ -151,8 +152,13 @@ fun AttendanceListScreen(
                         event.message,
                         Toast.LENGTH_LONG
                     ).show()
-
-                else -> {}
+                else -> {
+                    Toast.makeText(
+                        context,
+                        "unknown error",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
@@ -164,7 +170,15 @@ fun AttendanceListScreen(
             state = pullToRefreshState,
             isRefreshing = syncState is SyncUiState.Loading,
             onRefresh = {
-                viewModel.refresh()
+                if (isOnline) {
+                    viewModel.refresh()
+                }else{
+                    Toast.makeText(
+                        context,
+                        "No Internet Connection",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             },
             indicator = {
 //                PullToRefreshDefaults.LoadingIndicator(
