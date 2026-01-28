@@ -21,7 +21,6 @@ local.properties
 
 # SAP Portal sensitive files
 app/src/main/java/com/kito/sap/sensitive/
-app/src/main/java/com/kito/sap/SapPortalClient.kt
 app/src/main/res/xml/network_security_config.xml
 
 # Development and test files
