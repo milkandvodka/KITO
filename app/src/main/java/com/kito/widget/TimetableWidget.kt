@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -18,6 +19,7 @@ import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
+import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -32,54 +34,57 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.kito.ScheduleActivity
-import com.kito.data.local.db.studentsection.StudentSectionEntity
-import dagger.hilt.android.EntryPointAccessors
+import com.kito.data.local.datastore.ListStudentSectionDataStore
+import com.kito.data.local.datastore.ProtoDataStoreProvider
+import com.kito.data.local.datastore.StudentSectionDatastore
+import com.kito.di.dataStore
 import kotlinx.coroutines.flow.first
 import java.util.Calendar
 
 class TimetableWidget : GlanceAppWidget() {
-
+    override val stateDefinition = TimetableGlanceStateDefinition
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId
     ) {
-        Log.d("Widget", "provideGlance called")
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context,
-            WidgetEntryPoint::class.java
-        )
-
-        val prefs = entryPoint.prefsRepository()
-        val repo = entryPoint.studentSectionRepository()
-
-        val rollNo = prefs.userRollFlow.first()
-
-        val day = when (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-            Calendar.MONDAY -> "MON"
-            Calendar.TUESDAY -> "TUE"
-            Calendar.WEDNESDAY -> "WED"
-            Calendar.THURSDAY -> "THU"
-            Calendar.FRIDAY -> "FRI"
-            Calendar.SATURDAY -> "SAT"
-            else -> "SUN"
-        }
-
-        val schedule = if (rollNo.isNotEmpty()) {
-            repo.getScheduleForStudentBlocking(rollNo, day)
-        } else {
-            emptyList()
-        }
-//        val schedule = sampleSchedule
-
+        Log.d("glanceWidget", "provideGlance run")
+        val prefs = context.dataStore.data.first()
+        val rollNo = prefs[KEY_USER_ROLLNUMBER] ?: ""
         provideContent {
-            Log.d(
-                "WidgetWorker",
-                "Widget content updated"
-            )
+            val state = currentState<ListStudentSectionDataStore>()
+
+            val day = when (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
+                Calendar.MONDAY -> "MON"
+                Calendar.TUESDAY -> "TUE"
+                Calendar.WEDNESDAY -> "WED"
+                Calendar.THURSDAY -> "THU"
+                Calendar.FRIDAY -> "FRI"
+                Calendar.SATURDAY -> "SAT"
+                else -> "SUN"
+            }
+
+            val nowMinutes = Calendar.getInstance().run {
+                get(Calendar.HOUR_OF_DAY) * 60 + get(Calendar.MINUTE)
+            }
+
+            val todayClasses = state.list
+                .filter { it.day == day && it.rollNo == rollNo }
+                .sortedBy { timeToMinutes(it.startTime) }
+
+            val ongoingClass = todayClasses.firstOrNull { item ->
+                nowMinutes in
+                        timeToMinutes(item.startTime)..timeToMinutes(item.endTime)
+            }
+
+            val upcomingClasses = todayClasses.filter {
+                timeToMinutes(it.startTime) > nowMinutes
+            }
+
             TimetableWidgetContent(
                 rollNo = rollNo,
                 day = day,
-                schedule = schedule
+                ongoing = ongoingClass,
+                upcomingList = upcomingClasses
             )
         }
     }
@@ -87,8 +92,9 @@ class TimetableWidget : GlanceAppWidget() {
     private fun TimetableWidgetContent(
         rollNo: String,
         day: String,
-        schedule: List<StudentSectionEntity>
-    ) {
+        ongoing: StudentSectionDatastore?,
+        upcomingList: List<StudentSectionDatastore>
+    ){
         val bgTop = Color(0xFF1A1423)
         val cardBg = Color(0xFF261E26)
         val textPrimaryK = Color(0xFFF3EFF3)
@@ -124,57 +130,89 @@ class TimetableWidget : GlanceAppWidget() {
 
                     when {
                         rollNo.isEmpty() -> {
-                            Box(
-                                modifier = GlanceModifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Please login in the app",
-                                    style = TextStyle(
-                                        color = ColorProvider(day = textSecondaryK, night = textSecondaryK),
-                                        fontSize = 14.sp
-                                    )
-                                )
-                            }
+                            CenterMessage("Please login in the app", textSecondaryK)
                         }
 
-                        schedule.isEmpty() -> {
-                            Box(
-                                modifier = GlanceModifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = if (day == "SUN") "Happy Sunday! 🏖️" else "No classes today",
-                                    style = TextStyle(
-                                        color = ColorProvider(day = textSecondaryK, night = textSecondaryK),
-                                        fontSize = 12.sp
-                                    )
-                                )
-                            }
+                        ongoing == null && upcomingList.isEmpty() -> {
+                            CenterMessage(
+                                if (day == "SUN") "Happy Sunday! 🏖️" else "No more classes today",
+                                textSecondaryK
+                            )
                         }
 
                         else -> {
-                            LazyColumn(modifier = GlanceModifier.fillMaxWidth()) {
-                                items(schedule) { item ->
-                                    TimetableItem(
-                                        item = item,
-                                        cardBg = cardBg,
-                                        textPrimary = textPrimaryK,
-                                        textSecondary = textSecondaryK,
-                                        accent = accentOrange
-                                    )
+                            LazyColumn(
+                                modifier = GlanceModifier
+                                    .fillMaxWidth()
+                                    .fillMaxSize()
+                            ) {
+                                ongoing?.let {
+                                    item {
+                                        SectionHeader("ONGOING", accentOrange)
+                                    }
+                                    item {
+                                        TimetableItem(
+                                            item = it,
+                                            cardBg = cardBg,
+                                            textPrimary = textPrimaryK,
+                                            textSecondary = textSecondaryK,
+                                            accent = accentOrange
+                                        )
+                                    }
+                                }
+
+                                if (!upcomingList.isEmpty()) {
+                                    item {
+                                        SectionHeader("UPCOMING", textSecondaryK)
+                                    }
+                                    items(upcomingList) { item ->
+                                        TimetableItem(
+                                            item = item,
+                                            cardBg = cardBg,
+                                            textPrimary = textPrimaryK,
+                                            textSecondary = textSecondaryK,
+                                            accent = textSecondaryK
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
+
                 }
             }
         }
     }
-
+    @Composable
+    private fun SectionHeader(title: String, color: Color) {
+        Text(
+            text = title,
+            style = TextStyle(
+                color = ColorProvider(color, color),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            modifier = GlanceModifier.padding(bottom = 6.dp)
+        )
+    }
+    @Composable
+    private fun CenterMessage(text: String, color: Color) {
+        Box(
+            modifier = GlanceModifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                style = TextStyle(
+                    color = ColorProvider(color, color),
+                    fontSize = 12.sp
+                )
+            )
+        }
+    }
     @Composable
     private fun TimetableItem(
-        item: StudentSectionEntity,
+        item: StudentSectionDatastore,
         cardBg: Color,
         textPrimary: Color,
         textSecondary: Color,
@@ -267,3 +305,5 @@ class TimetableWidget : GlanceAppWidget() {
         }
     }
 }
+
+private val KEY_USER_ROLLNUMBER = stringPreferencesKey("User_Password")

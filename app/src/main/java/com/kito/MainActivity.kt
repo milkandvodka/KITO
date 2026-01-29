@@ -1,8 +1,10 @@
 package com.kito
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,7 +31,9 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.kito.data.local.preferences.PrefsRepository
 import com.kito.ui.newUi.MainUI
 import com.kito.ui.theme.KitoTheme
+import com.kito.data.local.datastore.ProtoDataStoreProvider
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -72,6 +76,7 @@ class MainActivity : ComponentActivity() {
 
             // 🔁 Routing logic (onboarding / setup)
             LaunchedEffect(Unit) {
+                debugProtoWrite(applicationContext)
                 val onboardingDone = prefs.onBoardingFlow.first()
                 val isUserSetupDone = prefs.userSetupDoneFlow.first()
                 when {
@@ -148,5 +153,18 @@ class MainActivity : ComponentActivity() {
         ).setAction("Restart") {
             appUpdateManager.completeUpdate()
         }.show()
+    }
+    suspend fun debugProtoWrite(context: Context) {
+        val store = ProtoDataStoreProvider.get(context)
+
+        val before = store.data.first()
+        Log.d("PROTO_DEBUG", "Before write: lastUpdated=${before.lastUpdated}, size=${before.list.size}")
+
+        store.updateData {
+            it.copy(lastUpdated = System.currentTimeMillis())
+        }
+
+        val after = store.data.first()
+        Log.d("PROTO_DEBUG", "After write: lastUpdated=${after.lastUpdated}, size=${after.list.size}")
     }
 }

@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.glance.appwidget.updateAll
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -61,7 +62,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.kito.R
-import com.kito.ScheduleActivity
 import com.kito.ui.components.AboutELabsDialog
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
@@ -69,6 +69,8 @@ import com.kito.ui.components.UIColors
 import com.kito.ui.components.UpcomingEventCard
 import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.state.SyncUiState
+import com.kito.ui.navigation.RootDestination
+import com.kito.ui.navigation.TabDestination
 import com.kito.ui.newUi.viewmodel.HomeViewmodel
 import com.kito.widget.TimeTableAppWidget
 import com.kito.widget.TimetableWidget
@@ -82,9 +84,6 @@ import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
-import androidx.core.net.toUri
-import com.kito.ui.navigation.RootDestination
-import com.kito.ui.navigation.TabDestination
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeApi::class,

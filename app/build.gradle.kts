@@ -122,8 +122,10 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     // DataStore for persistent preferences
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.datastore:datastore-preferences:1.2.0")
+    implementation("androidx.datastore:datastore:1.2.0")
     implementation(libs.androidx.navigation.compose)
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
 
     //Dagger - Hilt
     implementation(libs.hilt.android)
