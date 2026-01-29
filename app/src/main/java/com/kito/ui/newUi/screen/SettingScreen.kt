@@ -236,7 +236,6 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
         ) {
-
             item {
                 Spacer(modifier = Modifier.height(16.dp))
             }

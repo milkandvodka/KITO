@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -82,6 +83,7 @@ import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
+import androidx.core.net.toUri
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeApi::class,
@@ -258,10 +260,12 @@ fun HomeScreen(
 
     Box() {
         Box(
-            modifier = Modifier.hazeSource(hazeState)
+            modifier = Modifier
+                .hazeSource(hazeState)
         ) {
             Box(
                 Modifier
+                    .background(Color(0xFF121116))
 //                    .meshGradient(
 //                        points = listOf(
 //                            // TOP — warm shadow
@@ -344,7 +348,7 @@ fun HomeScreen(
                                         val body = Uri.encode("")
                                         val intent = Intent(
                                             Intent.ACTION_SENDTO,
-                                            Uri.parse("mailto:elabs.kiito@gmail.com?subject=$subject&body=$body")
+                                            "mailto:elabs.kiito@gmail.com?subject=$subject&body=$body".toUri()
                                         )
 
                                         context.startActivity(intent)
@@ -363,8 +367,9 @@ fun HomeScreen(
                                 IconButton(
                                     onClick = {
                                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                                        val intent = Intent(context, ScheduleActivity::class.java)
-                                        context.startActivity(intent)
+//                                        val intent = Intent(context, ScheduleActivity::class.java)
+//                                        context.startActivity(intent)
+                                        navController.navigate(Destinations.Schedule)
                                     },
                                     modifier = Modifier.size(28.dp)
                                 ) {
@@ -389,8 +394,9 @@ fun HomeScreen(
                                 schedule = schedule,
                                 onCLick = {
                                     haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                                    val intent = Intent(context, ScheduleActivity::class.java)
-                                    context.startActivity(intent)
+//                                    val intent = Intent(context, ScheduleActivity::class.java)
+//                                    context.startActivity(intent)
+                                    navController.navigate(Destinations.Schedule)
                                 }
                             )
                         }

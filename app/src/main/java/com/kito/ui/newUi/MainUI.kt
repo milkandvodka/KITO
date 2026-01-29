@@ -3,10 +3,20 @@ package com.kito.ui.newUi
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -53,6 +63,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import com.kito.ui.components.ExpressiveEasing
 import com.kito.ui.navigation.BottomBarTab
 import com.kito.ui.navigation.BottomBarTabs
 import com.kito.ui.navigation.Destinations
@@ -61,6 +72,7 @@ import com.kito.ui.newUi.screen.AttendanceListScreen
 import com.kito.ui.newUi.screen.FacultyDetailScreen
 import com.kito.ui.newUi.screen.FacultyScreen
 import com.kito.ui.newUi.screen.HomeScreen
+import com.kito.ui.newUi.screen.ScheduleScreen
 import com.kito.ui.newUi.screen.SettingsScreen
 import com.kito.ui.newUi.viewmodel.AppViewModel
 import com.kito.ui.newUi.viewmodel.FacultyDetailViewModel
@@ -109,107 +121,122 @@ fun MainUI(
     Scaffold(
         containerColor = Color.Transparent,
         bottomBar = {
-            Box(
-                modifier = Modifier
-                    .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
-                    .padding(vertical = 10.dp, horizontal = 64.dp)
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .clip(CircleShape)
-                    .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
-                        blurRadius = 15.dp
-                        noiseFactor = 0.05f
-                        inputScale = HazeInputScale.Auto
-                        alpha = 0.98f
-                    }
-                    .border(
-                        width = Dp.Hairline,
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.5f),
-                                Color.White.copy(alpha = 0.1f),
-                            )
-                        ),
-                        shape = CircleShape
-                    )
+            AnimatedVisibility(
+                visible = (currentDestination?.hasRoute<Destinations.Schedule>() != true && currentDestination?.hasRoute<Destinations.Schedule>() != true),
+                enter = slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                ),
+                exit = slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                )
             ) {
-                val animatedSelectedTabIndex by animateFloatAsState(
-                    targetValue = selectedTabIndex.toFloat(),
-                    label = "animatedSelectedTabIndex",
-                    animationSpec = spring(
-                        stiffness = Spring.StiffnessLow,
-                        dampingRatio = Spring.DampingRatioLowBouncy,
-                    )
-                )
-
-                val animatedColor by animateColorAsState(
-                    targetValue = if (selectedTabIndex in tabs.indices) tabs[selectedTabIndex].color else Color.White,
-                    label = "animatedColor",
-                    animationSpec = spring(
-                        stiffness = Spring.StiffnessLow,
-                    )
-                )
-
-                Canvas(
-                    modifier = Modifier.fillMaxSize()
+                Box(
+                    modifier = Modifier
+                        .padding(
+                            bottom = WindowInsets.navigationBars.asPaddingValues()
+                                .calculateBottomPadding()
+                        )
+                        .padding(vertical = 10.dp, horizontal = 64.dp)
+                        .fillMaxWidth()
+                        .height(64.dp)
+                        .clip(CircleShape)
+                        .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                            blurRadius = 15.dp
+                            noiseFactor = 0.05f
+                            inputScale = HazeInputScale.Auto
+                            alpha = 0.98f
+                        }
+                        .border(
+                            width = Dp.Hairline,
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.White.copy(alpha = 0.5f),
+                                    Color.White.copy(alpha = 0.1f),
+                                )
+                            ),
+                            shape = CircleShape
+                        )
                 ) {
-                    val tabWidth = size.width / tabs.size
-                    val centerOffset = tabWidth * animatedSelectedTabIndex + tabWidth / 2
-
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                animatedColor.copy(alpha = 0.3f),
-                                Color.Transparent
-                            ),
-                            center = Offset(centerOffset, size.height * 0.55f),
-                            radius = tabWidth * 0.7f
-                        ),
-                        radius = tabWidth * 0.7f,
-                        center = Offset(centerOffset, size.height * 0.55f)
+                    val animatedSelectedTabIndex by animateFloatAsState(
+                        targetValue = selectedTabIndex.toFloat(),
+                        label = "animatedSelectedTabIndex",
+                        animationSpec = spring(
+                            stiffness = Spring.StiffnessLow,
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                        )
                     )
 
-                    val path = Path().apply {
-                        addRoundRect(RoundRect(size.toRect(), CornerRadius(size.height / 2f)))
-                    }
-                    val measure = PathMeasure()
-                    measure.setPath(path, false)
-                    drawPath(
-                        path = path,
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                animatedColor.copy(alpha = 0.5f),
-                                animatedColor,
-                                animatedColor.copy(alpha = 0.5f),
-                                Color.Transparent,
+                    val animatedColor by animateColorAsState(
+                        targetValue = if (selectedTabIndex in tabs.indices) tabs[selectedTabIndex].color else Color.White,
+                        label = "animatedColor",
+                        animationSpec = spring(
+                            stiffness = Spring.StiffnessLow,
+                        )
+                    )
+
+                    Canvas(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        val tabWidth = size.width / tabs.size
+                        val centerOffset = tabWidth * animatedSelectedTabIndex + tabWidth / 2
+
+                        drawCircle(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    animatedColor.copy(alpha = 0.3f),
+                                    Color.Transparent
+                                ),
+                                center = Offset(centerOffset, size.height * 0.55f),
+                                radius = tabWidth * 0.7f
                             ),
-                            startX = centerOffset - (tabWidth * 0.6f),
-                            endX = centerOffset + (tabWidth * 0.6f),
-                        ),
-                        style = Stroke(width = 5f)
+                            radius = tabWidth * 0.7f,
+                            center = Offset(centerOffset, size.height * 0.55f)
+                        )
+
+                        val path = Path().apply {
+                            addRoundRect(RoundRect(size.toRect(), CornerRadius(size.height / 2f)))
+                        }
+                        val measure = PathMeasure()
+                        measure.setPath(path, false)
+                        drawPath(
+                            path = path,
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    animatedColor.copy(alpha = 0.5f),
+                                    animatedColor,
+                                    animatedColor.copy(alpha = 0.5f),
+                                    Color.Transparent,
+                                ),
+                                startX = centerOffset - (tabWidth * 0.6f),
+                                endX = centerOffset + (tabWidth * 0.6f),
+                            ),
+                            style = Stroke(width = 5f)
+                        )
+                    }
+
+                    BottomBarTabs(
+                        tabs = tabs,
+                        selectedTab = selectedTabIndex,
+                        onTabSelected = { tab ->
+                            val destination = when (tab) {
+                                is BottomBarTab.Home -> Destinations.Home
+                                is BottomBarTab.Attendance -> Destinations.Attendance
+                                is BottomBarTab.Faculty -> Destinations.FacultyGraph
+                                is BottomBarTab.Settings -> Destinations.Profile
+                            }
+                            navController.navigate(destination) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                 }
-
-                BottomBarTabs(
-                    tabs = tabs,
-                    selectedTab = selectedTabIndex,
-                    onTabSelected = { tab ->
-                        val destination = when (tab) {
-                            is BottomBarTab.Home -> Destinations.Home
-                            is BottomBarTab.Attendance -> Destinations.Attendance
-                            is BottomBarTab.Faculty -> Destinations.FacultyGraph
-                            is BottomBarTab.Settings -> Destinations.Profile
-                        }
-                        navController.navigate(destination) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                )
             }
         }
     ) {
@@ -219,6 +246,58 @@ fun MainUI(
             modifier = Modifier
                 .fillMaxSize()
                 .hazeSource(state = hazeState),
+            enterTransition = {
+                if (currentDestination?.hasRoute<Destinations.Schedule>() == true) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(
+                            durationMillis = 600,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }else{
+                    fadeIn()
+                }
+            },
+            exitTransition = {
+                if (currentDestination?.hasRoute<Destinations.Schedule>() == true) {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
+                        animationSpec = tween(
+                            durationMillis = 600,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }else{
+                    fadeOut()
+                }
+            },
+            popEnterTransition = {
+                if (currentDestination?.hasRoute<Destinations.Schedule>() == true) {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
+                        animationSpec = tween(
+                            durationMillis = 300,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }else{
+                    fadeIn()
+                }
+            },
+            popExitTransition = {
+                if (currentDestination?.hasRoute<Destinations.Schedule>() == true) {
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(
+                            durationMillis = 300,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }else{
+                    fadeOut()
+                }
+            }
         ) {
             composable<Destinations.Home> {
                 HomeScreen(
@@ -276,6 +355,47 @@ fun MainUI(
                         )
                     }
                 }
+            }
+            composable<Destinations.Schedule>(
+                enterTransition = {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(
+                            durationMillis = 600,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                },
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
+                        animationSpec = tween(
+                            durationMillis = 600,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+
+                },
+                popEnterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
+                        animationSpec = tween(
+                            durationMillis = 300,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(
+                            durationMillis = 300,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }
+            ) {
+                ScheduleScreen()
             }
         }
     }

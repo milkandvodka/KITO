@@ -225,271 +225,275 @@ fun FacultyScreen(
     Box(
         modifier = Modifier.hazeSource(cardHaze)
     ) {
-        if (!isOnline){
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                NoInternetAnimation()
+        Box(
+            modifier = Modifier.background(Color(0xFF121116))
+        ) {
+            if (!isOnline) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    NoInternetAnimation()
+                }
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        top = WindowInsets.statusBars.asPaddingValues()
+                            .calculateTopPadding() + 46.dp + animatedPadding,
+                        bottom = 86.dp + WindowInsets.navigationBars.asPaddingValues()
+                            .calculateBottomPadding()
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier
+                        .hazeSource(hazeState)
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    if (searchBarState.currentValue != SearchBarValue.Expanded || searchResultState is SearchResultState.Idle) {
+                        itemsIndexed(facultyList) { index, faculty ->
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 100.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                shape = RoundedCornerShape(
+                                    topStart = if (index == 0) 24.dp else 4.dp,
+                                    topEnd = if (index == 0) 24.dp else 4.dp,
+                                    bottomStart = if (index == facultyList.size - 1) 24.dp else 4.dp,
+                                    bottomEnd = if (index == facultyList.size - 1) 24.dp else 4.dp
+                                ),
+                                onClick = {
+                                    navController.navigate(
+                                        Destinations.FacultyDetail(
+                                            faculty.teacher_id ?: 0
+                                        )
+                                    ) {
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            brush = Brush.linearGradient(
+                                                colors = listOf(
+                                                    uiColors.cardBackground,
+                                                    Color(0xFF2F222F),
+                                                    Color(0xFF2F222F),
+                                                    uiColors.cardBackgroundHigh
+                                                )
+                                            )
+                                        )
+                                        .padding(16.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+
+                                        Box(
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            FacultyCardContent(
+                                                facultyName = faculty.name ?: "",
+                                                facultyOffice = faculty.office_room,
+                                                facultyEmail = faculty.email
+                                            )
+                                        }
+
+                                        IconButton(
+                                            onClick = {
+                                                navController.navigate(
+                                                    Destinations.FacultyDetail(
+                                                        faculty.teacher_id ?: 0
+                                                    )
+                                                ) {
+                                                    launchSingleTop = true
+                                                    restoreState = true
+                                                }
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                                contentDescription = "Open",
+                                                tint = uiColors.textSecondary,
+                                                modifier = Modifier.size(35.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        itemsIndexed(facultySearchResult) { index, faculty ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 100.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                shape = RoundedCornerShape(
+                                    topStart = if (index == 0) 24.dp else 4.dp,
+                                    topEnd = if (index == 0) 24.dp else 4.dp,
+                                    bottomStart = if (index == facultySearchResult.size - 1) 24.dp else 4.dp,
+                                    bottomEnd = if (index == facultySearchResult.size - 1) 24.dp else 4.dp
+                                ),
+                                onClick = {
+                                    navController.navigate(
+                                        Destinations.FacultyDetail(
+                                            faculty.teacher_id ?: 0
+                                        )
+                                    ) {
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            brush = Brush.linearGradient(
+                                                colors = listOf(
+                                                    uiColors.cardBackground,
+                                                    Color(0xFF2F222F),
+                                                    Color(0xFF2F222F),
+                                                    uiColors.cardBackgroundHigh
+                                                )
+                                            )
+                                        )
+                                        .padding(16.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+
+                                        Box(
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            FacultyCardContent(
+                                                facultyName = faculty.name ?: "",
+                                                facultyOffice = faculty.office_room,
+                                                facultyEmail = faculty.email
+                                            )
+                                        }
+
+                                        IconButton(
+                                            onClick = {
+                                                navController.navigate(
+                                                    Destinations.FacultyDetail(
+                                                        faculty.teacher_id ?: 0
+                                                    )
+                                                ) {
+                                                    launchSingleTop = true
+                                                    restoreState = true
+                                                }
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                                contentDescription = "Open",
+                                                tint = uiColors.textSecondary,
+                                                modifier = Modifier.size(35.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-        }else {
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    top = WindowInsets.statusBars.asPaddingValues()
-                        .calculateTopPadding() + 46.dp + animatedPadding,
-                    bottom = 86.dp + WindowInsets.navigationBars.asPaddingValues()
-                        .calculateBottomPadding()
-                ),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+            Column(
                 modifier = Modifier
-                    .hazeSource(hazeState)
-                    .fillMaxSize()
+                    .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                        blurRadius = 15.dp
+                        noiseFactor = 0.05f
+                        alpha = 0.98f
+                    }
+                    .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                if (searchBarState.currentValue != SearchBarValue.Expanded || searchResultState is SearchResultState.Idle) {
-                    itemsIndexed(facultyList) { index, faculty ->
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 100.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                            shape = RoundedCornerShape(
-                                topStart = if (index == 0) 24.dp else 4.dp,
-                                topEnd = if (index == 0) 24.dp else 4.dp,
-                                bottomStart = if (index == facultyList.size - 1) 24.dp else 4.dp,
-                                bottomEnd = if (index == facultyList.size - 1) 24.dp else 4.dp
-                            ),
-                            onClick = {
-                                navController.navigate(
-                                    Destinations.FacultyDetail(
-                                        faculty.teacher_id ?: 0
-                                    )
-                                ) {
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        brush = Brush.linearGradient(
-                                            colors = listOf(
-                                                uiColors.cardBackground,
-                                                Color(0xFF2F222F),
-                                                Color(0xFF2F222F),
-                                                uiColors.cardBackgroundHigh
-                                            )
-                                        )
-                                    )
-                                    .padding(16.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Box(
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        FacultyCardContent(
-                                            facultyName = faculty.name ?: "",
-                                            facultyOffice = faculty.office_room,
-                                            facultyEmail = faculty.email
-                                        )
-                                    }
-
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate(
-                                                Destinations.FacultyDetail(
-                                                    faculty.teacher_id ?: 0
-                                                )
-                                            ) {
-                                                launchSingleTop = true
-                                                restoreState = true
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                            contentDescription = "Open",
-                                            tint = uiColors.textSecondary,
-                                            modifier = Modifier.size(35.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    itemsIndexed(facultySearchResult) { index, faculty ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 100.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                            shape = RoundedCornerShape(
-                                topStart = if (index == 0) 24.dp else 4.dp,
-                                topEnd = if (index == 0) 24.dp else 4.dp,
-                                bottomStart = if (index == facultySearchResult.size - 1) 24.dp else 4.dp,
-                                bottomEnd = if (index == facultySearchResult.size - 1) 24.dp else 4.dp
-                            ),
-                            onClick = {
-                                navController.navigate(
-                                    Destinations.FacultyDetail(
-                                        faculty.teacher_id ?: 0
-                                    )
-                                ) {
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        brush = Brush.linearGradient(
-                                            colors = listOf(
-                                                uiColors.cardBackground,
-                                                Color(0xFF2F222F),
-                                                Color(0xFF2F222F),
-                                                uiColors.cardBackgroundHigh
-                                            )
-                                        )
-                                    )
-                                    .padding(16.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Box(
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        FacultyCardContent(
-                                            facultyName = faculty.name ?: "",
-                                            facultyOffice = faculty.office_room,
-                                            facultyEmail = faculty.email
-                                        )
-                                    }
-
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate(
-                                                Destinations.FacultyDetail(
-                                                    faculty.teacher_id ?: 0
-                                                )
-                                            ) {
-                                                launchSingleTop = true
-                                                restoreState = true
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                            contentDescription = "Open",
-                                            tint = uiColors.textSecondary,
-                                            modifier = Modifier.size(35.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        Column(
-            modifier = Modifier
-                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
-                    blurRadius = 15.dp
-                    noiseFactor = 0.05f
-                    alpha = 0.98f
-                }
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Spacer(
-                modifier = Modifier.height(
-                    16.dp + WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                Spacer(
+                    modifier = Modifier.height(
+                        16.dp + WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                    )
                 )
-            )
-            Box(
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                Box(
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Faculty",
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.SemiBold,
-                        color = uiColors.textPrimary,
-                        style = MaterialTheme.typography.titleLargeEmphasized,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if(isOnline) {
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    searchBarState.animateToExpanded()
-                                }
-                            },
-                            colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = Color.White.copy(alpha = 0.08f),
-                                contentColor = uiColors.accentOrangeStart
-                            ),
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PersonSearch,
-                                contentDescription = "Search",
-                                modifier = Modifier.size(24.dp)
-                            )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Faculty",
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.SemiBold,
+                            color = uiColors.textPrimary,
+                            style = MaterialTheme.typography.titleLargeEmphasized,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (isOnline) {
+                            IconButton(
+                                onClick = {
+                                    scope.launch {
+                                        searchBarState.animateToExpanded()
+                                    }
+                                },
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    containerColor = Color.White.copy(alpha = 0.08f),
+                                    contentColor = uiColors.accentOrangeStart
+                                ),
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PersonSearch,
+                                    contentDescription = "Search",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
                         }
                     }
-                }
-                this@Column.AnimatedVisibility(
-                    visible = searchBarState.currentValue == SearchBarValue.Expanded,
-                    enter = fadeIn(
-                        tween(
-                            durationMillis = 400,
-                            easing = FastOutSlowInEasing
+                    this@Column.AnimatedVisibility(
+                        visible = searchBarState.currentValue == SearchBarValue.Expanded,
+                        enter = fadeIn(
+                            tween(
+                                durationMillis = 400,
+                                easing = FastOutSlowInEasing
+                            )
+                        ) + expandVertically(
+                            tween(
+                                durationMillis = 400,
+                                easing = FastOutSlowInEasing
+                            )
+                        ),
+                        exit = fadeOut(
+                            tween(
+                                durationMillis = 400,
+                                easing = FastOutSlowInEasing
+                            )
+                        ) + shrinkVertically(
+                            tween(
+                                durationMillis = 400,
+                                easing = FastOutSlowInEasing
+                            )
+                        ),
+                    ) {
+                        SearchBar(
+                            state = searchBarState,
+                            inputField = inputField
                         )
-                    ) + expandVertically(
-                        tween(
-                            durationMillis = 400,
-                            easing = FastOutSlowInEasing
-                        )
-                    ),
-                    exit = fadeOut(
-                        tween(
-                            durationMillis = 400,
-                            easing = FastOutSlowInEasing
-                        )
-                    ) + shrinkVertically(
-                        tween(
-                            durationMillis = 400,
-                            easing = FastOutSlowInEasing
-                        )
-                    ),
-                ) {
-                    SearchBar(
-                        state = searchBarState,
-                        inputField = inputField
-                    )
-                }
+                    }
 //                ExpandedFullScreenSearchBar(
 //                    tonalElevation = 48.dp,
 //                    state = searchBarState,
@@ -500,8 +504,9 @@ fun FacultyScreen(
 //                ) {
 //
 //                }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
             }
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

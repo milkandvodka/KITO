@@ -162,29 +162,31 @@ fun FacultyDetailScreen(
     }
 
     Box(modifier = Modifier.hazeSource(cardHaze)) {
-
-        LazyColumn(
-            contentPadding = PaddingValues(
-                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 70.dp,
-                bottom = 86.dp + WindowInsets.navigationBars.asPaddingValues()
-                    .calculateBottomPadding()
-            ),
-            verticalArrangement = Arrangement.spacedBy(2.5.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .hazeSource(hazeState)
+        Box(
+            modifier = Modifier.background(Color(0xFF121116))
         ) {
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                    elevation = CardDefaults.cardElevation(6.dp),
-                    shape = RoundedCornerShape(24.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 70.dp,
+                    bottom = 86.dp + WindowInsets.navigationBars.asPaddingValues()
+                        .calculateBottomPadding()
+                ),
+                verticalArrangement = Arrangement.spacedBy(2.5.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .hazeSource(hazeState)
+            ) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                        elevation = CardDefaults.cardElevation(6.dp),
+                        shape = RoundedCornerShape(24.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
 //                            .background(
 //                                brush = Brush.linearGradient(
 //                                    colors = listOf(
@@ -193,129 +195,62 @@ fun FacultyDetailScreen(
 //                                    )
 //                                )
 //                            )
-                            .meshGradient(
-                                points = listOf(
+                                .meshGradient(
+                                    points = listOf(
 
-                                    // ───── TOP ROW ─────
-                                    listOf(
-                                        Offset(0f, 0f) to meshColorAnimators[0].value,
-                                        Offset(0.25f, 0f) to meshColorAnimators[1].value,
-                                        Offset(0.5f, 0f) to meshColorAnimators[2].value,
-                                        Offset(0.75f, 0f) to meshColorAnimators[3].value,
-                                        Offset(1f, 0f) to meshColorAnimators[4].value,
+                                        // ───── TOP ROW ─────
+                                        listOf(
+                                            Offset(0f, 0f) to meshColorAnimators[0].value,
+                                            Offset(0.25f, 0f) to meshColorAnimators[1].value,
+                                            Offset(0.5f, 0f) to meshColorAnimators[2].value,
+                                            Offset(0.75f, 0f) to meshColorAnimators[3].value,
+                                            Offset(1f, 0f) to meshColorAnimators[4].value,
+                                        ),
+
+                                        // ───── MIDDLE ROW (curved glow band) ─────
+                                        listOf(
+                                            Offset(-0.05f, 0.55f) to meshColorAnimators[5].value,
+                                            Offset(
+                                                0.2f,
+                                                animatedPointTop.value
+                                            ) to meshColorAnimators[6].value,
+                                            Offset(0.5f, 0.6f) to meshColorAnimators[7].value,
+                                            Offset(
+                                                0.8f,
+                                                animatedPointMid.value
+                                            ) to meshColorAnimators[8].value,
+                                            Offset(1.05f, 0.55f) to meshColorAnimators[9].value,
+                                        ),
+
+                                        // ───── BOTTOM ROW (independent animation per point) ─────
+                                        listOf(
+                                            Offset(0f, 1f) to meshColorAnimators[10].value,
+                                            Offset(0.25f, 1f) to meshColorAnimators[11].value,
+                                            Offset(0.5f, 1f) to meshColorAnimators[12].value,
+                                            Offset(0.75f, 1f) to meshColorAnimators[13].value,
+                                            Offset(1f, 1f) to meshColorAnimators[14].value,
+                                        ),
                                     ),
-
-                                    // ───── MIDDLE ROW (curved glow band) ─────
-                                    listOf(
-                                        Offset(-0.05f, 0.55f) to meshColorAnimators[5].value,
-                                        Offset(0.2f, animatedPointTop.value) to meshColorAnimators[6].value,
-                                        Offset(0.5f, 0.6f) to meshColorAnimators[7].value,
-                                        Offset(0.8f, animatedPointMid.value) to meshColorAnimators[8].value,
-                                        Offset(1.05f, 0.55f) to meshColorAnimators[9].value,
-                                    ),
-
-                                    // ───── BOTTOM ROW (independent animation per point) ─────
-                                    listOf(
-                                        Offset(0f, 1f) to meshColorAnimators[10].value,
-                                        Offset(0.25f, 1f) to meshColorAnimators[11].value,
-                                        Offset(0.5f, 1f) to meshColorAnimators[12].value,
-                                        Offset(0.75f, 1f) to meshColorAnimators[13].value,
-                                        Offset(1f, 1f) to meshColorAnimators[14].value,
-                                    ),
-                                ),
-                                resolutionX = 30
-                            )
-                            .padding(20.dp)
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(
-                                text = facultyName?:"",
-                                fontFamily = FontFamily.Monospace,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFFFFAC97),
-                                style = MaterialTheme.typography.titleLargeEmphasized
-                            )
-                            Text(
-                                text = "Faculty Room: $facultyRoom",
-                                fontFamily = FontFamily.Monospace,
-                                color = uiColors.textSecondary,
-                                style = MaterialTheme.typography.bodyMediumEmphasized
-                            )
-                            Text(
-                                text = "Email: $facultyEmail",
-                                fontFamily = FontFamily.Monospace,
-                                color = uiColors.textSecondary,
-                                style = MaterialTheme.typography.bodyMediumEmphasized
-                            )
-                        }
-                    }
-                }
-            }
-            groupedSchedule.forEach { (day, classes) ->
-
-                item {
-                    Text(
-                        text = day?:"",
-                        modifier = Modifier.padding(start = 8.dp, top = 16.dp),
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.SemiBold,
-                        color = uiColors.textPrimary,
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
-
-                itemsIndexed(classes) { index, item ->
-
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 100.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                        shape = RoundedCornerShape(
-                            topStart = if (index == 0) 24.dp else 4.dp,
-                            topEnd = if (index == 0) 24.dp else 4.dp,
-                            bottomStart = if (index == classes.size - 1) 24.dp else 4.dp,
-                            bottomEnd = if (index == classes.size - 1) 24.dp else 4.dp
-                        )
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    brush = Brush.linearGradient(
-                                        colors = listOf(
-                                            uiColors.cardBackground,
-                                            Color(0xFF2F222F),
-                                            Color(0xFF2F222F),
-                                            uiColors.cardBackgroundHigh
-                                        )
-                                    )
+                                    resolutionX = 30
                                 )
-                                .padding(16.dp)
+                                .padding(20.dp)
                         ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text(
-                                    text = "${formatTime(item.start_time?:"")} - ${formatTime(item.end_time?:"")}",
+                                    text = facultyName ?: "",
                                     fontFamily = FontFamily.Monospace,
                                     fontWeight = FontWeight.Bold,
-                                    color = uiColors.textPrimary,
-                                    style = MaterialTheme.typography.titleMediumEmphasized
+                                    color = Color(0xFFFFAC97),
+                                    style = MaterialTheme.typography.titleLargeEmphasized
                                 )
                                 Text(
-                                    text = "Subject: ${item.subject}",
+                                    text = "Faculty Room: $facultyRoom",
                                     fontFamily = FontFamily.Monospace,
                                     color = uiColors.textSecondary,
                                     style = MaterialTheme.typography.bodyMediumEmphasized
                                 )
                                 Text(
-                                    text = "Room: ${item.room}",
-                                    fontFamily = FontFamily.Monospace,
-                                    color = uiColors.textSecondary,
-                                    style = MaterialTheme.typography.bodyMediumEmphasized
-                                )
-                                Text(
-                                    text = "Batch: ${item.batch}",
+                                    text = "Email: $facultyEmail",
                                     fontFamily = FontFamily.Monospace,
                                     color = uiColors.textSecondary,
                                     style = MaterialTheme.typography.bodyMediumEmphasized
@@ -324,32 +259,110 @@ fun FacultyDetailScreen(
                         }
                     }
                 }
+                groupedSchedule.forEach { (day, classes) ->
 
-            }
-        }
-        Column(
-            modifier = Modifier
-                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
-                    blurRadius = 15.dp
-                    noiseFactor = 0.05f
-                    alpha = 0.98f
+                    item {
+                        Text(
+                            text = day ?: "",
+                            modifier = Modifier.padding(start = 8.dp, top = 16.dp),
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.SemiBold,
+                            color = uiColors.textPrimary,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+
+                    itemsIndexed(classes) { index, item ->
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 100.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                            shape = RoundedCornerShape(
+                                topStart = if (index == 0) 24.dp else 4.dp,
+                                topEnd = if (index == 0) 24.dp else 4.dp,
+                                bottomStart = if (index == classes.size - 1) 24.dp else 4.dp,
+                                bottomEnd = if (index == classes.size - 1) 24.dp else 4.dp
+                            )
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(
+                                                uiColors.cardBackground,
+                                                Color(0xFF2F222F),
+                                                Color(0xFF2F222F),
+                                                uiColors.cardBackgroundHigh
+                                            )
+                                        )
+                                    )
+                                    .padding(16.dp)
+                            ) {
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text(
+                                        text = "${formatTime(item.start_time ?: "")} - ${
+                                            formatTime(
+                                                item.end_time ?: ""
+                                            )
+                                        }",
+                                        fontFamily = FontFamily.Monospace,
+                                        fontWeight = FontWeight.Bold,
+                                        color = uiColors.textPrimary,
+                                        style = MaterialTheme.typography.titleMediumEmphasized
+                                    )
+                                    Text(
+                                        text = "Subject: ${item.subject}",
+                                        fontFamily = FontFamily.Monospace,
+                                        color = uiColors.textSecondary,
+                                        style = MaterialTheme.typography.bodyMediumEmphasized
+                                    )
+                                    Text(
+                                        text = "Room: ${item.room}",
+                                        fontFamily = FontFamily.Monospace,
+                                        color = uiColors.textSecondary,
+                                        style = MaterialTheme.typography.bodyMediumEmphasized
+                                    )
+                                    Text(
+                                        text = "Batch: ${item.batch}",
+                                        fontFamily = FontFamily.Monospace,
+                                        color = uiColors.textSecondary,
+                                        style = MaterialTheme.typography.bodyMediumEmphasized
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                 }
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Spacer(
-                modifier = Modifier.height(
-                    16.dp + WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+            }
+            Column(
+                modifier = Modifier
+                    .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                        blurRadius = 15.dp
+                        noiseFactor = 0.05f
+                        alpha = 0.98f
+                    }
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Spacer(
+                    modifier = Modifier.height(
+                        16.dp + WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                    )
                 )
-            )
-            Text(
-                text = "Faculty Detail",
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.SemiBold,
-                color = uiColors.textPrimary,
-                style = MaterialTheme.typography.titleLargeEmphasized
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Faculty Detail",
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold,
+                    color = uiColors.textPrimary,
+                    style = MaterialTheme.typography.titleLargeEmphasized
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }

@@ -2,8 +2,14 @@ package com.kito.ui.newUi.screen
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,8 +32,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Card
@@ -44,20 +52,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.DropShadowScope
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kito.ui.components.ExpressiveEasing
 import com.kito.ui.components.UIColors
@@ -77,15 +95,35 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
+import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import com.kito.ui.components.meshGradient
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalHazeApi::class, ExperimentalHazeMaterialsApi::class,
     ExperimentalMaterial3ExpressiveApi::class
 )
 @Composable
 fun ScheduleScreen(
     viewModel: ScheduleScreenViewModel = hiltViewModel(),
-    page: Int
 ) {
+    val today = todayKey()
+    val currentPage = when (today) {
+        "MON" -> 0
+        "TUE" -> 1
+        "WED" -> 2
+        "THU" -> 3
+        "FRI" -> 4
+        "SAT" -> 5
+        else -> 5
+    }
     val uiColors = UIColors()
     val coroutineScope = rememberCoroutineScope()
     val hazeState = rememberHazeState()
@@ -99,6 +137,44 @@ fun ScheduleScreen(
     val schedule by viewModel.weeklySchedule.collectAsState()
     val haptics = LocalHapticFeedback.current
     val context = LocalContext.current
+    val meshColors = listOf(
+        Color(0xFF77280F).copy(alpha = 0.82f), // burnt orange
+        Color(0xFF753107).copy(alpha = 0.82f), // amber-700
+        Color(0xFF62290A).copy(alpha = 0.82f), // amber-800
+        Color(0xFF46180C).copy(alpha = 0.82f), // deep orange-brown
+
+        // 🔥 new additions (subtle!)
+        Color(0xFFA14B09).copy(alpha = 0.70f), // muted yellow (amber-500 toned down)
+        Color(0xFF6B1414).copy(alpha = 0.75f), // brick red (not crimson)
+    )
+    val animatedPointMid = remember { Animatable(.8f) }
+    val animatedPointTop = remember { Animatable(.8f) }
+    val meshColorAnimators = remember {
+        List(15) { index ->
+            Animatable(meshColors[index % meshColors.size])
+        }
+    }
+    var now by remember { mutableStateOf(LocalTime.now()) }
+    LaunchedEffect(Unit) {
+            now = LocalTime.now()
+    }
+    LaunchedEffect(Unit) {
+        meshColorAnimators.forEachIndexed { i, anim ->
+            launch {
+                val random = Random(i * 97)
+                while (true) {
+                    val nextColor = meshColors[random.nextInt(meshColors.size)]
+                    anim.animateTo(
+                        targetValue = nextColor,
+                        animationSpec = tween(
+                            durationMillis = random.nextInt(1800, 4200),
+                            easing = LinearOutSlowInEasing
+                        )
+                    )
+                }
+            }
+        }
+    }
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
             .drop(1) // skip initial emission
@@ -112,14 +188,16 @@ fun ScheduleScreen(
     LaunchedEffect(Unit) {
         delay(100)
         pagerState.animateScrollToPage(
-            page = page,
+            page = currentPage,
             animationSpec = tween(
                 durationMillis = 800,
                 easing = ExpressiveEasing.Emphasized
             )
         )
     }
-    Box() {
+    Box(
+        modifier = Modifier.background(Color(0xFF121116))
+    ) {
         HorizontalPager(
             contentPadding = PaddingValues(
                 start = 28.dp,
@@ -128,7 +206,6 @@ fun ScheduleScreen(
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .hazeSource(hazeState)
         ) { page ->
             val day = weekDays[page]
             val daySchedule = schedule[day].orEmpty()
@@ -151,7 +228,29 @@ fun ScheduleScreen(
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(100.dp),
+                                .height(100.dp)
+                                .then(
+                                    if(page == currentPage && isClassUpcoming(startTime = item.startTime,now = now)) {
+                                        Modifier
+                                            .border(
+                                                width = 2.dp,
+                                                brush = Brush.verticalGradient(
+                                                    colors = listOf(
+                                                        uiColors.progressAccent,
+                                                        uiColors.progressAccent
+                                                    )
+                                                ),
+                                                shape = RoundedCornerShape(
+                                                    topStart = if (index == 0) 24.dp else 4.dp,
+                                                    topEnd = if (index == 0) 24.dp else 4.dp,
+                                                    bottomStart = if (index == daySchedule.size - 1) 24.dp else 4.dp,
+                                                    bottomEnd = if (index == daySchedule.size - 1) 24.dp else 4.dp
+                                                )
+                                            )
+                                    }else{
+                                        Modifier
+                                    }
+                                ),
                             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                             shape = RoundedCornerShape(
@@ -164,15 +263,52 @@ fun ScheduleScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(
-                                        brush = Brush.linearGradient(
-                                            colors = listOf(
-                                                uiColors.cardBackground,
-                                                Color(0xFF2F222F),
-                                                Color(0xFF2F222F),
-                                                uiColors.cardBackgroundHigh
+                                    .then(
+                                        if (page == currentPage && isClassOngoing(startTime = item.startTime, endTime = item.endTime, now = now)){
+                                            Modifier.meshGradient(
+                                                    points = listOf(
+
+                                                        // ───── TOP ROW ─────
+                                                        listOf(
+                                                            Offset(0f, 0f) to meshColorAnimators[0].value,
+                                                            Offset(0.25f, 0f) to meshColorAnimators[1].value,
+                                                            Offset(0.5f, 0f) to meshColorAnimators[2].value,
+                                                            Offset(0.75f, 0f) to meshColorAnimators[3].value,
+                                                            Offset(1f, 0f) to meshColorAnimators[4].value,
+                                                        ),
+
+                                                        // ───── MIDDLE ROW (curved glow band) ─────
+                                                        listOf(
+                                                            Offset(-0.05f, 0.55f) to meshColorAnimators[5].value,
+                                                            Offset(0.2f, animatedPointTop.value) to meshColorAnimators[6].value,
+                                                            Offset(0.5f, 0.6f) to meshColorAnimators[7].value,
+                                                            Offset(0.8f, animatedPointMid.value) to meshColorAnimators[8].value,
+                                                            Offset(1.05f, 0.55f) to meshColorAnimators[9].value,
+                                                        ),
+
+                                                        // ───── BOTTOM ROW (independent animation per point) ─────
+                                                        listOf(
+                                                            Offset(0f, 1f) to meshColorAnimators[10].value,
+                                                            Offset(0.25f, 1f) to meshColorAnimators[11].value,
+                                                            Offset(0.5f, 1f) to meshColorAnimators[12].value,
+                                                            Offset(0.75f, 1f) to meshColorAnimators[13].value,
+                                                            Offset(1f, 1f) to meshColorAnimators[14].value,
+                                                        ),
+                                                    ),
+                                                    resolutionX = 30
+                                                )
+                                        }else{
+                                            Modifier.background(
+                                                brush = Brush.linearGradient(
+                                                    colors = listOf(
+                                                        uiColors.cardBackground,
+                                                        Color(0xFF2F222F),
+                                                        Color(0xFF2F222F),
+                                                        uiColors.cardBackgroundHigh
+                                                    )
+                                                )
                                             )
-                                        )
+                                        }
                                     )
                             ) {
                                 Row(
@@ -311,7 +447,7 @@ fun ScheduleScreen(
 
                     val intent = Intent(
                         Intent.ACTION_SENDTO,
-                        Uri.parse("mailto:elabs.kiito@gmail.com?subject=$subject&body=$body")
+                        "mailto:elabs.kiito@gmail.com?subject=$subject&body=$body".toUri()
                     )
 
                     context.startActivity(intent)
@@ -336,6 +472,24 @@ fun ScheduleScreen(
         ) {
             itemsIndexed(weekDays) { index, label ->
                 ToggleButton(
+                    modifier = Modifier
+                        .then(
+                            if (index == currentPage && pagerState.currentPage != index){
+                                    Modifier
+                                        .zIndex(
+                                            -1f
+                                        )
+                                        .dropShadow(
+                                        shape = ButtonGroupDefaults.connectedMiddleButtonShapes().shape,
+                                        shadow = Shadow(
+                                        radius = 20.dp,
+                                        color = uiColors.accentOrangeStart
+                                    )
+                                )
+                            }else{
+                                Modifier
+                            }
+                        ),
                     checked = pagerState.currentPage == index,
                     onCheckedChange = {
                         coroutineScope.launch {
@@ -395,3 +549,47 @@ fun Modifier.horizontalCarouselTransition(page: Int, pagerState: PagerState) =
             fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
         )
     }
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun todayKey(): String =
+    when (LocalDate.now().dayOfWeek) {
+        DayOfWeek.MONDAY -> "MON"
+        DayOfWeek.TUESDAY -> "TUE"
+        DayOfWeek.WEDNESDAY -> "WED"
+        DayOfWeek.THURSDAY -> "THU"
+        DayOfWeek.FRIDAY -> "FRI"
+        DayOfWeek.SATURDAY -> "SAT"
+        else -> "MON"
+    }
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun isClassOngoing(
+    startTime: String,
+    endTime: String,
+    now: LocalTime
+): Boolean {
+    return try {
+        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+
+        val start = LocalTime.parse(startTime, formatter)
+        val end = LocalTime.parse(endTime, formatter)
+
+        !now.isBefore(start) && !now.isAfter(end)
+    } catch (_: Exception) {
+        false
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun isClassUpcoming(
+    startTime: String,
+    windowMinutes: Long = 15,
+    now: LocalTime
+): Boolean {
+    val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+    val start = LocalTime.parse(startTime, formatter)
+
+    val windowStart = start.minusMinutes(windowMinutes)
+
+    return !now.isBefore(windowStart) && now.isBefore(start)
+}
