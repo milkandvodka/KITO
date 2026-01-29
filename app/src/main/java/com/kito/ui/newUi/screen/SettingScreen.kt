@@ -70,7 +70,7 @@ import com.kito.ui.components.settingsdialog.RollChangeDialogBox
 import com.kito.ui.components.settingsdialog.TermsOfServiceDialog
 import com.kito.ui.components.settingsdialog.YearTermChangeDialogBox
 import com.kito.ui.components.state.SyncUiState
-import com.kito.ui.navigation.Destinations
+import com.kito.ui.navigation.TabDestination
 import com.kito.ui.newUi.viewmodel.SettingsViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
@@ -210,7 +210,7 @@ fun SettingsScreen(
     LaunchedEffect(syncState) {
         if (syncState is SyncUiState.Success) {
             if (isLoginDialogOpen){
-                navController.navigate(Destinations.Home) {
+                navController.navigate(TabDestination.Home) {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
                     }

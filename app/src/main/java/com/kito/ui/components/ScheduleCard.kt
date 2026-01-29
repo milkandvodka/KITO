@@ -104,6 +104,7 @@ fun ScheduleCard(
                 .background(colors.cardBackground, RoundedCornerShape(22.dp))
                 .padding(horizontal = 8.dp)
         ) {
+            item{}
             if (ongoing != null) {
                 item {
                     Text(

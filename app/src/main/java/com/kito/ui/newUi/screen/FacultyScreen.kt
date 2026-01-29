@@ -79,7 +79,7 @@ import com.kito.ui.components.FacultyCardContent
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.animation.NoInternetAnimation
 import com.kito.ui.components.state.SearchResultState
-import com.kito.ui.navigation.Destinations
+import com.kito.ui.navigation.RootDestination
 import com.kito.ui.newUi.viewmodel.FacultyScreenViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.hazeEffect
@@ -271,7 +271,7 @@ fun FacultyScreen(
                                 ),
                                 onClick = {
                                     navController.navigate(
-                                        Destinations.FacultyDetail(
+                                        RootDestination.FacultyDetail(
                                             faculty.teacher_id ?: 0
                                         )
                                     ) {
@@ -313,7 +313,7 @@ fun FacultyScreen(
                                         IconButton(
                                             onClick = {
                                                 navController.navigate(
-                                                    Destinations.FacultyDetail(
+                                                    RootDestination.FacultyDetail(
                                                         faculty.teacher_id ?: 0
                                                     )
                                                 ) {
@@ -349,7 +349,7 @@ fun FacultyScreen(
                                 ),
                                 onClick = {
                                     navController.navigate(
-                                        Destinations.FacultyDetail(
+                                        RootDestination.FacultyDetail(
                                             faculty.teacher_id ?: 0
                                         )
                                     ) {
@@ -391,7 +391,7 @@ fun FacultyScreen(
                                         IconButton(
                                             onClick = {
                                                 navController.navigate(
-                                                    Destinations.FacultyDetail(
+                                                    RootDestination.FacultyDetail(
                                                         faculty.teacher_id ?: 0
                                                     )
                                                 ) {

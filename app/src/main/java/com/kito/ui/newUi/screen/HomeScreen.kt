@@ -69,7 +69,6 @@ import com.kito.ui.components.UIColors
 import com.kito.ui.components.UpcomingEventCard
 import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.state.SyncUiState
-import com.kito.ui.navigation.Destinations
 import com.kito.ui.newUi.viewmodel.HomeViewmodel
 import com.kito.widget.TimeTableAppWidget
 import com.kito.widget.TimetableWidget
@@ -84,6 +83,8 @@ import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
 import androidx.core.net.toUri
+import com.kito.ui.navigation.RootDestination
+import com.kito.ui.navigation.TabDestination
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeApi::class,
@@ -369,7 +370,7 @@ fun HomeScreen(
                                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
 //                                        val intent = Intent(context, ScheduleActivity::class.java)
 //                                        context.startActivity(intent)
-                                        navController.navigate(Destinations.Schedule)
+                                        navController.navigate(RootDestination.Schedule)
                                     },
                                     modifier = Modifier.size(28.dp)
                                 ) {
@@ -396,7 +397,7 @@ fun HomeScreen(
                                     haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
 //                                    val intent = Intent(context, ScheduleActivity::class.java)
 //                                    context.startActivity(intent)
-                                    navController.navigate(Destinations.Schedule)
+                                    navController.navigate(RootDestination.Schedule)
                                 }
                             )
                         }
@@ -454,7 +455,7 @@ fun HomeScreen(
                                 IconButton(
                                     onClick = {
                                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                                        navController.navigate(Destinations.Attendance) {
+                                        navController.navigate(TabDestination.Attendance) {
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = true
                                             }
@@ -495,7 +496,7 @@ fun HomeScreen(
                                     },
                                     onNavigate = {
                                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                                        navController.navigate(Destinations.Attendance) {
+                                        navController.navigate(TabDestination.Attendance) {
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = true
                                             }

@@ -5,14 +5,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -66,7 +63,8 @@ import androidx.navigation.toRoute
 import com.kito.ui.components.ExpressiveEasing
 import com.kito.ui.navigation.BottomBarTab
 import com.kito.ui.navigation.BottomBarTabs
-import com.kito.ui.navigation.Destinations
+import com.kito.ui.navigation.RootDestination
+import com.kito.ui.navigation.TabDestination
 import com.kito.ui.navigation.tabs
 import com.kito.ui.newUi.screen.AttendanceListScreen
 import com.kito.ui.newUi.screen.FacultyDetailScreen
@@ -97,22 +95,19 @@ fun MainUI(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val shouldShowBottomBar = currentDestination?.hierarchy?.any { it.hasRoute<RootDestination.Tabs>() } == true
 
     LaunchedEffect(Unit) {
         appViewModel.checkResetFix()
     }
-    // Sync selectedTabIndex with currentDestination
     LaunchedEffect(currentDestination) {
-        currentDestination?.let { dest ->
-            selectedTabIndex = when {
-                dest.hasRoute<Destinations.Home>() -> 0
-                dest.hasRoute<Destinations.Attendance>() -> 1
-                dest.hierarchy.any { it.hasRoute<Destinations.FacultyGraph>() } -> 2
-                dest.hasRoute<Destinations.Profile>() -> 3
-                else -> selectedTabIndex
-            }
+        selectedTabIndex = when {
+            currentDestination?.hasRoute<TabDestination.Home>() == true -> 0
+            currentDestination?.hasRoute<TabDestination.Attendance>() == true -> 1
+            currentDestination?.hasRoute<TabDestination.Faculty>() == true -> 2
+            currentDestination?.hasRoute<TabDestination.Profile>() == true -> 3
+            else -> selectedTabIndex
         }
     }
 
@@ -122,7 +117,7 @@ fun MainUI(
         containerColor = Color.Transparent,
         bottomBar = {
             AnimatedVisibility(
-                visible = (currentDestination?.hasRoute<Destinations.Schedule>() != true && currentDestination?.hasRoute<Destinations.Schedule>() != true),
+                visible = shouldShowBottomBar,
                 enter = slideInVertically(
                     initialOffsetY = { it },
                     animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
@@ -222,10 +217,10 @@ fun MainUI(
                         selectedTab = selectedTabIndex,
                         onTabSelected = { tab ->
                             val destination = when (tab) {
-                                is BottomBarTab.Home -> Destinations.Home
-                                is BottomBarTab.Attendance -> Destinations.Attendance
-                                is BottomBarTab.Faculty -> Destinations.FacultyGraph
-                                is BottomBarTab.Settings -> Destinations.Profile
+                                BottomBarTab.Home -> TabDestination.Home
+                                BottomBarTab.Attendance -> TabDestination.Attendance
+                                BottomBarTab.Faculty -> TabDestination.Faculty
+                                BottomBarTab.Settings -> TabDestination.Profile
                             }
                             navController.navigate(destination) {
                                 popUpTo(navController.graph.findStartDestination().id) {
@@ -242,121 +237,32 @@ fun MainUI(
     ) {
         NavHost(
             navController = navController,
-            startDestination = Destinations.Home,
-            modifier = Modifier
-                .fillMaxSize()
-                .hazeSource(state = hazeState),
-            enterTransition = {
-                if (currentDestination?.hasRoute<Destinations.Schedule>() == true) {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(
-                            durationMillis = 600,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                }else{
-                    fadeIn()
-                }
-            },
-            exitTransition = {
-                if (currentDestination?.hasRoute<Destinations.Schedule>() == true) {
-                    slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
-                        animationSpec = tween(
-                            durationMillis = 600,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                }else{
-                    fadeOut()
-                }
-            },
-            popEnterTransition = {
-                if (currentDestination?.hasRoute<Destinations.Schedule>() == true) {
-                    slideInHorizontally(
-                        initialOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                }else{
-                    fadeIn()
-                }
-            },
-            popExitTransition = {
-                if (currentDestination?.hasRoute<Destinations.Schedule>() == true) {
-                    slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                }else{
-                    fadeOut()
-                }
-            }
+            startDestination = RootDestination.Tabs,
+            modifier = Modifier.hazeSource(hazeState)
         ) {
-            composable<Destinations.Home> {
-                HomeScreen(
-                    navController = navController
-                )
-            }
-            composable<Destinations.Attendance> {
-                AttendanceListScreen(
-                    navController = navController
-                )
-            }
-            composable<Destinations.Profile> {
-                SettingsScreen(
-                    navController = navController
-                )
-            }
 
-            navigation<Destinations.FacultyGraph>(
-                startDestination = Destinations.Faculty
+            // 🔹 Bottom bar graph
+            navigation<RootDestination.Tabs>(
+                startDestination = TabDestination.Home
             ) {
-                composable<Destinations.Faculty> {
-                    FacultyScreen(
+                composable<TabDestination.Home> {
+                    HomeScreen(
                         navController = navController
                     )
                 }
-                composable<Destinations.FacultyDetail> {
-
-                    val viewModel: FacultyDetailViewModel = hiltViewModel()
-
-                    val faculty by viewModel.faculty.collectAsState()
-                    val schedule by viewModel.schedule.collectAsState()
-
-                    LaunchedEffect(Unit) {
-                        val backStackEntry = navController.currentBackStackEntry
-                        val facultyId =
-                            backStackEntry?.toRoute<Destinations.FacultyDetail>()?.facultyId
-                                ?: return@LaunchedEffect
-
-                        viewModel.loadFacultyDetail(facultyId)
-                    }
-
-                    if (faculty == null) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    } else {
-                        FacultyDetailScreen(
-                            facultyName = faculty!!.name,
-                            facultyRoom = faculty!!.office_room,
-                            facultyEmail = faculty!!.email,
-                            schedule = schedule
-                        )
-                    }
+                composable<TabDestination.Attendance> {
+                    AttendanceListScreen(navController = navController)
+                }
+                composable<TabDestination.Faculty> {
+                    FacultyScreen(navController)
+                }
+                composable<TabDestination.Profile> {
+                    SettingsScreen(navController = navController)
                 }
             }
-            composable<Destinations.Schedule>(
+
+            // 🔹 Fullscreen: Schedule
+            composable<RootDestination.Schedule>(
                 enterTransition = {
                     slideIntoContainer(
                         towards = AnimatedContentTransitionScope.SlideDirection.Left,
@@ -374,7 +280,6 @@ fun MainUI(
                             easing = ExpressiveEasing.Emphasized
                         )
                     )
-
                 },
                 popEnterTransition = {
                     slideInHorizontally(
@@ -396,6 +301,76 @@ fun MainUI(
                 }
             ) {
                 ScheduleScreen()
+            }
+
+            // 🔹 Fullscreen: Faculty detail
+            composable<RootDestination.FacultyDetail>(
+                enterTransition = {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(
+                            durationMillis = 600,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                },
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
+                        animationSpec = tween(
+                            durationMillis = 600,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                },
+                popEnterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
+                        animationSpec = tween(
+                            durationMillis = 300,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(
+                            durationMillis = 300,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }
+            ) {
+                val viewModel: FacultyDetailViewModel = hiltViewModel()
+
+                val faculty by viewModel.faculty.collectAsState()
+                val schedule by viewModel.schedule.collectAsState()
+
+                LaunchedEffect(Unit) {
+                    val facultyId =
+                        navController.currentBackStackEntry
+                            ?.toRoute<RootDestination.FacultyDetail>()
+                            ?.facultyId
+                            ?: return@LaunchedEffect
+                    viewModel.loadFacultyDetail(facultyId)
+                }
+
+                if (faculty == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    FacultyDetailScreen(
+                        facultyName = faculty!!.name,
+                        facultyRoom = faculty!!.office_room,
+                        facultyEmail = faculty!!.email,
+                        schedule = schedule
+                    )
+                }
             }
         }
     }
