@@ -477,7 +477,6 @@ fun HomeScreen(
                         item {
                             Spacer(Modifier.height(8.dp))
                         }
-                        // Horizontal Cards
                         item {
                             Box(
                                 modifier = Modifier

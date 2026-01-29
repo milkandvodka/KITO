@@ -31,7 +31,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -39,9 +42,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kito.data.remote.model.TeacherScheduleByIDModel
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.meshGradient
+import com.kito.ui.components.shimmer
+import com.kito.ui.components.state.SyncUiState
+import com.kito.ui.newUi.viewmodel.FacultyDetailViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
@@ -68,15 +76,15 @@ private val dayPriority = mapOf(
 )
 @Composable
 fun FacultyDetailScreen(
-    facultyName: String?,
-    facultyRoom: String?,
-    facultyEmail: String?,
-    schedule: List<TeacherScheduleByIDModel>
+    viewModel: FacultyDetailViewModel = hiltViewModel(),
+    facultyId: Long
 ) {
+    val syncState by viewModel.syncState.collectAsState()
     val uiColors = UIColors()
     val hazeState = rememberHazeState()
     val cardHaze = rememberHazeState()
-
+    val faculty by viewModel.faculty.collectAsState()
+    val schedule by viewModel.schedule.collectAsState()
     val groupedSchedule = schedule
         .sortedWith(
             compareBy<TeacherScheduleByIDModel>(
@@ -122,6 +130,9 @@ fun FacultyDetailScreen(
         }
     }
     LaunchedEffect(Unit) {
+        launch {
+            viewModel.loadFacultyDetail(facultyId)
+        }
         launch {
             while (true) {
                 animatedPointMid.animateTo(
@@ -187,14 +198,6 @@ fun FacultyDetailScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-//                            .background(
-//                                brush = Brush.linearGradient(
-//                                    colors = listOf(
-//                                        Color(0x00000000),
-//                                        Color(0xFF813A09)
-//                                    )
-//                                )
-//                            )
                                 .meshGradient(
                                     points = listOf(
 
@@ -236,107 +239,207 @@ fun FacultyDetailScreen(
                                 .padding(20.dp)
                         ) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(
-                                    text = facultyName ?: "",
-                                    fontFamily = FontFamily.Monospace,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFFFAC97),
-                                    style = MaterialTheme.typography.titleLargeEmphasized
-                                )
-                                Text(
-                                    text = "Faculty Room: $facultyRoom",
-                                    fontFamily = FontFamily.Monospace,
-                                    color = uiColors.textSecondary,
-                                    style = MaterialTheme.typography.bodyMediumEmphasized
-                                )
-                                Text(
-                                    text = "Email: $facultyEmail",
-                                    fontFamily = FontFamily.Monospace,
-                                    color = uiColors.textSecondary,
-                                    style = MaterialTheme.typography.bodyMediumEmphasized
-                                )
-                            }
-                        }
-                    }
-                }
-                groupedSchedule.forEach { (day, classes) ->
+                                when(syncState){
+                                    is SyncUiState.Error -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(text = (syncState as SyncUiState.Error).message)
+                                        }
+                                    }
+                                    SyncUiState.Idle -> {
 
-                    item {
-                        Text(
-                            text = day ?: "",
-                            modifier = Modifier.padding(start = 8.dp, top = 16.dp),
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.SemiBold,
-                            color = uiColors.textPrimary,
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                    }
-
-                    itemsIndexed(classes) { index, item ->
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 100.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                            shape = RoundedCornerShape(
-                                topStart = if (index == 0) 24.dp else 4.dp,
-                                topEnd = if (index == 0) 24.dp else 4.dp,
-                                bottomStart = if (index == classes.size - 1) 24.dp else 4.dp,
-                                bottomEnd = if (index == classes.size - 1) 24.dp else 4.dp
-                            )
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        brush = Brush.linearGradient(
-                                            colors = listOf(
-                                                uiColors.cardBackground,
-                                                Color(0xFF2F222F),
-                                                Color(0xFF2F222F),
-                                                uiColors.cardBackgroundHigh
-                                            )
+                                    }
+                                    SyncUiState.Loading -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth(0.6f)
+                                                .height(20.dp)
+                                                .shimmer()
                                         )
-                                    )
-                                    .padding(16.dp)
-                            ) {
-                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    Text(
-                                        text = "${formatTime(item.start_time ?: "")} - ${
-                                            formatTime(
-                                                item.end_time ?: ""
-                                            )
-                                        }",
-                                        fontFamily = FontFamily.Monospace,
-                                        fontWeight = FontWeight.Bold,
-                                        color = uiColors.textPrimary,
-                                        style = MaterialTheme.typography.titleMediumEmphasized
-                                    )
-                                    Text(
-                                        text = "Subject: ${item.subject}",
-                                        fontFamily = FontFamily.Monospace,
-                                        color = uiColors.textSecondary,
-                                        style = MaterialTheme.typography.bodyMediumEmphasized
-                                    )
-                                    Text(
-                                        text = "Room: ${item.room}",
-                                        fontFamily = FontFamily.Monospace,
-                                        color = uiColors.textSecondary,
-                                        style = MaterialTheme.typography.bodyMediumEmphasized
-                                    )
-                                    Text(
-                                        text = "Batch: ${item.batch}",
-                                        fontFamily = FontFamily.Monospace,
-                                        color = uiColors.textSecondary,
-                                        style = MaterialTheme.typography.bodyMediumEmphasized
-                                    )
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth(0.45f)
+                                                .height(14.dp)
+                                                .shimmer()
+                                        )
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth(0.75f)
+                                                .height(14.dp)
+                                                .shimmer()
+                                        )
+                                    }
+                                    SyncUiState.Success -> {
+                                        Text(
+                                            text = faculty?.name ?: "",
+                                            fontFamily = FontFamily.Monospace,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFFFFAC97),
+                                            style = MaterialTheme.typography.titleLargeEmphasized
+                                        )
+                                        Text(
+                                            text = "Faculty Room: ${faculty?.office_room ?: ""}",
+                                            fontFamily = FontFamily.Monospace,
+                                            color = uiColors.textSecondary,
+                                            style = MaterialTheme.typography.bodyMediumEmphasized
+                                        )
+                                        Text(
+                                            text = "Email: ${faculty?.email ?: ""}",
+                                            fontFamily = FontFamily.Monospace,
+                                            color = uiColors.textSecondary,
+                                            style = MaterialTheme.typography.bodyMediumEmphasized
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
+                }
+                when(syncState){
+                    is SyncUiState.Error -> {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = (syncState as SyncUiState.Error).message)
+                            }
+                        }
+                    }
+                    SyncUiState.Idle -> {
 
+                    }
+                    SyncUiState.Loading -> {
+                        listOf("Mon", "Tue", "Wed").forEach { day ->
+                            item {
+                                Text(
+                                    text = day,
+                                    modifier = Modifier.padding(start = 8.dp, top = 16.dp),
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = uiColors.textPrimary,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                            }
+
+                            items(3) {index ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 100.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                    shape = RoundedCornerShape(
+                                        topStart = if (index == 0) 24.dp else 4.dp,
+                                        topEnd = if (index == 0) 24.dp else 4.dp,
+                                        bottomStart = if (index == 2) 24.dp else 4.dp,
+                                        bottomEnd = if (index == 2) 24.dp else 4.dp
+                                    )
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(
+                                                brush = Brush.linearGradient(
+                                                    colors = listOf(
+                                                        uiColors.cardBackground,
+                                                        Color(0xFF2F222F),
+                                                        Color(0xFF2F222F),
+                                                        uiColors.cardBackgroundHigh
+                                                    )
+                                                )
+                                            )
+                                            .padding(16.dp)
+                                    ) {
+                                        ScheduleShimmerItem()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    SyncUiState.Success -> {
+                        groupedSchedule.forEach { (day, classes) ->
+                            item {
+                                Text(
+                                    text = day ?: "",
+                                    modifier = Modifier.padding(start = 8.dp, top = 16.dp),
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = uiColors.textPrimary,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                            }
+
+                            itemsIndexed(classes) { index, item ->
+
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                    shape = RoundedCornerShape(
+                                        topStart = if (index == 0) 24.dp else 4.dp,
+                                        topEnd = if (index == 0) 24.dp else 4.dp,
+                                        bottomStart = if (index == classes.size - 1) 24.dp else 4.dp,
+                                        bottomEnd = if (index == classes.size - 1) 24.dp else 4.dp
+                                    )
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(
+                                                brush = Brush.linearGradient(
+                                                    colors = listOf(
+                                                        uiColors.cardBackground,
+                                                        Color(0xFF2F222F),
+                                                        Color(0xFF2F222F),
+                                                        uiColors.cardBackgroundHigh
+                                                    )
+                                                )
+                                            )
+                                            .padding(16.dp)
+                                    ) {
+                                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                            Text(
+                                                text = "${formatTime(item.start_time ?: "")} - ${
+                                                    formatTime(
+                                                        item.end_time ?: ""
+                                                    )
+                                                }",
+                                                fontFamily = FontFamily.Monospace,
+                                                fontWeight = FontWeight.Bold,
+                                                color = uiColors.textPrimary,
+                                                style = MaterialTheme.typography.titleMediumEmphasized
+                                            )
+                                            Text(
+                                                text = "Subject: ${item.subject}",
+                                                fontFamily = FontFamily.Monospace,
+                                                color = uiColors.textSecondary,
+                                                style = MaterialTheme.typography.bodyMediumEmphasized
+                                            )
+                                            Text(
+                                                text = "Room: ${item.room}",
+                                                fontFamily = FontFamily.Monospace,
+                                                color = uiColors.textSecondary,
+                                                style = MaterialTheme.typography.bodyMediumEmphasized
+                                            )
+                                            Text(
+                                                text = "Batch: ${item.batch}",
+                                                fontFamily = FontFamily.Monospace,
+                                                color = uiColors.textSecondary,
+                                                style = MaterialTheme.typography.bodyMediumEmphasized
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
                 }
             }
             Column(
@@ -391,4 +494,34 @@ fun timeToSortableMinutes(time: String): Int {
     }
 
     return hour24 * 60 + minute
+}
+
+@Composable
+fun ScheduleShimmerItem() {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box(
+            Modifier
+                .fillMaxWidth(0.6f)
+                .height(14.dp)
+                .shimmer()
+        )
+        Box(
+            Modifier
+                .fillMaxWidth(0.3f)
+                .height(12.dp)
+                .shimmer()
+        )
+        Box(
+            Modifier
+                .fillMaxWidth(0.4f)
+                .height(12.dp)
+                .shimmer()
+        )
+        Box(
+            Modifier
+                .fillMaxWidth(0.35f)
+                .height(12.dp)
+                .shimmer()
+        )
+    }
 }

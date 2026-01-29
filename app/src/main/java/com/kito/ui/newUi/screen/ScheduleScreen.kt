@@ -72,6 +72,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -345,7 +346,9 @@ fun ScheduleScreen(
                                                 color = uiColors.textPrimary,
                                                 fontWeight = FontWeight.Bold,
                                                 fontFamily = FontFamily.Monospace,
-                                                style = MaterialTheme.typography.headlineSmallEmphasized
+                                                style = MaterialTheme.typography.headlineSmallEmphasized,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
                                             )
                                             Text(
                                                 text = "${formatTo12Hour(item.startTime)} - ${
@@ -355,7 +358,9 @@ fun ScheduleScreen(
                                                 }",
                                                 color = uiColors.textPrimary.copy(alpha = 0.85f),
                                                 style = MaterialTheme.typography.labelLargeEmphasized,
-                                                fontFamily = FontFamily.Monospace
+                                                fontFamily = FontFamily.Monospace,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
                                             )
                                         }
                                         Text(
@@ -363,7 +368,9 @@ fun ScheduleScreen(
                                             color = uiColors.textPrimary,
                                             fontWeight = FontWeight.Bold,
                                             fontFamily = FontFamily.Monospace,
-                                            style = MaterialTheme.typography.titleMediumEmphasized
+                                            style = MaterialTheme.typography.titleMediumEmphasized,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                     }
                                 }

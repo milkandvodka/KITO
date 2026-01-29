@@ -5,11 +5,15 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -51,12 +55,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
@@ -238,12 +244,90 @@ fun MainUI(
         NavHost(
             navController = navController,
             startDestination = RootDestination.Tabs,
-            modifier = Modifier.hazeSource(hazeState)
+            modifier = Modifier.hazeSource(hazeState),
+            enterTransition = {
+                if (
+                    initialState.destination.isInTabs() && targetState.destination.isInTabs()
+                ) {
+                    fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 400,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }else {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(
+                            durationMillis = 600,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }
+            },
+            exitTransition = {
+                if (
+                    initialState.destination.isInTabs() && targetState.destination.isInTabs()
+                ) {
+                    fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 400,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }else{
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
+                        animationSpec = tween(
+                            durationMillis = 600,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }
+            },
+            popEnterTransition = {
+                if (
+                    initialState.destination.isInTabs() && targetState.destination.isInTabs()
+                ) {
+                    fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 400,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }else {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
+                        animationSpec = tween(
+                            durationMillis = 300,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }
+            },
+            popExitTransition = {
+                if (
+                    initialState.destination.isInTabs() && targetState.destination.isInTabs()
+                ) {
+                    fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 400,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }else {
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(
+                            durationMillis = 300,
+                            easing = ExpressiveEasing.Emphasized
+                        )
+                    )
+                }
+            }
         ) {
-
-            // 🔹 Bottom bar graph
             navigation<RootDestination.Tabs>(
-                startDestination = TabDestination.Home
+                startDestination = TabDestination.Home,
             ) {
                 composable<TabDestination.Home> {
                     HomeScreen(
@@ -260,118 +344,19 @@ fun MainUI(
                     SettingsScreen(navController = navController)
                 }
             }
-
-            // 🔹 Fullscreen: Schedule
-            composable<RootDestination.Schedule>(
-                enterTransition = {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(
-                            durationMillis = 600,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                },
-                exitTransition = {
-                    slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
-                        animationSpec = tween(
-                            durationMillis = 600,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                },
-                popEnterTransition = {
-                    slideInHorizontally(
-                        initialOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                },
-                popExitTransition = {
-                    slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                }
-            ) {
+            composable<RootDestination.Schedule> {
                 ScheduleScreen()
             }
-
-            // 🔹 Fullscreen: Faculty detail
-            composable<RootDestination.FacultyDetail>(
-                enterTransition = {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(
-                            durationMillis = 600,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                },
-                exitTransition = {
-                    slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
-                        animationSpec = tween(
-                            durationMillis = 600,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                },
-                popEnterTransition = {
-                    slideInHorizontally(
-                        initialOffsetX = { fullWidth -> -(fullWidth * 0.3f).toInt() },
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                },
-                popExitTransition = {
-                    slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = ExpressiveEasing.Emphasized
-                        )
-                    )
-                }
-            ) {
-                val viewModel: FacultyDetailViewModel = hiltViewModel()
-
-                val faculty by viewModel.faculty.collectAsState()
-                val schedule by viewModel.schedule.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    val facultyId =
-                        navController.currentBackStackEntry
-                            ?.toRoute<RootDestination.FacultyDetail>()
-                            ?.facultyId
-                            ?: return@LaunchedEffect
-                    viewModel.loadFacultyDetail(facultyId)
-                }
-
-                if (faculty == null) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    FacultyDetailScreen(
-                        facultyName = faculty!!.name,
-                        facultyRoom = faculty!!.office_room,
-                        facultyEmail = faculty!!.email,
-                        schedule = schedule
-                    )
-                }
+            composable<RootDestination.FacultyDetail> { backStackEntry ->
+                val args = backStackEntry.toRoute<RootDestination.FacultyDetail>()
+                val facultyId = args.facultyId
+                FacultyDetailScreen(
+                    facultyId = facultyId
+                )
             }
         }
     }
 }
+
+private fun NavDestination.isInTabs(): Boolean =
+    hierarchy.any { it.hasRoute<RootDestination.Tabs>() }
