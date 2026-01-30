@@ -7,9 +7,9 @@ import androidx.datastore.dataStoreFile
 
 object ProtoDataStoreProvider {
     @Volatile
-    private var INSTANCE: DataStore<ListStudentSectionDataStore>? = null
+    private var INSTANCE: DataStore<ProtoDataStoreDTO>? = null
 
-    fun get(context: Context): DataStore<ListStudentSectionDataStore> {
+    fun get(context: Context): DataStore<ProtoDataStoreDTO> {
         return INSTANCE ?: synchronized(this) {
             INSTANCE ?: DataStoreFactory.create(
                 serializer = DatastoreSerializer,

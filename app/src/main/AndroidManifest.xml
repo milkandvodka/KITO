@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
+
     <application
         android:name=".KitoApplication"
         android:allowBackup="true"
@@ -19,7 +20,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kito">
         <receiver
-            android:name=".notification.ClassAlarmReceiver"
+            android:name=".notification.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".notification.NotificationReceiver"
             android:exported="false" />
         <receiver
             android:name=".widget.TimeTableAppWidget"
@@ -45,9 +54,6 @@
                 <action android:name="android.intent.action.DATE_CHANGED" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".widget.WidgetUpdateReceiver"
-            android:exported="false" />
         <activity
             android:name=".ScheduleActivity"
             android:exported="false" />
@@ -67,5 +73,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

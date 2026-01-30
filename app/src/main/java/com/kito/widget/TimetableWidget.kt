@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -34,60 +33,41 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.kito.ScheduleActivity
-import com.kito.data.local.datastore.ListStudentSectionDataStore
-import com.kito.data.local.datastore.ProtoDataStoreProvider
+import com.kito.data.local.datastore.ProtoDataStoreDTO
 import com.kito.data.local.datastore.StudentSectionDatastore
-import com.kito.di.dataStore
-import kotlinx.coroutines.flow.first
 import java.util.Calendar
 
 class TimetableWidget : GlanceAppWidget() {
     override val stateDefinition = TimetableGlanceStateDefinition
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) {
-        Log.d("glanceWidget", "provideGlance run")
-        val prefs = context.dataStore.data.first()
-        val rollNo = prefs[KEY_USER_ROLLNUMBER] ?: ""
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            val state = currentState<ListStudentSectionDataStore>()
-
-            val day = when (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-                Calendar.MONDAY -> "MON"
-                Calendar.TUESDAY -> "TUE"
-                Calendar.WEDNESDAY -> "WED"
-                Calendar.THURSDAY -> "THU"
-                Calendar.FRIDAY -> "FRI"
-                Calendar.SATURDAY -> "SAT"
-                else -> "SUN"
-            }
-
-            val nowMinutes = Calendar.getInstance().run {
-                get(Calendar.HOUR_OF_DAY) * 60 + get(Calendar.MINUTE)
-            }
+            Log.d("Widget", "provideContend Called")
+            val state = currentState<ProtoDataStoreDTO>()
+            val redraw = state.redrawToken
+            val rollNo = state.rollNo
+            val now = System.currentTimeMillis()
+            val today = todayKey()
 
             val todayClasses = state.list
-                .filter { it.day == day && it.rollNo == rollNo }
-                .sortedBy { timeToMinutes(it.startTime) }
+                .filter { it.day == today && it.rollNo == rollNo }
+                .sortedBy { it.startMillisToday() }
 
-            val ongoingClass = todayClasses.firstOrNull { item ->
-                nowMinutes in
-                        timeToMinutes(item.startTime)..timeToMinutes(item.endTime)
+            val ongoing = todayClasses.firstOrNull {
+                now in it.startMillisToday() until it.endMillisToday()
             }
 
-            val upcomingClasses = todayClasses.filter {
-                timeToMinutes(it.startTime) > nowMinutes
-            }
+            val upcoming = todayClasses
+                .filter { it.startMillisToday() > now }
 
             TimetableWidgetContent(
                 rollNo = rollNo,
-                day = day,
-                ongoing = ongoingClass,
-                upcomingList = upcomingClasses
+                day = today,
+                ongoing = ongoing,
+                upcomingList = upcoming
             )
         }
     }
+
     @Composable
     private fun TimetableWidgetContent(
         rollNo: String,
@@ -130,9 +110,8 @@ class TimetableWidget : GlanceAppWidget() {
 
                     when {
                         rollNo.isEmpty() -> {
-                            CenterMessage("Please login in the app", textSecondaryK)
+                            CenterMessage("Please login in the app", Color(0xFFCECAD0))
                         }
-
                         ongoing == null && upcomingList.isEmpty() -> {
                             CenterMessage(
                                 if (day == "SUN") "Happy Sunday! 🏖️" else "No more classes today",
@@ -282,7 +261,6 @@ class TimetableWidget : GlanceAppWidget() {
             }
         }
     }
-
     private fun formatTime(timeStr: String): String {
         return try {
             val parts = timeStr.split(":")
@@ -295,15 +273,30 @@ class TimetableWidget : GlanceAppWidget() {
             timeStr
         }
     }
-
-    private fun timeToMinutes(timeStr: String): Int {
-        return try {
-            val parts = timeStr.split(":")
-            parts[0].trim().toInt() * 60 + parts[1].trim().take(2).toInt()
-        } catch (e: Exception) {
-            0
+    private fun todayKey(): String =
+        when (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
+            Calendar.MONDAY -> "MON"
+            Calendar.TUESDAY -> "TUE"
+            Calendar.WEDNESDAY -> "WED"
+            Calendar.THURSDAY -> "THU"
+            Calendar.FRIDAY -> "FRI"
+            Calendar.SATURDAY -> "SAT"
+            else -> "SUN"
         }
+
+    private fun StudentSectionDatastore.startMillisToday(): Long =
+        timeToMillisToday(startTime)
+
+    private fun StudentSectionDatastore.endMillisToday(): Long =
+        timeToMillisToday(endTime)
+
+    private fun timeToMillisToday(time: String): Long {
+        val (h, m) = time.split(":").map { it.trim().toInt() }
+        return Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, h)
+            set(Calendar.MINUTE, m)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
     }
 }
-
-private val KEY_USER_ROLLNUMBER = stringPreferencesKey("User_Password")

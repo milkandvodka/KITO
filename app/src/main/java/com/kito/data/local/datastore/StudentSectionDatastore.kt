@@ -1,14 +1,12 @@
 package com.kito.data.local.datastore
 
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ListStudentSectionDataStore(
+data class ProtoDataStoreDTO(
     val list: List<StudentSectionDatastore> = emptyList(),
-    val nextClassStartMillis: Long? = null,
-    val lastUpdated: Long = 0L
+    val redrawToken: Long = 0L,
+    val rollNo: String = "",
 )
 
 @Serializable

@@ -25,8 +25,12 @@ class PrefsRepository @Inject constructor(
         private val KEY_REQUIRED_ATTENDANCE = intPreferencesKey("required_attendance")
 
         private val KEY_RESET_FIX = booleanPreferencesKey("reset_fix")
+
+        private val KEY_NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
     }
 
+    val notificationStateFlow = dataStore.data
+        .map { it[KEY_NOTIFICATIONS_ENABLED] ?: false }
     val resetFixFlow = dataStore.data
         .map { it[KEY_RESET_FIX] ?: false }
 
@@ -83,6 +87,12 @@ class PrefsRepository @Inject constructor(
     suspend fun setResetDone(){
         dataStore.edit {
             it[KEY_RESET_FIX] = true
+        }
+    }
+
+    suspend fun setNotificationState(state: Boolean) {
+        dataStore.edit {
+            it[KEY_NOTIFICATIONS_ENABLED] = state
         }
     }
 }

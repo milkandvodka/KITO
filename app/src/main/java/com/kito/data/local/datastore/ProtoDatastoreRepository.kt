@@ -1,8 +1,6 @@
 package com.kito.data.local.datastore
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import com.kito.data.local.datastore.ProtoDataStoreProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.PersistentList
 import javax.inject.Inject
@@ -24,15 +22,15 @@ class ProtoDatastoreRepository @Inject constructor(
         }
     }
 
-//    suspend fun addSection(section: StudentSectionDatastore) {
-//        dataStore.updateData {
-//            it.copy(list = it.list.add(section))
-//        }
-//    }
+    suspend fun setRollNo(rollNo: String) {
+        dataStore.updateData {
+            it.copy(rollNo = rollNo)
+        }
+    }
 
     suspend fun clearAll() {
         dataStore.updateData {
-            ListStudentSectionDataStore()
+            ProtoDataStoreDTO()
         }
     }
 }

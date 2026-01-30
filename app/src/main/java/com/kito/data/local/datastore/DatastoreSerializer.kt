@@ -6,12 +6,12 @@ import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.OutputStream
 
-object DatastoreSerializer: Serializer<ListStudentSectionDataStore> {
-    override suspend fun readFrom(input: InputStream): ListStudentSectionDataStore {
+object DatastoreSerializer: Serializer<ProtoDataStoreDTO> {
+    override suspend fun readFrom(input: InputStream): ProtoDataStoreDTO {
         return try {
             // Read bytes from input stream, convert to string, then decode from JSON
             Json.decodeFromString(
-                deserializer = ListStudentSectionDataStore.serializer(),
+                deserializer = ProtoDataStoreDTO.serializer(),
                 string = input.readBytes().decodeToString()
             )
         } catch (e: SerializationException) {
@@ -21,17 +21,17 @@ object DatastoreSerializer: Serializer<ListStudentSectionDataStore> {
     }
 
     override suspend fun writeTo(
-        t: ListStudentSectionDataStore,
+        t: ProtoDataStoreDTO,
         output: OutputStream
     ) {
         output.write(
             Json.encodeToString(
-                serializer = ListStudentSectionDataStore.serializer(),
+                serializer = ProtoDataStoreDTO.serializer(),
                 value = t
             ).encodeToByteArray()
         )
     }
 
-    override val defaultValue: ListStudentSectionDataStore
-        get() = ListStudentSectionDataStore()
+    override val defaultValue: ProtoDataStoreDTO
+        get() = ProtoDataStoreDTO()
 }

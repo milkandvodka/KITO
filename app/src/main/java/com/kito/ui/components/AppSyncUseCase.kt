@@ -1,6 +1,6 @@
 package com.kito.ui.components
 
-import android.util.Log
+import android.content.Context
 import com.kito.data.local.datastore.ProtoDatastoreRepository
 import com.kito.data.local.datastore.StudentSectionDatastore
 import com.kito.data.local.db.attendance.AttendanceRepository
@@ -8,21 +8,21 @@ import com.kito.data.local.db.attendance.toAttendanceEntity
 import com.kito.data.local.db.section.SectionRepository
 import com.kito.data.local.db.student.StudentRepository
 import com.kito.data.local.db.studentsection.StudentSectionRepository
-import com.kito.data.local.preferences.PrefsRepository
 import com.kito.data.remote.SupabaseRepository
+import com.kito.notification.NotificationPipelineController
 import com.kito.sap.AttendanceResult
 import com.kito.sap.SapRepository
+import com.kito.widget.WidgetUpdater.nudgeRedraw
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.forEach
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AppSyncUseCase @Inject constructor(
-    private val prefs: PrefsRepository,
+    @ApplicationContext private val context: Context,
     private val supaBaseRepository: SupabaseRepository,
     private val studentRepository: StudentRepository,
     private val sectionRepository: SectionRepository,
@@ -94,7 +94,10 @@ class AppSyncUseCase @Inject constructor(
                 )
             }.toPersistentList()
             protoRepo.setSections(protoList)
+            protoRepo.setRollNo(roll)
             attendanceJob?.await()
+            nudgeRedraw(context)
+            NotificationPipelineController.get(context).sync()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

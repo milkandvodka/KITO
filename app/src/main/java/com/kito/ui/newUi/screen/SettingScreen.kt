@@ -1,7 +1,18 @@
 package com.kito.ui.newUi.screen
 
+import android.Manifest
+import android.app.Activity
+import android.app.AlarmManager
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +41,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.FilePresent
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.School
@@ -38,13 +50,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +76,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -79,6 +100,16 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
+import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeApi::class,
     ExperimentalHazeMaterialsApi::class
@@ -86,7 +117,8 @@ import dev.chrisbanes.haze.rememberHazeState
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
-    navController: NavHostController
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState
 ) {
     val uiColors = UIColors()
     val haptic = LocalHapticFeedback.current
@@ -95,6 +127,7 @@ fun SettingsScreen(
     val roll by viewModel.rollNumber.collectAsState()
     val year by viewModel.year.collectAsState()
     val term by viewModel.term.collectAsState()
+    val notificationState by viewModel.notificationState.collectAsState()
     val requiredAttendance by viewModel.requiredAttendance.collectAsState()
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
     var isNameChangeDialogOpen by remember { mutableStateOf(false) }
@@ -107,6 +140,13 @@ fun SettingsScreen(
     var isAboutAppDialogOpen by remember { mutableStateOf(false) }
     val syncState by viewModel.syncState.collectAsState()
     val context = LocalContext.current
+    val notificationPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            PermissionResultBus.notificationResult?.complete(granted)
+            PermissionResultBus.notificationResult = null
+        }
     val settingsItems = listOf(
         SettingsItem(
             title = "Name",
@@ -149,6 +189,19 @@ fun SettingsScreen(
             editButton = true,
         ),
         SettingsItem(
+            title = "Set Notification",
+            value = if (notificationState) "Enabled" else "Disabled",
+            icon = Icons.Default.Notifications,
+            onClick = {
+                if (notificationState) {
+                    viewModel.setNotificationState(false, context)
+                } else {
+                    viewModel.requestEnableNotifications()
+                }
+            },
+            toggle = true
+        ),
+        SettingsItem(
             title = "FeedBack",
             value = "Submit your feedback",
             icon = Icons.Default.Feedback,
@@ -158,7 +211,7 @@ fun SettingsScreen(
                 val body = Uri.encode("")
                 val intent = Intent(
                     Intent.ACTION_SENDTO,
-                    Uri.parse("mailto:elabs.kiito@gmail.com?subject=$subject&body=$body")
+                    "mailto:elabs.kiito@gmail.com?subject=$subject&body=$body".toUri()
                 )
 
                 context.startActivity(intent)
@@ -207,6 +260,59 @@ fun SettingsScreen(
             isLogout = true,
         )
     )
+    val pendingEnable by viewModel.pendingNotificationEnable.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(
+            Lifecycle.State.RESUMED
+        ) {
+            if (context.canScheduleExactAlarmsCompat() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                viewModel.setNotificationState(true, context)
+            }
+        }
+    }
+    LaunchedEffect(pendingEnable) {
+        if (!pendingEnable) return@LaunchedEffect
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            !context.canScheduleExactAlarmsCompat()
+        ) {
+            val result = snackbarHostState.showSnackbar(
+                message = "Allow exact alarms to receive timely notifications",
+                actionLabel = "Allow",
+                withDismissAction = true
+            )
+
+            if (result == SnackbarResult.ActionPerformed) {
+                openExactAlarmSettings(context)
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+            val granted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!granted) {
+                val result = requestNotificationPermissionBlocking(notificationPermissionLauncher)
+                if (!result) {
+                    val host = snackbarHostState.showSnackbar(
+                        message = "Notification permission is required to enable alerts",
+                        actionLabel = "Allow",
+                        withDismissAction = true
+                    )
+
+                    if (host == SnackbarResult.ActionPerformed) {
+                        openAppNotificationSettings(context)
+                    }
+                }
+            }
+        }
+        if (context.canScheduleExactAlarmsCompat() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            viewModel.setNotificationState(true, context)
+        }
+        viewModel.clearPendingNotificationEnable()
+    }
     LaunchedEffect(syncState) {
         if (syncState is SyncUiState.Success) {
             if (isLoginDialogOpen){
@@ -308,6 +414,19 @@ fun SettingsScreen(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = null,
                                 tint = uiColors.textSecondary
+                            )
+                        }else if(item.toggle){
+                            Switch(
+                                checked = notificationState,
+                                onCheckedChange = {
+                                    item.onClick()
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color(0xFF693E01),
+                                    uncheckedThumbColor = uiColors.textSecondary,
+                                    checkedTrackColor = Color(0xFFB6774C),
+                                    uncheckedTrackColor = uiColors.cardBackground
+                                )
                             )
                         }
                     }
@@ -449,6 +568,40 @@ fun SettingsScreen(
         )
     }
 }
+object PermissionResultBus {
+    var notificationResult: CompletableDeferred<Boolean>? = null
+}
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+suspend fun requestNotificationPermissionBlocking(
+    launcher: ManagedActivityResultLauncher<String, Boolean>
+): Boolean {
+    val result = CompletableDeferred<Boolean>()
+
+    PermissionResultBus.notificationResult = result
+    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+
+    return result.await()
+}
+fun Context.canScheduleExactAlarmsCompat(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
+    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    return alarmManager.canScheduleExactAlarms()
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+fun openExactAlarmSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+        data = "package:${context.packageName}".toUri()
+    }
+    context.startActivity(intent)
+}
+@RequiresApi(Build.VERSION_CODES.O)
+fun openAppNotificationSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+    }
+    context.startActivity(intent)
+}
 
 data class SettingsItem(
     val title: String,
@@ -457,4 +610,5 @@ data class SettingsItem(
     val onClick: () -> Unit ={},
     val editButton: Boolean = false,
     val isLogout: Boolean = false,
+    val toggle: Boolean = false,
 )

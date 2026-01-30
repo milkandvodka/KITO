@@ -1,10 +1,12 @@
 package com.kito.ui.newUi.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kito.data.local.db.attendance.AttendanceRepository
 import com.kito.data.local.preferences.PrefsRepository
 import com.kito.data.local.preferences.SecurePrefs
+import com.kito.notification.NotificationPipelineController
 import com.kito.ui.components.AppSyncUseCase
 import com.kito.ui.components.state.SyncUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -69,6 +71,30 @@ class SettingsViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = false
             )
+    val notificationState = prefs.notificationStateFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
+
+    private val _pendingNotificationEnable = MutableStateFlow(false)
+    val pendingNotificationEnable = _pendingNotificationEnable.asStateFlow()
+
+    fun requestEnableNotifications() {
+        _pendingNotificationEnable.value = true
+    }
+
+    fun clearPendingNotificationEnable() {
+        _pendingNotificationEnable.value = false
+    }
+
+    fun retryPendingNotificationEnable() {
+        if (pendingNotificationEnable.value) {
+            _pendingNotificationEnable.value = true
+        }
+    }
+
     fun syncStateIdle(){
         _syncState.value = SyncUiState.Idle
     }
@@ -196,6 +222,13 @@ class SettingsViewModel @Inject constructor(
                     SyncUiState.Error(it.message ?: "Sync failed")
                 }
             )
+        }
+    }
+    fun setNotificationState(state: Boolean, context: Context){
+        viewModelScope.launch {
+            prefs.setNotificationState(state)
+            val notificationPipelineController = NotificationPipelineController.get(context)
+            notificationPipelineController.sync()
         }
     }
 }
