@@ -77,6 +77,7 @@ import com.kito.ui.newUi.screen.FacultyScreen
 import com.kito.ui.newUi.screen.HomeScreen
 import com.kito.ui.newUi.screen.ScheduleScreen
 import com.kito.ui.newUi.screen.SettingsScreen
+import com.kito.ui.newUi.screen.UpcomingExamScreen
 import com.kito.ui.newUi.viewmodel.AppViewModel
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
@@ -367,6 +368,9 @@ fun MainUI(
                 FacultyDetailScreen(
                     facultyId = facultyId
                 )
+            }
+            composable<RootDestination.ExamSchedule> {
+                UpcomingExamScreen()
             }
         }
     }

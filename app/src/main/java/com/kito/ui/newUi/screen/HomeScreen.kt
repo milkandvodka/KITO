@@ -62,11 +62,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.kito.R
+import com.kito.data.remote.model.MidsemScheduleModel
 import com.kito.ui.components.AboutELabsDialog
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
 import com.kito.ui.components.UIColors
 import com.kito.ui.components.UpcomingEventCard
+import com.kito.ui.components.UpcomingExamCard
 import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.state.SyncUiState
 import com.kito.ui.navigation.RootDestination
@@ -110,82 +112,7 @@ fun HomeScreen(
     var isLoginDialogOpen by remember { mutableStateOf(false) }
     val loginState by viewmodel.loginState.collectAsState()
     val isOnline by viewmodel.isOnline.collectAsState()
-//    val meshColors = listOf(
-//        Color(0xFF9A3412).copy(alpha = 0.82f), // burnt orange
-//        Color(0xFFB45309).copy(alpha = 0.82f), // amber-700
-//        Color(0xFF92400E).copy(alpha = 0.82f), // amber-800
-//        Color(0xFF7C2D12).copy(alpha = 0.82f), // deep orange-brown
-//
-//        // 🔥 new additions (subtle!)
-//        Color(0xFFCA8A04).copy(alpha = 0.70f), // muted yellow (amber-500 toned down)
-//        Color(0xFF991B1B).copy(alpha = 0.75f), // brick red (not crimson)
-//    )
-//    val leftColor = remember { Animatable(meshColors[0]) }
-//    val middleColor = remember { Animatable(meshColors[1]) }
-//    val rightColor = remember { Animatable(meshColors[2]) }
-//    val animatedPointMid = remember { Animatable(.8f) }
-//    val animatedPointTop = remember { Animatable(.8f) }
-//    LaunchedEffect(Unit) {
-//        suspend fun animateColor(
-//            anim: Animatable<Color, AnimationVector4D>,
-//            startIndex: Int
-//        ) {
-//            var index = startIndex
-//            while (true) {
-//                index = (index + 1) % meshColors.size
-//                anim.animateTo(
-//                    targetValue = meshColors[index],
-//                    animationSpec = tween(
-//                        durationMillis = 1200,
-//                        easing = LinearOutSlowInEasing
-//                    )
-//                )
-//            }
-//        }
-//
-//        launch { animateColor(leftColor, 0) }
-//        launch { animateColor(middleColor, 1) }
-//        launch { animateColor(rightColor, 2) }
-//    }
-//    LaunchedEffect(Unit) {
-//        launch {
-//            while (true) {
-//                animatedPointMid.animateTo(
-//                    targetValue = 0.3f,
-//                    animationSpec = tween(
-//                        durationMillis = 4000,
-//                        easing = LinearOutSlowInEasing
-//                    )
-//                )
-//                animatedPointMid.animateTo(
-//                    targetValue = 0.7f,
-//                    animationSpec = tween(
-//                        durationMillis = 4000,
-//                        easing = LinearOutSlowInEasing
-//                    )
-//                )
-//            }
-//        }
-//
-//        launch {
-//            while (true) {
-//                animatedPointTop.animateTo(
-//                    targetValue = 0.2f,
-//                    animationSpec = tween(
-//                        durationMillis = 4000,
-//                        easing = LinearEasing
-//                    )
-//                )
-//                animatedPointTop.animateTo(
-//                    targetValue = 0.8f,
-//                    animationSpec = tween(
-//                        durationMillis = 4000,
-//                        easing = LinearEasing
-//                    )
-//                )
-//            }
-//        }
-//    }
+    val examModel by viewmodel.examModel.collectAsState()
     LaunchedEffect(loginState) {
         if (loginState is SyncUiState.Success) {
             haptic.performHapticFeedback(HapticFeedbackType.Confirm)
@@ -206,8 +133,8 @@ fun HomeScreen(
                 DayOfWeek.SATURDAY -> "SAT"
                 DayOfWeek.SUNDAY -> "SUN"
             }
-
             viewmodel.updateDay(today)
+            viewmodel.getExamSchedule()
         }
     }
     LaunchedEffect(Unit) {
@@ -266,32 +193,6 @@ fun HomeScreen(
             Box(
                 Modifier
                     .background(Color(0xFF121116))
-//                    .meshGradient(
-//                        points = listOf(
-//                            // TOP — warm shadow
-//                            listOf(
-//                                Offset(0f, 0f) to Color(0xFF1C0F05),
-//                                Offset(-animatedPointTop.value, 0f) to Color(0xFF2A1408),
-//                                Offset(1f, 0f) to Color(0xFF1C0F05),
-//                            ),
-//
-//                            // MIDDLE — glow band (this is where yellow belongs)
-//                            listOf(
-//                                Offset(0f, .5f) to Color(0xFF4A1D0B),
-//                                Offset(0.5f, animatedPointMid.value) to Color(0xFFCA8A04).copy(alpha = 0.65f), // yellow glow
-//                                Offset(1f, .5f) to Color(0xFF4A1D0B),
-//                            ),
-//
-//                            // BOTTOM — animated lava (orange + red + yellow cycling)
-//                            listOf(
-//                                Offset(0f, 1f) to leftColor.value,
-//                                Offset(animatedPointMid.value, 1f) to middleColor.value,
-//                                Offset(1f, 1f) to rightColor.value,
-//                            ),
-//                        ),
-//                        resolutionX = 40,
-//                        resolutionY = 40
-//                    )
             ) {
                 Column(
                     modifier = Modifier
@@ -367,8 +268,6 @@ fun HomeScreen(
                                 IconButton(
                                     onClick = {
                                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-//                                        val intent = Intent(context, ScheduleActivity::class.java)
-//                                        context.startActivity(intent)
                                         navController.navigate(RootDestination.Schedule)
                                     },
                                     modifier = Modifier.size(28.dp)
@@ -394,8 +293,6 @@ fun HomeScreen(
                                 schedule = schedule,
                                 onCLick = {
                                     haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-//                                    val intent = Intent(context, ScheduleActivity::class.java)
-//                                    context.startActivity(intent)
                                     navController.navigate(RootDestination.Schedule)
                                 }
                             )
@@ -409,7 +306,7 @@ fun HomeScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = "Upcoming KIIT Events",
+                                    text = "Upcoming Exam Schedule",
                                     color = uiColors.textPrimary,
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = FontFamily.Monospace,
@@ -417,7 +314,10 @@ fun HomeScreen(
                                     modifier = Modifier.weight(1f)
                                 )
                                 IconButton(
-                                    onClick = {},
+                                    onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                                        navController.navigate(RootDestination.ExamSchedule)
+                                    },
                                     modifier = Modifier.size(28.dp)
                                 ) {
                                     Icon(
@@ -429,13 +329,57 @@ fun HomeScreen(
                                 }
                             }
                         }
-                        item {
-                            Spacer(Modifier.height(8.dp))
-                        }
+                        if(examModel != null) {
+                            item {
+                                Spacer(Modifier.height(8.dp))
+                            }
 
-                        item {
-                            UpcomingEventCard()
+                            item {
+                                UpcomingExamCard(
+                                    item = examModel,
+                                    onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                                        navController.navigate(RootDestination.ExamSchedule)
+                                    }
+                                )
+                            }
                         }
+//                        item {
+//                            Spacer(Modifier.height(8.dp))
+//                        }
+//
+//                        item {
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                            ) {
+//                                Text(
+//                                    text = "Upcoming KIIT Events",
+//                                    color = uiColors.textPrimary,
+//                                    fontWeight = FontWeight.Bold,
+//                                    fontFamily = FontFamily.Monospace,
+//                                    style = MaterialTheme.typography.titleMedium,
+//                                    modifier = Modifier.weight(1f)
+//                                )
+//                                IconButton(
+//                                    onClick = {},
+//                                    modifier = Modifier.size(28.dp)
+//                                ) {
+//                                    Icon(
+//                                        imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
+//                                        contentDescription = "Notifications",
+//                                        tint = uiColors.textPrimary,
+//                                        modifier = Modifier.size(16.dp)
+//                                    )
+//                                }
+//                            }
+//                        }
+//                        item {
+//                            Spacer(Modifier.height(8.dp))
+//                        }
+//
+//                        item {
+//                            UpcomingEventCard()
+//                        }
                         item {
                             Spacer(Modifier.height(8.dp))
                         }
@@ -558,7 +502,10 @@ fun HomeScreen(
                     )
                 }
                 IconButton(
-                    onClick = { showAboutDialog = !showAboutDialog },
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                        showAboutDialog = !showAboutDialog
+                    },
                     modifier = Modifier.size(60.dp)
                 ) {
                     Image(
@@ -572,7 +519,10 @@ fun HomeScreen(
     }
     if (showAboutDialog) {
         AboutELabsDialog(
-            onDismiss = { showAboutDialog = false },
+            onDismiss = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                showAboutDialog = false
+            },
             context = LocalContext.current,
             hazeState = hazeState
         )

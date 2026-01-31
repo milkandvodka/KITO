@@ -1,5 +1,8 @@
 package com.kito.ui.newUi.viewmodel
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kito.data.local.db.attendance.AttendanceEntity
@@ -8,6 +11,8 @@ import com.kito.data.local.db.studentsection.StudentSectionEntity
 import com.kito.data.local.db.studentsection.StudentSectionRepository
 import com.kito.data.local.preferences.PrefsRepository
 import com.kito.data.local.preferences.SecurePrefs
+import com.kito.data.remote.SupabaseRepository
+import com.kito.data.remote.model.MidsemScheduleModel
 import com.kito.ui.components.AppSyncUseCase
 import com.kito.ui.components.ConnectivityObserver
 import com.kito.ui.components.StartupSyncGuard
@@ -26,6 +31,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.inject.Inject
 
 
@@ -38,7 +46,8 @@ class HomeViewmodel @Inject constructor(
     private val studentSectionRepository: StudentSectionRepository,
     private val appSyncUseCase: AppSyncUseCase,
     private val syncGuard: StartupSyncGuard,
-    private val connectivityObserver: ConnectivityObserver
+    private val connectivityObserver: ConnectivityObserver,
+    private val supabaseRepository: SupabaseRepository,
 ): ViewModel() {
     val isOnline = connectivityObserver.isOnline
     val name = prefs.userNameFlow.stateIn(
@@ -76,6 +85,9 @@ class HomeViewmodel @Inject constructor(
 
     private val _loginState = MutableStateFlow<SyncUiState>(SyncUiState.Idle)
     val loginState = _loginState.asStateFlow()
+
+    private val _examModel = MutableStateFlow<MidsemScheduleModel?>(null)
+    val examModel = _examModel.asStateFlow()
     fun syncOnStartup() {
         if (syncGuard.hasSynced) return
         syncGuard.hasSynced = true
@@ -185,5 +197,55 @@ class HomeViewmodel @Inject constructor(
     }
     fun setLoginStateIdle(){
         _loginState.value = SyncUiState.Idle
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getExamSchedule(){
+        viewModelScope.launch {
+            try {
+                val roll = prefs.userRollFlow.first()
+                val examSchedule = supabaseRepository.getMidSemSchedule(roll)
+                _examModel.value = getNextOrOngoingExam(examSchedule)
+            }catch (e: Exception){
+                Log.d("exam model error",e.message?:"")
+            }
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getNextOrOngoingExam(
+        exams: List<MidsemScheduleModel>
+    ): MidsemScheduleModel? {
+
+        val nowDate = LocalDate.now()
+        val nowTime = LocalTime.now()
+
+        return exams
+            .mapNotNull { exam ->
+                try {
+                    val examDate = LocalDate.parse(exam.date)
+                    val startTime = LocalTime.parse(exam.start_time)
+                    val endTime = LocalTime.parse(exam.end_time)
+
+                    when {
+                        // 🟢 Exam is ONGOING
+                        examDate == nowDate &&
+                                !nowTime.isBefore(startTime) &&
+                                nowTime.isBefore(endTime) -> {
+                            exam to LocalDateTime.of(examDate, startTime)
+                        }
+
+                        // 🔵 Exam is in the FUTURE
+                        examDate.isAfter(nowDate) ||
+                                (examDate == nowDate && startTime.isAfter(nowTime)) -> {
+                            exam to LocalDateTime.of(examDate, startTime)
+                        }
+
+                        else -> null
+                    }
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            .minByOrNull { it.second }
+            ?.first
     }
 }

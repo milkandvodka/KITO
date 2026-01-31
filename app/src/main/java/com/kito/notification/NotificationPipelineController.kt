@@ -3,6 +3,7 @@ package com.kito.notification
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import com.kito.data.local.datastore.ProtoDataStoreProvider
 import com.kito.data.local.db.studentsection.StudentSectionRepository
 import com.kito.data.local.preferences.PrefsRepository
@@ -24,6 +25,11 @@ class NotificationPipelineController private constructor(
         if (userEnabled && systemAllowed) {
             scheduleNext()
         } else {
+            if (userEnabled && !systemAllowed) {
+                context.dataStore.edit { preferences ->
+                    preferences[KEY_NOTIFICATIONS_ENABLED] = false
+                }
+            }
             scheduler.cancelAll()
         }
     }

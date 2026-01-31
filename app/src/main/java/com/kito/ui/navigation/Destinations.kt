@@ -14,6 +14,8 @@ sealed interface RootDestination {
 
     @Serializable
     data class FacultyDetail(val facultyId: Long) : RootDestination
+    @Serializable
+    object ExamSchedule : RootDestination
 }
 
 @Serializable

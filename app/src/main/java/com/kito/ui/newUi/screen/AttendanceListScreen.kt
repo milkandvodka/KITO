@@ -6,7 +6,9 @@ import android.widget.Toast
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,19 +23,35 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Dangerous
+import androidx.compose.material.icons.filled.LibraryBooks
+import androidx.compose.material.icons.filled.PersonAddAlt1
+import androidx.compose.material.icons.filled.PersonRemoveAlt1
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -62,6 +80,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
@@ -89,6 +108,7 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kotlin.math.ceil
 import kotlin.math.max
+import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
     ExperimentalHazeMaterialsApi::class, ExperimentalHazeApi::class
@@ -462,19 +482,6 @@ private fun AttendanceDialog(
                     alpha = 0.98f
                     tints = listOf(HazeTint(Color(0xFF86431D).copy(alpha = 0.15f)))
                 }
-//                .background(
-////                    color = uiColors.cardBackground,
-//                    brush = Brush.linearGradient(
-//                        colors = listOf(
-//                            uiColors.cardBackground,
-//                            Color(0xFF2F222F),
-//                            Color(0xFF2F222F),
-//                            uiColors.cardBackgroundHigh,
-//                            Color(0xFF6E4B37),
-//                        )
-//                    ),
-//                    shape = RoundedCornerShape(24.dp)
-//                )
 
         ) {
             Spacer(modifier = Modifier.height(16.dp))
@@ -487,7 +494,15 @@ private fun AttendanceDialog(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = attendance.facultyName,
+                fontFamily = FontFamily.Monospace,
+                color = uiColors.textSecondary,
+                style = MaterialTheme.typography.bodySmallEmphasized,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             LinearWavyProgressIndicator(
                 progress = {
                     progress
@@ -502,82 +517,479 @@ private fun AttendanceDialog(
                 waveSpeed = 20.dp,
                 wavelength = 50.dp
             )
+//            CircularWavyProgressIndicator(
+//                progress = {
+//                    progress
+//                },
+//                color = uiColors.accentOrangeStart,
+//                trackColor = uiColors.progressAccent,
+//
+//                amplitude = {
+//                    1f
+//                },
+//                waveSpeed = 20.dp,
+//                wavelength = 50.dp
+//            )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Faculty - " + attendance.facultyName,
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Bold,
-                color = uiColors.textPrimary,
-                style = MaterialTheme.typography.bodyMediumEmphasized,
+            Row(
                 modifier = Modifier
-                    .padding(horizontal = 20.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Total Classes - " + attendance.totalClasses.toString(),
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Bold,
-                color = uiColors.textPrimary,
-                style = MaterialTheme.typography.bodyMediumEmphasized,
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Classes Attended - " + attendance.attendedClasses.toString(),
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Bold,
-                color = uiColors.textPrimary,
-                style = MaterialTheme.typography.bodyMediumEmphasized,
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Attendance Percentage - " + attendance.percentage.toString() + "%",
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Bold,
-                color = uiColors.textPrimary,
-                style = MaterialTheme.typography.bodyMediumEmphasized,
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            if (attendance.percentage < requiredAttendance.toDouble()){
-                val requiredClasses = remember(attendance) {
-                    classesRequiredForPercentage(
-                        attended = attendance.attendedClasses,
-                        total = attendance.totalClasses,
-                        requiredPercentage = requiredAttendance.toDouble()
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PersonAddAlt1,
+                            contentDescription = "Attended",
+                            tint =  Color(0xFF42B860)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        Text(
+                            text = attendance.attendedClasses.toString(),
+                            fontWeight = FontWeight.Bold,
+                            color = uiColors.textPrimary,
+                            style = MaterialTheme.typography.bodyMediumEmphasized,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Present",
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFBDBDB7),
+                        style = MaterialTheme.typography.bodyMediumEmphasized,
                     )
                 }
-                val classesText = buildAnnotatedString {
-                    append("Classes for $requiredAttendance% - ")
-
-                    if (requiredClasses < 50) {
-                        append(requiredClasses.toString())
-                    } else {
-                        withStyle(
-                            style = SpanStyle(
-                                color = uiColors.accentOrangeStart,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        ) {
-                            append("Tumse na ho payega")
-                        }
+                VerticalDivider(
+                    modifier = Modifier
+                        .height(45.dp),
+                    color = Color(0xFF85857F)
+                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PersonRemoveAlt1,
+                            contentDescription = "Attended",
+                            tint = Color(0xFFEB4945)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${attendance.totalClasses - attendance.attendedClasses}",
+                            fontWeight = FontWeight.Bold,
+                            color = uiColors.textPrimary,
+                            style = MaterialTheme.typography.bodyMediumEmphasized,
+                        )
                     }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Absent",
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFBDBDB7),
+                        style = MaterialTheme.typography.bodyMediumEmphasized,
+                    )
                 }
+                VerticalDivider(
+                    modifier = Modifier.height(45.dp),
+                    color = Color(0xFF85857F)
+                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.LibraryBooks,
+                            contentDescription = "Attended",
+                            tint = Color(0xFFEE7402)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = attendance.totalClasses.toString(),
+                            fontWeight = FontWeight.Bold,
+                            color = uiColors.textPrimary,
+                            style = MaterialTheme.typography.bodyMediumEmphasized,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Total",
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFBDBDB7),
+                        style = MaterialTheme.typography.bodyMediumEmphasized,
+                        )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(
+                color = Color(0xFF85857F),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                val attendanceDecrease = calculateAttendancePercentage1Decimal(
+                    attendedClasses = attendance.attendedClasses,
+                    totalClasses = attendance.totalClasses + 1
+                )
+                val attendanceIncrease = calculateAttendancePercentage1Decimal(
+                    attendedClasses = attendance.attendedClasses + 1,
+                    totalClasses = attendance.totalClasses + 1
+                )
                 Text(
-                    text = classesText,
+                    text = "Next Class Impact:",
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
                     color = uiColors.textPrimary,
-                    style = MaterialTheme.typography.bodyMediumEmphasized,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
+                    style = MaterialTheme.typography.bodySmallEmphasized,
                 )
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Transparent,
+                    ),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .shadow(
+                                elevation = 24.dp,
+                                spotColor = uiColors.progressAccent
+                            )
+                            .clip(
+                                shape = RoundedCornerShape(24.dp)
+                            )
+                            .border(
+                                width = Dp.Hairline,
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.White.copy(alpha = 0.5f),
+                                        Color.White.copy(alpha = 0.1f),
+                                    )
+                                ),
+                                shape = CircleShape
+                            )
+                            .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                                blurRadius = 30.dp
+                                noiseFactor = 0.05f
+                                inputScale = HazeInputScale.Auto
+                                alpha = 0.98f
+                                tints = listOf(HazeTint(Color(0xFF169B27).copy(alpha = 0.3f)))
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text =
+                                    "$attendanceIncrease%",
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodySmallEmphasized,
+                                modifier = Modifier
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowUpward,
+                                contentDescription = "Increase",
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    }
+                }
+                Card(
+                    colors = CardDefaults.cardColors(
+//                        containerColor = Color(0xFF6B292B),
+                        containerColor = Color.Transparent
+                    )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .shadow(
+                                elevation = 24.dp,
+                                spotColor = uiColors.progressAccent
+                            )
+                            .clip(
+                                shape = RoundedCornerShape(24.dp)
+                            )
+                            .border(
+                                width = Dp.Hairline,
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.White.copy(alpha = 0.5f),
+                                        Color.White.copy(alpha = 0.1f),
+                                    )
+                                ),
+                                shape = CircleShape
+                            )
+                            .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                                blurRadius = 30.dp
+                                noiseFactor = 0.05f
+                                inputScale = HazeInputScale.Auto
+                                alpha = 0.98f
+                                tints = listOf(HazeTint(Color(0xFFBD1014).copy(alpha = 0.3f)))
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text =
+                                    "$attendanceDecrease%",
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodySmallEmphasized,
+                                modifier = Modifier
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDownward,
+                                contentDescription = "Increase",
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            if (attendance.percentage < requiredAttendance.toDouble()) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Transparent,
+                    ),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                ) {
+                    val requiredClasses = remember(attendance) {
+                        classesRequiredForPercentage(
+                            attended = attendance.attendedClasses,
+                            total = attendance.totalClasses,
+                            requiredPercentage = requiredAttendance.toDouble()
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .shadow(
+                                elevation = 24.dp,
+                                spotColor = uiColors.progressAccent
+                            )
+                            .clip(
+                                shape = RoundedCornerShape(24.dp)
+                            )
+                            .border(
+                                width = Dp.Hairline,
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.White.copy(alpha = 0.5f),
+                                        Color.White.copy(alpha = 0.1f),
+                                    )
+                                ),
+                                shape = CircleShape
+                            )
+                            .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                                blurRadius = 30.dp
+                                noiseFactor = 0.05f
+                                inputScale = HazeInputScale.Auto
+                                alpha = 0.98f
+                                tints = listOf(HazeTint(Color(0xFFA94F12).copy(alpha = 0.3f)))
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Dangerous,
+                                contentDescription = "Increase",
+                                modifier = Modifier.size(16.dp),
+                                tint = Color(0xFFEA6E1D)
+                            )
+                            Text(
+                                text =
+                                    "Attend ${requiredClasses} more class to reach $requiredAttendance",
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodySmallEmphasized,
+                                modifier = Modifier
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(16.dp))
             }
+//            Text(
+//                text = "Faculty - " + attendance.facultyName,
+//                fontFamily = FontFamily.Monospace,
+//                fontWeight = FontWeight.Bold,
+//                color = uiColors.textPrimary,
+//                style = MaterialTheme.typography.bodyMediumEmphasized,
+//                modifier = Modifier
+//                    .padding(horizontal = 20.dp)
+//            )
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Text(
+//                text = "Total Classes - " + attendance.totalClasses.toString(),
+//                fontFamily = FontFamily.Monospace,
+//                fontWeight = FontWeight.Bold,
+//                color = uiColors.textPrimary,
+//                style = MaterialTheme.typography.bodyMediumEmphasized,
+//                modifier = Modifier
+//                    .padding(horizontal = 20.dp)
+//            )
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Text(
+//                text = "Classes Attended - " + attendance.attendedClasses.toString(),
+//                fontFamily = FontFamily.Monospace,
+//                fontWeight = FontWeight.Bold,
+//                color = uiColors.textPrimary,
+//                style = MaterialTheme.typography.bodyMediumEmphasized,
+//                modifier = Modifier
+//                    .padding(horizontal = 20.dp)
+//            )
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Text(
+//                text = "Attendance Percentage - " + attendance.percentage.toString() + "%",
+//                fontFamily = FontFamily.Monospace,
+//                fontWeight = FontWeight.Bold,
+//                color = uiColors.textPrimary,
+//                style = MaterialTheme.typography.bodyMediumEmphasized,
+//                modifier = Modifier
+//                    .padding(horizontal = 20.dp)
+//            )
+//            Spacer(modifier = Modifier.height(16.dp))
+//            if (attendance.percentage < requiredAttendance.toDouble()) {
+//                val requiredClasses = remember(attendance) {
+//                    classesRequiredForPercentage(
+//                        attended = attendance.attendedClasses,
+//                        total = attendance.totalClasses,
+//                        requiredPercentage = requiredAttendance.toDouble()
+//                    )
+//                }
+//                val classesText = buildAnnotatedString {
+//                    append("Classes for $requiredAttendance% - ")
+//
+//                    if (requiredClasses < 50) {
+//                        append(requiredClasses.toString())
+//                    } else {
+//                        withStyle(
+//                            style = SpanStyle(
+//                                color = uiColors.accentOrangeStart,
+//                                fontWeight = FontWeight.SemiBold
+//                            )
+//                        ) {
+//                            append("Tumse na ho payega")
+//                        }
+//                    }
+//                }
+//                Text(
+//                    text = classesText,
+//                    fontFamily = FontFamily.Monospace,
+//                    fontWeight = FontWeight.Bold,
+//                    color = uiColors.textPrimary,
+//                    style = MaterialTheme.typography.bodyMediumEmphasized,
+//                    modifier = Modifier
+//                        .padding(horizontal = 20.dp)
+//                )
+//                Spacer(modifier = Modifier.height(16.dp))
+//            }
+//            val attendanceIncrease = calculateAttendancePercentage1Decimal(
+//                attendedClasses = attendance.attendedClasses + 1,
+//                totalClasses = attendance.totalClasses + 1
+//            )
+//            val attendanceDecrease = calculateAttendancePercentage1Decimal(
+//                attendedClasses = attendance.attendedClasses,
+//                totalClasses = attendance.totalClasses + 1
+//            )
+//            Text(
+//                text = "Next Class Impact :- ",
+//                fontFamily = FontFamily.Monospace,
+//                fontWeight = FontWeight.Bold,
+//                color = uiColors.textPrimary,
+//                style = MaterialTheme.typography.bodyMediumEmphasized,
+//                modifier = Modifier
+//                    .padding(horizontal = 16.dp)
+//            )
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Row(
+//                modifier = Modifier.padding(horizontal = 16.dp),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Text(
+//                    text = "If Attended - ",
+//                    fontFamily = FontFamily.Monospace,
+//                    fontWeight = FontWeight.Bold,
+//                    color = uiColors.textPrimary,
+//                    style = MaterialTheme.typography.bodyMediumEmphasized,
+//                    modifier = Modifier
+//                )
+//                Text(
+//                    text = "$attendanceIncrease%",
+//                    fontFamily = FontFamily.Monospace,
+//                    fontWeight = FontWeight.Bold,
+//                    color = Color(0xFF17A903),
+//                    style = MaterialTheme.typography.bodyMediumEmphasized,
+//                    modifier = Modifier
+//                )
+//
+//
+//                Icon(
+//                    imageVector = Icons.Default.ArrowUpward,
+//                    contentDescription = "Increase",
+//                    modifier = Modifier.size(16.dp),
+//                    tint = Color(0xFF17A903)
+//                )
+//            }
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Row(
+//                modifier = Modifier.padding(horizontal = 16.dp),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Text(
+//                    text =
+//                        "If Not Attended - ",
+//                    fontFamily = FontFamily.Monospace,
+//                    fontWeight = FontWeight.Bold,
+//                    color = uiColors.textPrimary,
+//                    style = MaterialTheme.typography.bodyMediumEmphasized,
+//                    modifier = Modifier
+//                )
+//                Text(
+//                    text =
+//                        "$attendanceDecrease%",
+//                    fontFamily = FontFamily.Monospace,
+//                    fontWeight = FontWeight.Bold,
+//                    color = Color(0xFFF80505),
+//                    style = MaterialTheme.typography.bodyMediumEmphasized,
+//                    modifier = Modifier
+//                )
+//                Icon(
+//                    imageVector = Icons.Default.ArrowDownward,
+//                    contentDescription = "Increase",
+//                    modifier = Modifier.size(16.dp),
+//                    tint = Color(0xFFF80505)
+//                )
+//            }
+//            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -688,4 +1100,13 @@ fun InstagramPullIndicator(
             )
         }
     }
+}
+fun calculateAttendancePercentage1Decimal(
+    attendedClasses: Int,
+    totalClasses: Int
+): Float {
+    if (totalClasses <= 0) return 0f
+
+    val percentage = (attendedClasses * 100f) / totalClasses
+    return round(percentage * 10) / 10
 }

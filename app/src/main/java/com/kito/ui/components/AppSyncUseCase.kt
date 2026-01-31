@@ -18,68 +18,59 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
 
 class AppSyncUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val supaBaseRepository: SupabaseRepository,
+    private val supabaseRepository: SupabaseRepository,
     private val studentRepository: StudentRepository,
     private val sectionRepository: SectionRepository,
     private val studentSectionRepository: StudentSectionRepository,
     private val attendanceRepository: AttendanceRepository,
     private val sapRepository: SapRepository,
     private val protoRepo: ProtoDatastoreRepository
-){
+) {
+
     suspend fun syncAll(
         roll: String,
         sapPassword: String,
         year: String,
         term: String
-    ): Result<Unit> = coroutineScope {
+    ): Result<Unit> = supervisorScope {
         try {
-            val studentDeferred = async {
-                supaBaseRepository.getStudentByRoll(roll)
+            val student = supabaseRepository.getStudentByRoll(roll)
+            val timetable = supabaseRepository.getTimetableForStudent(
+                section = student.section,
+                batch = student.batch
+            )
+            coroutineScope {
+                async { studentRepository.insertStudent(listOf(student)) }
+                async { sectionRepository.insertSection(timetable) }
             }
-            val student = studentDeferred.await()
-            val timetableDeferred = async {
-                supaBaseRepository.getTimetableForStudent(
-                    section = student.section,
-                    batch = student.batch
-                )
-            }
-            val insertStudentJob = launch {
-                studentRepository.insertStudent(listOf(student))
-            }
-            val insertSectionJob = launch {
-                sectionRepository.insertSection(timetableDeferred.await())
-            }
-            val attendanceJob = if (sapPassword.isNotEmpty()) {
-                async {
+            if (sapPassword.isNotEmpty()) {
+                when (
                     val response = sapRepository.login(
                         username = roll,
                         password = sapPassword,
                         academicYear = year,
                         termCode = term
                     )
-
-                    when (response) {
-                        is AttendanceResult.Error -> {
-                            throw IllegalStateException(response.message)
-                        }
-                        is AttendanceResult.Success -> {
-                            attendanceRepository.insertAttendance(
-                                response.data.subjects.map {
-                                    it.toAttendanceEntity(year, term)
-                                }
-                            )
-                        }
+                ) {
+                    is AttendanceResult.Success -> {
+                        attendanceRepository.insertAttendance(
+                            response.data.subjects.map {
+                                it.toAttendanceEntity(year, term)
+                            }
+                        )
+                    }
+                    is AttendanceResult.Error -> {
+                        throw IllegalStateException(response.message)
                     }
                 }
-            } else null
-            insertStudentJob.join()
-            insertSectionJob.join()
-            val sections = studentSectionRepository.getAllScheduleForStudent(rollNo = roll).first()
+            }
+            val sections =
+                studentSectionRepository.getAllScheduleForStudent(rollNo = roll).first()
             val protoList = sections.map {
                 StudentSectionDatastore(
                     sectionId = it.sectionId,
@@ -95,7 +86,6 @@ class AppSyncUseCase @Inject constructor(
             }.toPersistentList()
             protoRepo.setSections(protoList)
             protoRepo.setRollNo(roll)
-            attendanceJob?.await()
             nudgeRedraw(context)
             NotificationPipelineController.get(context).sync()
             Result.success(Unit)
