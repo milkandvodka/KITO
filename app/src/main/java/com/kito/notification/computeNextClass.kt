@@ -1,7 +1,6 @@
 package com.kito.notification
 
 import com.kito.data.local.datastore.StudentSectionDatastore
-import com.kito.data.local.db.studentsection.StudentSectionEntity
 import java.util.Calendar
 
 fun computeNextClass(

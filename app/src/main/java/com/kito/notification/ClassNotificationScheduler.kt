@@ -1,12 +1,10 @@
 package com.kito.notification
 
-import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
 
 class ClassNotificationScheduler(
     private val context: Context

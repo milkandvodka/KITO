@@ -62,12 +62,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.kito.R
-import com.kito.data.remote.model.MidsemScheduleModel
 import com.kito.ui.components.AboutELabsDialog
 import com.kito.ui.components.OverallAttendanceCard
 import com.kito.ui.components.ScheduleCard
 import com.kito.ui.components.UIColors
-import com.kito.ui.components.UpcomingEventCard
 import com.kito.ui.components.UpcomingExamCard
 import com.kito.ui.components.settingsdialog.LoginDialogBox
 import com.kito.ui.components.state.SyncUiState

@@ -10,6 +10,8 @@ import android.os.Build
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
+import com.kito.MainActivity
 import com.kito.R
 import com.kito.data.local.datastore.ProtoDataStoreProvider
 import com.kito.data.local.datastore.StudentSectionDatastore
@@ -20,8 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import androidx.core.net.toUri
-import com.kito.MainActivity
 
 
 const val CLASS_NOTIFICATION_CHANNEL = "class_notification_channel"

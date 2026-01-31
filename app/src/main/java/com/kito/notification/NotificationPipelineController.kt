@@ -5,13 +5,9 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import com.kito.data.local.datastore.ProtoDataStoreProvider
-import com.kito.data.local.db.studentsection.StudentSectionRepository
-import com.kito.data.local.preferences.PrefsRepository
 import com.kito.di.dataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
-import jakarta.inject.Inject
-import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.first
+
 class NotificationPipelineController private constructor(
     private val context: Context
 ) {
