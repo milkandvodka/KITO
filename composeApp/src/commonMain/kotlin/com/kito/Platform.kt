@@ -1,7 +1,7 @@
 package com.kito
 
 interface Platform {
-    val name: String
+    val name : String
 }
 
 expect fun getPlatform(): Platform
