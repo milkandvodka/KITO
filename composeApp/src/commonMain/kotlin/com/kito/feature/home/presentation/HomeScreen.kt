@@ -9,6 +9,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -110,6 +111,7 @@ import dev.chrisbanes.haze.rememberHazeState
 import kito.composeapp.generated.resources.Res
 import kito.composeapp.generated.resources.e_labs_logo
 import kito.composeapp.generated.resources.header
+import kito.composeapp.generated.resources.ic_instagram
 import kotlinx.coroutines.delay
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -398,9 +400,10 @@ fun HomeScreen(
                                     modifier = Modifier.padding(horizontal = 12.dp)
                                 ){
                                     UtilityCard(
-                                        onCLick = {navKey ->
-                                            if (navKey != null){
-                                                rootNavBackStack.add(navKey)
+                                        onCLick = { navKey, url ->
+                                            when {
+                                                url != null -> openUrl(url)
+                                                navKey != null -> rootNavBackStack.add(navKey)
                                             }
                                         }
                                     )
@@ -564,6 +567,69 @@ fun HomeScreen(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+                val infiniteTransition = rememberInfiniteTransition()
+                val scale by infiniteTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = keyframes {
+                            durationMillis = 5000
+                            1f at 0 // Wait 4.5s
+                            1f at 4500
+                            1.2f at 4750 // Scale up
+                            1f at 5000 // Scale back down
+                        },
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "InstagramScale"
+                )
+
+                val shimmerOffset by infiniteTransition.animateFloat(
+                    initialValue = -100f,
+                    targetValue = -100f,
+                    animationSpec = infiniteRepeatable(
+                        animation = keyframes {
+                            durationMillis = 5000
+                            -100f at 0
+                            -100f at 4500
+                            150f at 5000 // Sweep across
+                        },
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "InstagramShimmer"
+                )
+
+                IconButton(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                        openUrl("https://www.instagram.com/kiito.app?igsh=MTkzajlteWM5dzhldg==")
+                    },
+                    modifier = Modifier.size(52.dp).scale(scale)
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_instagram),
+                        contentDescription = "Instagram",
+                        tint = uiColors.accentOrangeStart,
+                        modifier = Modifier
+                            .size(34.dp)
+                            .drawWithContent {
+                                drawContent()
+                                val shimmerBrush = Brush.linearGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.White.copy(alpha = 0.5f),
+                                        Color.White.copy(alpha = 0.8f),
+                                        Color.White.copy(alpha = 0.5f),
+                                        Color.Transparent
+                                    ),
+                                    start = Offset(shimmerOffset, shimmerOffset - 50f),
+                                    end = Offset(shimmerOffset + 50f, shimmerOffset + 50f)
+                                )
+                                drawRect(brush = shimmerBrush)
+                            }
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
                 IconButton(
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)

@@ -49,7 +49,8 @@ data class Utilities(
     val itemBoxColor: Color,
     val textColor: Color,
     val iconGradient: Brush,
-    val destination: NavKey? = null
+    val destination: NavKey? = null,
+    val url: String? = null
 )
 
 val UtilityList = listOf(
@@ -66,6 +67,32 @@ val UtilityList = listOf(
             )
         ),
         destination = Routes.Calendar
+    ),
+    Utilities(
+        title = "Study Material",
+        iconVector = Icons.AutoMirrored.Rounded.Assignment,
+        itemBoxColor = Color(0xFF2E3A58),
+        textColor = Color(0xFFC1D4F9),
+        iconGradient = Brush.horizontalGradient(
+            colors = listOf(
+                Color(0xFF89A8C6),
+                Color(0xFF3B4F68)
+            )
+        ),
+        url = "https://drive.google.com/drive/folders/1Ugm0zGR4A1d-mZPjCemNmxV7IsPK7Skg?usp=drive_link"
+    ),
+    Utilities(
+        title = "Exam Schedule",
+        iconVector = Icons.AutoMirrored.Rounded.Assignment,
+        itemBoxColor = Color(0xFF3E3058),
+        textColor = Color(0xFFE1C1F9),
+        iconGradient = Brush.horizontalGradient(
+            colors = listOf(
+                Color(0xFFA689C6),
+                Color(0xFF4B3B68)
+            )
+        ),
+        destination = Routes.ExamSchedule
     ),
     Utilities(
         title = "GPA Calc",
@@ -106,19 +133,7 @@ val UtilityList = listOf(
         ),
         destination = Routes.HolidayList
     ),
-    Utilities(
-        title = "Exam Schedule",
-        iconVector = Icons.AutoMirrored.Rounded.Assignment,
-        itemBoxColor = Color(0xFF3E3058),
-        textColor = Color(0xFFE1C1F9),
-        iconGradient = Brush.horizontalGradient(
-            colors = listOf(
-                Color(0xFFA689C6),
-                Color(0xFF4B3B68)
-            )
-        ),
-        destination = Routes.ExamSchedule
-    ),
+
     Utilities(
         title = "Coming Soon",
         iconVector = Icons.Rounded.AutoAwesome,
@@ -137,7 +152,8 @@ val UtilityList = listOf(
 @Composable
 fun UtilityCard(
     onCLick: (
-        destination: NavKey?
+        destination: NavKey?,
+        url: String?
     ) -> Unit
 ) {
     val colors = UIColors()
@@ -197,7 +213,8 @@ fun UtilityCard(
                         .clickable(
                             onClick = {
                                 onCLick(
-                                    UtilityList[index].destination
+                                    UtilityList[index].destination,
+                                    UtilityList[index].url
                                 )
                             }
                         )
