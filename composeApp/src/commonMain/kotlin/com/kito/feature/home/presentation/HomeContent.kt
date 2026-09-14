@@ -57,7 +57,6 @@ import com.kito.feature.attendance.domain.model.Attendance
 import com.kito.feature.attendance.presentation.components.AttendanceBarCard
 import com.kito.feature.home.domain.model.EventOrAd
 import com.kito.feature.home.presentation.components.EventAndAdBanner
-import com.kito.feature.home.presentation.components.KhaooGullyBanner
 import com.kito.feature.schedule.domain.model.ScheduleItem
 import com.kito.feature.schedule.presentation.components.ScheduleCard
 import com.kito.feature.settings.presentation.components.LoginDialogBox
@@ -286,46 +285,6 @@ fun HomeContent(
                                 UtilityCard(
                                     onCLick = onNavigateToUtility,
                                     isKhaooGullyEnabled = isKhaooGullyEnabled
-                                )
-                            }
-                        }
-
-                        item {
-                            Spacer(Modifier.height(8.dp))
-                        }
-
-                        item {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .padding(horizontal = 12.dp)
-                            ) {
-                                Text(
-                                    text = "KhaooGully",
-                                    color = uiColors.textPrimary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = FontFamily.Monospace,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-
-                        item {
-                            Spacer(Modifier.height(8.dp))
-                        }
-
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp)
-                            ) {
-                                KhaooGullyBanner(
-                                    onClick = { url ->
-                                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                                        onOpenUrl(url)
-                                    }
                                 )
                             }
                         }
