@@ -50,7 +50,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
-import com.kito.core.designsystem.AboutELabsDialog
 import com.kito.core.designsystem.UIColors
 import com.kito.core.designsystem.UtilityCard
 import com.kito.core.ui.state.SyncUiState
@@ -70,7 +69,6 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kito.composeapp.generated.resources.Res
-import kito.composeapp.generated.resources.e_labs_logo
 import kito.composeapp.generated.resources.kaya_logo
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -102,7 +100,6 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     enableAnimations: Boolean = true,
 ) {
-    var showAboutDialog by remember { mutableStateOf(false) }
     val uiColors = UIColors()
     val hazeState = rememberHazeState()
     val haptic = LocalHapticFeedback.current
@@ -486,30 +483,9 @@ fun HomeContent(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                IconButton(
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                        showAboutDialog = !showAboutDialog
-                    },
-                    modifier = Modifier.size(60.dp)
-                ) {
-                    Image(
-                        painter = painterResource(Res.drawable.e_labs_logo),
-                        contentDescription = "Logo",
-                    )
-                }
             }
             Spacer(modifier = Modifier.height(6.dp))
         }
-    }
-    if (showAboutDialog) {
-        AboutELabsDialog(
-            onDismiss = {
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                showAboutDialog = false
-            },
-            hazeState = hazeState
-        )
     }
     if (isLoginDialogOpen) {
         LoginDialogBox(
