@@ -26,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.kito.core.designsystem.UIColors
-import com.kito.core.platform.openUrl
 import com.kito.core.platform.sendEmail
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
@@ -86,7 +85,7 @@ fun TermsOfServiceDialog(
                         text = """
 1. Use of the App
 
-KITO is provided for personal, non-commercial use. You agree to use the App solely for its intended purpose of accessing attendance and timetable-related information and in accordance with applicable laws, institutional guidelines, and these Terms.
+KIITO is provided for personal, non-commercial use. You agree to use the App solely for its intended purpose of accessing attendance and timetable-related information and in accordance with applicable laws, institutional guidelines, and these Terms.
 
 You agree not to:
 • Use the App for any unlawful or prohibited purpose
@@ -95,21 +94,21 @@ You agree not to:
 
 2. Privacy Policy
 
-Your use of the App is governed by our Privacy Policy, which is available within the App. By using KITO, you acknowledge that you have read, understood, and agreed to the Privacy Policy.
+Your use of the App is governed by our Privacy Policy, which is available within the App. By using KIITO, you acknowledge that you have read, understood, and agreed to the Privacy Policy.
 
 3. User Information and Content
 
-Any information or content you voluntarily provide while using the App remains your property. KITO does not claim ownership over your personal information or credentials.
+Any information or content you voluntarily provide while using the App remains your property. KIITO does not claim ownership over your personal information or credentials.
 
 4. App Management
 
-KITO is an open-source project maintained under the eLabs technical society.
+KIITO is an open-source project maintained under the KIITO organization.
 
-The App is managed as part of a collaborative, student-driven technical initiative. Any operational matters, improvements, or concerns related to the App are handled through the eLabs framework and its established processes.
+The App is managed as part of a collaborative, student-driven technical initiative. Any operational matters, improvements, or concerns related to the App are handled through the KIITO organization and its established processes.
 
 5. Intellectual Property
 
-Unless otherwise stated, all original branding, design elements, and code contributions associated with KITO are protected under applicable intellectual property laws.
+Unless otherwise stated, all original branding, design elements, and code contributions associated with KIITO are protected under applicable intellectual property laws.
 
 As an open-source project:
 • The source code is publicly available for inspection and contribution
@@ -117,7 +116,7 @@ As an open-source project:
 
 6. Disclaimer
 
-KITO is an unofficial utility application intended to assist users by providing convenient access to attendance and timetable-related information.
+KIITO is an unofficial utility application intended to assist users by providing convenient access to attendance and timetable-related information.
 
 While reasonable efforts are made to ensure proper functioning and reliability, the App may rely on external systems, network connectivity, or institutional portals that are beyond direct control. Users are encouraged to verify critical or time-sensitive information through official sources when necessary.
 
@@ -146,7 +145,7 @@ If you have any questions or concerns regarding these Terms of Service, please c
                         TextButton(
                             onClick = {
                                 sendEmail(
-                                    to = "elabs.kiito@gmail.com",
+                                    to = "kiito.admin@gmail.com",
                                     subject = "KIITO App Feedback",
                                     body = ""
                                 )
@@ -158,24 +157,6 @@ If you have any questions or concerns regarding these Terms of Service, please c
                         ) {
                             Text(
                                 text = "Email",
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = FontFamily.Monospace
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        TextButton(
-                            onClick = {
-                                openUrl("https://elabskiit.in/")
-                            },
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = Color.White,
-                                containerColor = Color.White.copy(alpha = 0.08f)
-                            )
-                        ) {
-                            Text(
-                                text = "Website",
                                 fontWeight = FontWeight.Medium,
                                 fontFamily = FontFamily.Monospace
                             )

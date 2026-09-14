@@ -312,7 +312,7 @@ fun AboutAppDialogBox(
                         TextButton(
                             onClick = {
                                 sendEmail(
-                                    to = "elabs.kiito@gmail.com",
+                                    to = "kiito.admin@gmail.com",
                                     subject = "KIITO App Feedback",
                                     body = ""
                                 )

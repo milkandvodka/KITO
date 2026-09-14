@@ -200,7 +200,7 @@ fun SettingsContent(
             onClick = {
                 haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 sendEmail(
-                    to = "elabs.kiito@gmail.com",
+                    to = "kiito.admin@gmail.com",
                     subject = "KIITO Feedback",
                     body = ""
                 )

@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.kito.core.designsystem.UIColors
-import com.kito.core.platform.openUrl
 import com.kito.core.platform.sendEmail
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
@@ -170,7 +169,7 @@ If you have any questions or concerns regarding this Privacy Policy, please cont
                     TextButton(
                         onClick = {
                             sendEmail(
-                                to = "elabs.kiito@gmail.com",
+                                to = "kiito.admin@gmail.com",
                                 subject = "KIITO App Feedback",
                                 body = ""
                             )
@@ -182,24 +181,6 @@ If you have any questions or concerns regarding this Privacy Policy, please cont
                     ) {
                         Text(
                             text = "Email",
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = FontFamily.Monospace
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    TextButton(
-                        onClick = {
-                            openUrl("https://elabskiit.in/")
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = Color.White,
-                            containerColor = Color.White.copy(alpha = 0.08f)
-                        )
-                    ) {
-                        Text(
-                            text = "Website",
                             fontWeight = FontWeight.Medium,
                             fontFamily = FontFamily.Monospace
                         )
