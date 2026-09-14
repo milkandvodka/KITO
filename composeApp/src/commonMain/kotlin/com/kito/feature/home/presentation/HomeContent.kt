@@ -50,7 +50,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
-import com.kito.core.designsystem.AboutELabsDialog
 import com.kito.core.designsystem.UIColors
 import com.kito.core.designsystem.UtilityCard
 import com.kito.core.ui.state.SyncUiState
@@ -58,7 +57,6 @@ import com.kito.feature.attendance.domain.model.Attendance
 import com.kito.feature.attendance.presentation.components.AttendanceBarCard
 import com.kito.feature.home.domain.model.EventOrAd
 import com.kito.feature.home.presentation.components.EventAndAdBanner
-import com.kito.feature.home.presentation.components.KhaooGullyBanner
 import com.kito.feature.schedule.domain.model.ScheduleItem
 import com.kito.feature.schedule.presentation.components.ScheduleCard
 import com.kito.feature.settings.presentation.components.LoginDialogBox
@@ -70,8 +68,6 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kito.composeapp.generated.resources.Res
-import kito.composeapp.generated.resources.e_labs_logo
-import kito.composeapp.generated.resources.kaya_logo
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
@@ -102,7 +98,6 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     enableAnimations: Boolean = true,
 ) {
-    var showAboutDialog by remember { mutableStateOf(false) }
     val uiColors = UIColors()
     val hazeState = rememberHazeState()
     val haptic = LocalHapticFeedback.current
@@ -132,8 +127,8 @@ fun HomeContent(
             },
             syncState = kayaState,
             hazeState = hazeState,
-            title = "Connect to KAYA",
-            passwordLabel = "KAYA Password",
+            title = "Connect to Timetable",
+            passwordLabel = "Timetable Password",
             confirmText = "Connect",
         )
     }
@@ -203,7 +198,7 @@ fun HomeContent(
                                     modifier = Modifier
                                         .weight(1f)
                                 )
-                                // Single KAYA pill: connected → open the timetable;
+                                // Single Timetable pill: connected → open the timetable;
                                 // otherwise start the connect flow.
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -221,17 +216,11 @@ fun HomeContent(
                                         .padding(horizontal = 10.dp, vertical = 5.dp)
                                 ) {
                                     Text(
-                                        text = "KAYA",
+                                        text = "Timetable",
                                         color = uiColors.textPrimary,
                                         fontWeight = FontWeight.Bold,
                                         fontFamily = FontFamily.Monospace,
                                         style = MaterialTheme.typography.labelMedium
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Image(
-                                        painter = painterResource(Res.drawable.kaya_logo),
-                                        contentDescription = if (kayaConnected) "KAYA connected, open timetable" else "Connect KAYA",
-                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
@@ -289,46 +278,6 @@ fun HomeContent(
                                 UtilityCard(
                                     onCLick = onNavigateToUtility,
                                     isKhaooGullyEnabled = isKhaooGullyEnabled
-                                )
-                            }
-                        }
-
-                        item {
-                            Spacer(Modifier.height(8.dp))
-                        }
-
-                        item {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .padding(horizontal = 12.dp)
-                            ) {
-                                Text(
-                                    text = "KhaooGully",
-                                    color = uiColors.textPrimary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = FontFamily.Monospace,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-
-                        item {
-                            Spacer(Modifier.height(8.dp))
-                        }
-
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp)
-                            ) {
-                                KhaooGullyBanner(
-                                    onClick = { url ->
-                                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                                        onOpenUrl(url)
-                                    }
                                 )
                             }
                         }
@@ -486,30 +435,9 @@ fun HomeContent(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                IconButton(
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                        showAboutDialog = !showAboutDialog
-                    },
-                    modifier = Modifier.size(60.dp)
-                ) {
-                    Image(
-                        painter = painterResource(Res.drawable.e_labs_logo),
-                        contentDescription = "Logo",
-                    )
-                }
             }
             Spacer(modifier = Modifier.height(6.dp))
         }
-    }
-    if (showAboutDialog) {
-        AboutELabsDialog(
-            onDismiss = {
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                showAboutDialog = false
-            },
-            hazeState = hazeState
-        )
     }
     if (isLoginDialogOpen) {
         LoginDialogBox(

@@ -56,7 +56,6 @@ import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import io.github.jan.supabase.compose.auth.composable.rememberSignInWithGoogle
 import io.github.jan.supabase.compose.auth.composeAuth
 import kito.composeapp.generated.resources.Res
-import kito.composeapp.generated.resources.e_labs_logo
 import kito.composeapp.generated.resources.google
 import kotlinx.datetime.number
 import org.jetbrains.compose.resources.painterResource

@@ -580,7 +580,7 @@ fun FriendViewContent(
                             IconButton(
                                 onClick = {
                                     sendEmail(
-                                        to = "elabs.kiito@gmail.com",
+                                        to = "kiito.admin@gmail.com",
                                         subject = "KIITO Schedule Report",
                                         body = ""
                                     )

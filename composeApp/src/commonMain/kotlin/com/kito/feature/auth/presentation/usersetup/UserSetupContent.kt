@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.kito.core.common.util.currentLocalDateTime
 import com.kito.core.designsystem.UIColors
 import kito.composeapp.generated.resources.Res
-import kito.composeapp.generated.resources.e_labs_logo
+import kito.composeapp.generated.resources.custom_icon
 import kito.composeapp.generated.resources.google
 import kotlinx.datetime.number
 import org.jetbrains.compose.resources.painterResource
@@ -106,10 +106,10 @@ fun UserSetupContent(
             modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item{
+            item {
                 Image(
                     painter = painterResource(
-                        Res.drawable.e_labs_logo
+                        Res.drawable.custom_icon
                     ),
                     contentDescription = "Logo",
                     modifier = Modifier
@@ -172,7 +172,7 @@ fun UserSetupContent(
                     },
                     label = {
                         Text(
-                            text = "KIIT Roll Number",
+                            text = "Roll Number",
                             fontFamily = FontFamily.Monospace,
                             style = MaterialTheme.typography.titleMediumEmphasized
                         )
