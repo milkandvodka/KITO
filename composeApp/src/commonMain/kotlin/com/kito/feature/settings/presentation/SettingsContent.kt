@@ -250,7 +250,7 @@ fun SettingsContent(
         ),
         SettingsItem(
             title = if (!kayaConnected) "Login" else "Logout",
-            value = if (!kayaConnected) "Login to KAYA" else "Logout of KAYA",
+            value = if (!kayaConnected) "Login to Timetable" else "Logout of Timetable",
             icon = if (!kayaConnected) Icons.Default.Person else Icons.Default.Lock,
             onClick = {
                 haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
@@ -565,8 +565,8 @@ fun SettingsContent(
             },
             syncState = kayaState,
             hazeState = hazeState,
-            title = "Login To KAYA",
-            passwordLabel = "KAYA Password",
+            title = "Login To Timetable",
+            passwordLabel = "Timetable Password",
             confirmText = "Login",
         )
     }

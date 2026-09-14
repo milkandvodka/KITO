@@ -68,7 +68,6 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kito.composeapp.generated.resources.Res
-import kito.composeapp.generated.resources.kaya_logo
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
@@ -128,8 +127,8 @@ fun HomeContent(
             },
             syncState = kayaState,
             hazeState = hazeState,
-            title = "Connect to KAYA",
-            passwordLabel = "KAYA Password",
+            title = "Connect to Timetable",
+            passwordLabel = "Timetable Password",
             confirmText = "Connect",
         )
     }
@@ -199,7 +198,7 @@ fun HomeContent(
                                     modifier = Modifier
                                         .weight(1f)
                                 )
-                                // Single KAYA pill: connected → open the timetable;
+                                // Single Timetable pill: connected → open the timetable;
                                 // otherwise start the connect flow.
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -217,17 +216,11 @@ fun HomeContent(
                                         .padding(horizontal = 10.dp, vertical = 5.dp)
                                 ) {
                                     Text(
-                                        text = "KAYA",
+                                        text = "Timetable",
                                         color = uiColors.textPrimary,
                                         fontWeight = FontWeight.Bold,
                                         fontFamily = FontFamily.Monospace,
                                         style = MaterialTheme.typography.labelMedium
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Image(
-                                        painter = painterResource(Res.drawable.kaya_logo),
-                                        contentDescription = if (kayaConnected) "KAYA connected, open timetable" else "Connect KAYA",
-                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
