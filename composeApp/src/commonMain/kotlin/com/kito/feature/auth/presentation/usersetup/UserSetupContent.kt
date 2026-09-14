@@ -1,5 +1,6 @@
 package com.kito.feature.auth.presentation.usersetup
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +34,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -41,19 +43,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.kito.core.common.util.currentLocalDateTime
 import com.kito.core.designsystem.UIColors
 import kito.composeapp.generated.resources.Res
-import kito.composeapp.generated.resources.e_labs_logo
+import kito.composeapp.generated.resources.custom_icon
 import kito.composeapp.generated.resources.google
 import kotlinx.datetime.number
 import org.jetbrains.compose.resources.painterResource
+import kotlin.math.PI
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -106,10 +116,11 @@ fun UserSetupContent(
             modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item{
+            item {
+                ArcAppTitle(text = APP_TITLE)
                 Image(
                     painter = painterResource(
-                        Res.drawable.e_labs_logo
+                        Res.drawable.custom_icon
                     ),
                     contentDescription = "Logo",
                     modifier = Modifier
@@ -324,6 +335,65 @@ fun UserSetupContent(
                     }
                 }
             }
+        }
+    }
+}
+
+private const val APP_TITLE = "KIITO"
+
+/** Matches the green of the app icon. */
+private val titleGreen = Color(0xFFA9E77C)
+
+/** Fraction of canvas width used as the arc radius; smaller = deeper arch. */
+private const val ARC_RADIUS_RATIO = 0.32f
+
+/** Extra arc length per letter, so glyphs do not touch on the curve. */
+private const val ARC_LETTER_SPACING = 1.08f
+
+/** Draws [text] along the top of a circle, arching upwards like a dome. */
+@Composable
+private fun ArcAppTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = titleGreen
+) {
+    val textMeasurer = rememberTextMeasurer()
+    val style = TextStyle(
+        color = color,
+        fontSize = 44.sp,
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Bold
+    )
+    val glyphs = remember(text, style, textMeasurer) {
+        text.map { textMeasurer.measure(AnnotatedString(it.toString()), style) }
+    }
+
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(96.dp)
+    ) {
+        val radius = size.width * ARC_RADIUS_RATIO
+        val tallest = glyphs.maxOf { it.size.height }.toFloat()
+        val circleCenter = Offset(size.width / 2f, tallest / 2f + radius)
+
+        // Each letter claims arc length proportional to its width, so spacing reads evenly.
+        val sweeps = glyphs.map {
+            (it.size.width * ARC_LETTER_SPACING / radius) * (180f / PI.toFloat())
+        }
+        var angle = -sweeps.sum() / 2f
+
+        glyphs.forEachIndexed { index, glyph ->
+            rotate(degrees = angle + sweeps[index] / 2f, pivot = circleCenter) {
+                drawText(
+                    textLayoutResult = glyph,
+                    topLeft = Offset(
+                        x = circleCenter.x - glyph.size.width / 2f,
+                        y = circleCenter.y - radius - glyph.size.height / 2f
+                    )
+                )
+            }
+            angle += sweeps[index]
         }
     }
 }
