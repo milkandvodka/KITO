@@ -42,7 +42,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.kito.core.designsystem.UIColors
 import com.kito.core.presentation.components.animation.LockAnimation
 import com.kito.core.ui.state.SyncUiState
@@ -88,7 +90,9 @@ fun LoginDialogBox(
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         },
@@ -108,7 +112,9 @@ fun LoginDialogBox(
                     label = { Text(
                         text = passwordLabel,
                         fontFamily = FontFamily.Monospace,
-                        style = MaterialTheme.typography.titleMediumEmphasized
+                        style = MaterialTheme.typography.titleMediumEmphasized.copy(fontSize = 13.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     ) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFFFF8C00),

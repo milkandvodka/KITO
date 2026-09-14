@@ -172,7 +172,7 @@ fun UserSetupContent(
                     },
                     label = {
                         Text(
-                            text = "KIIT Roll Number",
+                            text = "Roll Number",
                             fontFamily = FontFamily.Monospace,
                             style = MaterialTheme.typography.titleMediumEmphasized
                         )
