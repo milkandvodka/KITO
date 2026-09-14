@@ -159,6 +159,8 @@ fun AboutAppDialogBox(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    /*
+                    // Devs section - temporarily hidden, restore by removing this comment block.
                     Text(
                         text = "Devs",
                         fontWeight = FontWeight.Bold,
@@ -278,6 +280,7 @@ fun AboutAppDialogBox(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
+                    */
 
                     Text(
                         text = "Disclaimer",
@@ -321,24 +324,6 @@ fun AboutAppDialogBox(
                         ) {
                             Text(
                                 text = "Email",
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = FontFamily.Monospace
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        TextButton(
-                            onClick = {
-                                openUrl("https://elabskiit.in/")
-                            },
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = Color.White,
-                                containerColor = Color.White.copy(alpha = 0.08f)
-                            )
-                        ) {
-                            Text(
-                                text = "Website",
                                 fontWeight = FontWeight.Medium,
                                 fontFamily = FontFamily.Monospace
                             )
