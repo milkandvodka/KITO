@@ -55,6 +55,17 @@ class SapPortalClient {
         }
     }
 
+    /**
+     * The (year, term) the live Web Dynpro instance was last driven to.
+     *
+     * The Web Dynpro app is server-side state keyed to the session, so
+     * re-entering it on the same cookies resumes the results screen the previous
+     * fetch submitted — and a ComboBox_Select sent to that screen is silently
+     * ignored. Tracking the last selection lets us drop the cookies only when the
+     * session actually changes, keeping the reuse that avoids the HTTP 500s.
+     */
+    private var lastSelection: Pair<String, String>? = null
+
     suspend fun fetchAttendance(
         username: String,
         password: String,
@@ -63,10 +74,22 @@ class SapPortalClient {
     ): AttendanceResult = withContext(Dispatchers.Default) {
         val totalStart = TimeSource.Monotonic.markNow()
         debugLog { "🚀 Starting fetchAttendance..." }
-        // Note: we intentionally do NOT clear cookies or log out between fetches.
-        // The session is reused (see Step 1/2): clearing/logging out mid-session
-        // makes the portal return HTTP 500 or an authenticated home page with no
-        // j_salt, which caused the intermittent failures.
+        // Year key e.g. "2025" (=2025-2026); term key "010"=Autumn, "020"=Spring.
+        val academicYearValue = academicYear.ifEmpty { "2025" }
+        val termCodeValue = termCode.ifEmpty { "020" }
+
+        // Note: we intentionally do NOT clear cookies or log out between fetches
+        // of the same year/term. The session is reused (see Step 1/2): clearing/
+        // logging out mid-session makes the portal return HTTP 500 or an
+        // authenticated home page with no j_salt, which caused the intermittent
+        // failures. Switching year/term is the exception: it needs a brand-new
+        // Web Dynpro instance, so drop the cookies and log in again.
+        val last = lastSelection
+        if (last != null && last != (academicYearValue to termCodeValue)) {
+            debugLog { "DEBUG: year/term changed ${last} -> $academicYearValue/$termCodeValue — dropping the session" }
+            cookieStorage.clear()
+            lastSelection = null
+        }
 
         try {
             // ─── Step 1: Load login page ──────────────────────────────────────────────
@@ -356,9 +379,6 @@ class SapPortalClient {
             }
 
             val (yearId, termId, buttonId) = SapPortalHtmlParser.detectComboboxIds(htmlToParse)
-            // Year key e.g. "2025" (=2025-2026); term key "010"=Autumn, "020"=Spring.
-            val academicYearValue = academicYear.ifEmpty { "2025" }
-            val termCodeValue = termCode.ifEmpty { "020" }
             debugLog { "DEBUG: ids year=$yearId term=$termId btn=$buttonId | select year=$academicYearValue term=$termCodeValue" }
 
             // ─── Step 9: Fetch attendance with selection ──────────────────────────────
@@ -405,9 +425,38 @@ class SapPortalClient {
             val attendanceHtml = attendanceResponse.bodyAsText()
             debugLog { "⏱️ Step 9 (Fetch Attendance) took: ${step9Start.elapsedNow()}" }
 
-            // ─── Step 10: Parse attendance data ───────────────────────────────────────
+            // ─── Step 10: Confirm the selection landed, then parse ────────────────────
+            // A Web Dynpro app that ignored ComboBox_Select still answers 200 with a
+            // valid table — just for the session it was already showing. Storing that
+            // under the requested year/term makes every session look identical, so
+            // check the echoed year before trusting the rows.
             val step10Start = TimeSource.Monotonic.markNow()
+            val renderedHtml = SapPortalHeaders.contentUpdateRegex.find(attendanceHtml)
+                ?.groupValues?.get(1) ?: attendanceHtml
+            val shownYear = Ksoup.parse(renderedHtml).getElementById(yearId)
+                ?.attr("value")?.trim()?.takeIf { it.isNotEmpty() }
+            when {
+                // `contains` rather than `==`: the input renders "2026" on some
+                // themes and "2026/2027" on others.
+                shownYear != null && !shownYear.contains(academicYearValue) -> {
+                    val error = SapError.AttendanceFetchFailed(
+                        status = attendanceResponse.status.value,
+                        preview = "ComboBox_Select was ignored: asked for year=$academicYearValue " +
+                            "term=$termCodeValue via ids year=$yearId term=$termId btn=$buttonId, " +
+                            "but the year input came back as \"$shownYear\""
+                    )
+                    ErrorSanitizer.log(error)
+                    // Don't reuse a session that is stuck on another year/term.
+                    cookieStorage.clear()
+                    lastSelection = null
+                    return@withContext AttendanceResult.Error(ErrorSanitizer.sanitize(error))
+                }
+                shownYear != null -> debugLog { "DEBUG: portal confirmed year=$shownYear" }
+                else -> debugLog { "DEBUG: year input absent from the delta — selection not verifiable" }
+            }
+
             val parsedAttendance = AttendanceData(SapPortalHtmlParser.parseAttendanceData(attendanceHtml))
+            lastSelection = academicYearValue to termCodeValue
             debugLog { "⏱️ Step 10 (Parse Data) took: ${step10Start.elapsedNow()}" }
 
             debugLog { "✅ Total fetch time: ${totalStart.elapsedNow()}" }
@@ -441,6 +490,7 @@ class SapPortalClient {
     suspend fun logout() {
         performLogout(client)
         cookieStorage.clear()
+        lastSelection = null
     }
 
     private suspend fun performLogout(client: HttpClient) {
