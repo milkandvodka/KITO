@@ -23,9 +23,20 @@ interface PrefsRepository {
     /** True once the user has connected their KAYA account (credentials verified). */
     val kayaConnectedFlow: Flow<Boolean>
 
+    val isManualScheduleFlow: Flow<Boolean>
+    val manualSectionFlow: Flow<String>
+    val manualBatchFlow: Flow<String>
+    val manualElective1Flow: Flow<String>
+    val manualElective2Flow: Flow<String>
+
     suspend fun setUserName(username: String)
     suspend fun setUserRollNumber(rollNumber: String)
     suspend fun setUserSetupDone()
+    val cachedFriendSummariesFlow: Flow<Map<String, com.kito.feature.friendview.domain.model.FriendSummary>>
+    val cachedFriendSchedulesFlow: Flow<Map<String, List<com.kito.feature.friendview.domain.model.FriendScheduleItem>>>
+
+    suspend fun saveCachedFriendSummary(summary: com.kito.feature.friendview.domain.model.FriendSummary)
+    suspend fun saveCachedFriendSchedule(roll: String, items: List<com.kito.feature.friendview.domain.model.FriendScheduleItem>)
     suspend fun setOnboardingDone()
     suspend fun setAcademicYear(year: String)
     suspend fun setTermCode(term: String)
@@ -38,4 +49,11 @@ interface PrefsRepository {
     suspend fun clearSelectedFriend()
     suspend fun setKayaIntroSeen()
     suspend fun setKayaConnected(connected: Boolean)
+    suspend fun saveManualSchedule(
+        section: String,
+        batch: String,
+        elective1: String = "",
+        elective2: String = ""
+    )
+    suspend fun clearManualSchedule()
 }

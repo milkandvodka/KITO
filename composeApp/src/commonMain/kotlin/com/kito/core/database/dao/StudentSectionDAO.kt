@@ -29,7 +29,7 @@ interface StudentSectionDAO {
            AND sec.term_code = act.term_code
            AND sec.version = act.version
         WHERE stu.roll_no = :rollNo
-          AND sec.day = :day
+          AND (UPPER(TRIM(sec.day)) = UPPER(TRIM(:day)) OR UPPER(SUBSTR(TRIM(sec.day), 1, 3)) = UPPER(SUBSTR(TRIM(:day), 1, 3)))
           AND sec.source = 'core'
 
         UNION
@@ -52,7 +52,7 @@ interface StudentSectionDAO {
            AND sec.term_code = act.term_code
            AND sec.version = act.version
         WHERE stu.roll_no = :rollNo
-          AND sec.day = :day
+          AND (UPPER(TRIM(sec.day)) = UPPER(TRIM(:day)) OR UPPER(SUBSTR(TRIM(sec.day), 1, 3)) = UPPER(SUBSTR(TRIM(:day), 1, 3)))
 
         ORDER BY startTime
     """)

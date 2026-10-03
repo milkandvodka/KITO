@@ -66,7 +66,7 @@ class FriendViewViewmodel(
                         try {
                             val items = friendViewRepository.getFriendSchedule(roll)
                             val grouped = WeekDay.entries.associateWith { day ->
-                                items.filter { it.day == day.apiValue }
+                                items.filter { com.kito.feature.schedule.presentation.components.normalizeDay(it.day) == day.apiValue }
                                     .sortedChronologically()
                             }
                             emit(grouped)

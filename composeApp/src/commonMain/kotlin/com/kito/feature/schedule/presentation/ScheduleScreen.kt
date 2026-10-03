@@ -11,9 +11,12 @@ fun ScheduleScreen(
     onBack: () -> Unit
 ) {
     val schedule by viewModel.weeklySchedule.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     ScheduleContent(
         schedule = schedule,
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
         onBack = onBack
     )
 }

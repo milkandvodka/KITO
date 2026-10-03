@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,19 +36,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kito.core.common.util.currentLocalDateTime
 import com.kito.core.common.util.formatTo12Hour
 import com.kito.core.designsystem.UIColors
 import com.kito.core.designsystem.meshGradient
-import com.kito.core.presentation.components.animation.PageNotFoundAnimation
 import com.kito.core.presentation.components.animation.RelaxAnimation
 import com.kito.feature.schedule.domain.model.ScheduleItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalTime
-import kotlinx.datetime.isoDayNumber
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -61,17 +63,6 @@ fun ScheduleCard(
     val now = rememberCurrentTime(enableAnimations)
     val (ongoing, upcomingList) = remember(schedule, now) {
         findOngoingAndAllUpcoming(schedule, now)
-    }
-    val currentDateTime = currentLocalDateTime()
-    val today = when (currentDateTime.dayOfWeek.isoDayNumber) {
-        1 -> "MON"
-        2 -> "TUE"
-        3 -> "WED"
-        4 -> "THU"
-        5 -> "FRI"
-        6 -> "SAT"
-        7 -> "SUN"
-        else -> "MON"
     }
     val meshColors = listOf(
         Color(0xFF77280F).copy(alpha = 0.82f),
@@ -296,7 +287,26 @@ fun ScheduleCard(
                             .fillParentMaxHeight(),
                         contentAlignment = Alignment.Center
                     ) {
-                        PageNotFoundAnimation()
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Set up your timetable",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                color = colors.accentOrangeStart
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Tap to pick your section & load your routine",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontFamily = FontFamily.Monospace,
+                                color = colors.textSecondary
+                            )
+                        }
                     }
                 }
             }
@@ -347,7 +357,7 @@ fun rememberCurrentTime(enableAnimations: Boolean = true): LocalTime {
 
             // ⏱ align to next minute boundary
             val delayMillis = (60 - current.second) * 1000L - current.nanosecond / 1_000_000
-            delay(delayMillis)
+            delay(delayMillis.milliseconds)
         }
     }
 

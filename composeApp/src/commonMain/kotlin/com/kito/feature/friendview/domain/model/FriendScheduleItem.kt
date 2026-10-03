@@ -1,5 +1,8 @@
 package com.kito.feature.friendview.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class FriendScheduleItem(
     val subject: String,
     val startTime: String,
@@ -9,3 +12,4 @@ data class FriendScheduleItem(
     val section: String,
     val batch: String,
 )
+

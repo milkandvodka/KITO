@@ -11,6 +11,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Provided
 
+import kotlinx.serialization.json.Json
+import com.kito.feature.friendview.domain.model.FriendScheduleItem
+import com.kito.feature.friendview.domain.model.FriendSummary
+
 class PrefsRepositoryImpl(
     @Provided private val dataStore: DataStore<Preferences>
 ) : PrefsRepository {
@@ -28,10 +32,48 @@ class PrefsRepositoryImpl(
         private val KEY_NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         private val KEY_FRIEND_ROLLS = stringPreferencesKey("friend_rolls")
         private val KEY_SELECTED_FRIEND_ROLL = stringPreferencesKey("selected_friend_roll")
+        private val KEY_IS_MANUAL_SCHEDULE = booleanPreferencesKey("is_manual_schedule")
+        private val KEY_MANUAL_SECTION = stringPreferencesKey("manual_section")
+        private val KEY_MANUAL_BATCH = stringPreferencesKey("manual_batch")
+        private val KEY_MANUAL_ELECTIVE_1 = stringPreferencesKey("manual_elective_1")
+        private val KEY_MANUAL_ELECTIVE_2 = stringPreferencesKey("manual_elective_2")
+        private val KEY_CACHED_FRIEND_SUMMARIES = stringPreferencesKey("cached_friend_summaries")
+        private val KEY_CACHED_FRIEND_SCHEDULES = stringPreferencesKey("cached_friend_schedules")
     }
+
+    override val cachedFriendSummariesFlow: Flow<Map<String, FriendSummary>> = dataStore.data
+        .map { prefs ->
+            val raw = prefs[KEY_CACHED_FRIEND_SUMMARIES] ?: return@map emptyMap()
+            runCatching {
+                Json.decodeFromString<Map<String, FriendSummary>>(raw)
+            }.getOrDefault(emptyMap())
+        }
+
+    override val cachedFriendSchedulesFlow: Flow<Map<String, List<FriendScheduleItem>>> = dataStore.data
+        .map { prefs ->
+            val raw = prefs[KEY_CACHED_FRIEND_SCHEDULES] ?: return@map emptyMap()
+            runCatching {
+                Json.decodeFromString<Map<String, List<FriendScheduleItem>>>(raw)
+            }.getOrDefault(emptyMap())
+        }
 
     override val notificationStateFlow: Flow<Boolean> = dataStore.data
         .map { it[KEY_NOTIFICATIONS_ENABLED] ?: false }
+
+    override val isManualScheduleFlow: Flow<Boolean> = dataStore.data
+        .map { it[KEY_IS_MANUAL_SCHEDULE] ?: false }
+
+    override val manualSectionFlow: Flow<String> = dataStore.data
+        .map { it[KEY_MANUAL_SECTION] ?: "" }
+
+    override val manualBatchFlow: Flow<String> = dataStore.data
+        .map { it[KEY_MANUAL_BATCH] ?: "" }
+
+    override val manualElective1Flow: Flow<String> = dataStore.data
+        .map { it[KEY_MANUAL_ELECTIVE_1] ?: "" }
+
+    override val manualElective2Flow: Flow<String> = dataStore.data
+        .map { it[KEY_MANUAL_ELECTIVE_2] ?: "" }
 
     override val resetFixFlow: Flow<Boolean> = dataStore.data
         .map { it[KEY_RESET_FIX_V3] ?: false }
@@ -157,6 +199,26 @@ class PrefsRepositoryImpl(
         }
     }
 
+    override suspend fun saveCachedFriendSummary(summary: FriendSummary) {
+        dataStore.edit { prefs ->
+            val current = prefs[KEY_CACHED_FRIEND_SUMMARIES]?.let { raw ->
+                runCatching { Json.decodeFromString<Map<String, FriendSummary>>(raw) }.getOrNull()
+            }.orEmpty()
+            val updated = current + (summary.roll to summary)
+            prefs[KEY_CACHED_FRIEND_SUMMARIES] = Json.encodeToString(updated)
+        }
+    }
+
+    override suspend fun saveCachedFriendSchedule(roll: String, items: List<FriendScheduleItem>) {
+        dataStore.edit { prefs ->
+            val current = prefs[KEY_CACHED_FRIEND_SCHEDULES]?.let { raw ->
+                runCatching { Json.decodeFromString<Map<String, List<FriendScheduleItem>>>(raw) }.getOrNull()
+            }.orEmpty()
+            val updated = current + (roll to items)
+            prefs[KEY_CACHED_FRIEND_SCHEDULES] = Json.encodeToString(updated)
+        }
+    }
+
     override suspend fun removeFriendRoll(roll: String) {
         dataStore.edit { prefs ->
             val current = prefs[KEY_FRIEND_ROLLS]
@@ -176,6 +238,20 @@ class PrefsRepositoryImpl(
                     separator = "\",\"",
                     postfix = "\"]"
                 )
+
+            val currentSummaries = prefs[KEY_CACHED_FRIEND_SUMMARIES]?.let { raw ->
+                runCatching { Json.decodeFromString<Map<String, FriendSummary>>(raw) }.getOrNull()
+            }.orEmpty()
+            if (currentSummaries.containsKey(roll)) {
+                prefs[KEY_CACHED_FRIEND_SUMMARIES] = Json.encodeToString(currentSummaries - roll)
+            }
+
+            val currentSchedules = prefs[KEY_CACHED_FRIEND_SCHEDULES]?.let { raw ->
+                runCatching { Json.decodeFromString<Map<String, List<FriendScheduleItem>>>(raw) }.getOrNull()
+            }.orEmpty()
+            if (currentSchedules.containsKey(roll)) {
+                prefs[KEY_CACHED_FRIEND_SCHEDULES] = Json.encodeToString(currentSchedules - roll)
+            }
         }
     }
 
@@ -185,5 +261,30 @@ class PrefsRepositoryImpl(
 
     override suspend fun clearSelectedFriend() {
         dataStore.edit { it.remove(KEY_SELECTED_FRIEND_ROLL) }
+    }
+
+    override suspend fun saveManualSchedule(
+        section: String,
+        batch: String,
+        elective1: String,
+        elective2: String
+    ) {
+        dataStore.edit {
+            it[KEY_IS_MANUAL_SCHEDULE] = true
+            it[KEY_MANUAL_SECTION] = section
+            it[KEY_MANUAL_BATCH] = batch
+            it[KEY_MANUAL_ELECTIVE_1] = elective1
+            it[KEY_MANUAL_ELECTIVE_2] = elective2
+        }
+    }
+
+    override suspend fun clearManualSchedule() {
+        dataStore.edit {
+            it[KEY_IS_MANUAL_SCHEDULE] = false
+            it.remove(KEY_MANUAL_SECTION)
+            it.remove(KEY_MANUAL_BATCH)
+            it.remove(KEY_MANUAL_ELECTIVE_1)
+            it.remove(KEY_MANUAL_ELECTIVE_2)
+        }
     }
 }

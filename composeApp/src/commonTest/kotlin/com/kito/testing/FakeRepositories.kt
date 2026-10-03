@@ -82,8 +82,26 @@ class FakeGpaRepository(private val profile: StudentProfile? = null) : GpaReposi
     override suspend fun getStudentProfile(roll: String): StudentProfile? = profile
 }
 
-class FakeFriendViewRepository(private val items: List<FriendScheduleItem> = emptyList()) : FriendViewRepository {
+class FakeFriendViewRepository(
+    private val items: List<FriendScheduleItem> = emptyList(),
+    private val summaryMap: Map<String, com.kito.feature.friendview.domain.model.FriendSummary> = emptyMap(),
+    private val remoteError: Throwable? = null,
+    private val defaultFound: Boolean = true
+) : FriendViewRepository {
     override suspend fun getFriendSchedule(roll: String): List<FriendScheduleItem> = items
+    override suspend fun getFriendSummary(roll: String): com.kito.feature.friendview.domain.model.FriendSummary =
+        summaryMap[roll] ?: com.kito.feature.friendview.domain.model.FriendSummary(roll = roll, section = "CSE-1")
+    override suspend fun fetchRemoteStudentSummary(roll: String): com.kito.feature.friendview.domain.model.FriendSummary {
+        if (remoteError != null) throw remoteError
+        if (summaryMap.containsKey(roll)) return summaryMap[roll]!!
+        return if (defaultFound) {
+            com.kito.feature.friendview.domain.model.FriendSummary(roll = roll, section = "CSE-1")
+        } else {
+            com.kito.feature.friendview.domain.model.FriendSummary(roll = roll, notFound = true)
+        }
+    }
+    override suspend fun syncFriend(roll: String): Result<Unit> = Result.success(Unit)
+    override suspend fun syncAllFriends(): Result<Unit> = Result.success(Unit)
 }
 
 class FakeHomeRepository(
@@ -103,6 +121,7 @@ class FakeConnectivityRepository(
 ) : ConnectivityRepository {
     private val flow = MutableStateFlow(initialOnline)
     override val isOnline = flow
+    @Suppress("unused")
     fun setOnline(online: Boolean) { flow.value = online }
 }
 
@@ -123,9 +142,9 @@ class FakeCredentialsRepository(
     private val _isLoggedIn = MutableStateFlow(initialLoggedIn)
     override val isLoggedIn: Flow<Boolean> = _isLoggedIn
     override suspend fun getSapPassword(): String = password
-    override suspend fun saveSapPassword(p: String): Boolean {
-        password = p
-        _isLoggedIn.value = p.isNotEmpty()
+    override suspend fun saveSapPassword(password: String): Boolean {
+        this.password = password
+        _isLoggedIn.value = password.isNotEmpty()
         return true
     }
     override suspend fun clearSapPassword(): Boolean {

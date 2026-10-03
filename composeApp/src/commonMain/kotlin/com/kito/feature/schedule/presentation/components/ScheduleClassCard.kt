@@ -50,10 +50,16 @@ fun ScheduleClassCard(
     isClassUpcoming: (String, LocalTime) -> Boolean,
     isClassOngoing: (String, String, LocalTime) -> Boolean
 ) {
+    val isFirstYear = item.batch.equals("batch_1", ignoreCase = true) ||
+            item.batch.trim() == "1" ||
+            item.section.matches(Regex("^[AB]\\d+.*", RegexOption.IGNORE_CASE))
+    val isLongLocation = item.room != null && (item.room.contains("/") || item.room.length > 13)
+    val showLocationBelow = isFirstYear && isLongLocation
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(if (showLocationBelow) 116.dp else 100.dp)
             .then(
                 if (page == currentPage && isClassUpcoming(item.startTime, now) && today != "SUN") {
                     Modifier
@@ -130,16 +136,22 @@ fun ScheduleClassCard(
                     }
                 )
         ) {
+            val isFirstYear = item.batch.equals("batch_1", ignoreCase = true) ||
+                    item.batch.trim() == "1" ||
+                    item.section.matches(Regex("^[AB]\\d+.*", RegexOption.IGNORE_CASE))
+            val isLongLocation = item.room != null && (item.room.contains("/") || item.room.length > 13)
+            val showLocationBelow = isFirstYear && isLongLocation
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .padding(12.dp)
+                    .padding(horizontal = 14.dp, vertical = 12.dp)
                     .fillMaxSize()
             ) {
                 Box(
                     modifier = Modifier
                         .width(4.dp)
-                        .height(48.dp)
+                        .height(if (showLocationBelow) 68.dp else 48.dp)
                         .background(
                             Brush.verticalGradient(
                                 listOf(
@@ -150,13 +162,12 @@ fun ScheduleClassCard(
                             RoundedCornerShape(2.dp)
                         )
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(modifier = Modifier.width(10.dp))
+                if (showLocationBelow) {
                     Column(
                         verticalArrangement = Arrangement.Center,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(vertical = 6.dp)
                             .weight(1f)
                     ) {
                         Text(
@@ -167,6 +178,7 @@ fun ScheduleClassCard(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                        Spacer(modifier = Modifier.height(3.dp))
                         Text(
                             text = "${formatTo12Hour(item.startTime)} - ${formatTo12Hour(item.endTime)}",
                             color = uiColors.textPrimary.copy(alpha = 0.85f),
@@ -174,15 +186,50 @@ fun ScheduleClassCard(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = item.room ?: "No Room",
+                            color = uiColors.textPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
-                    Text(
-                        text = item.room ?: "No Room",
-                        color = uiColors.textPrimary,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(vertical = 6.dp)
+                                .weight(1f)
+                        ) {
+                            Text(
+                                text = item.subject,
+                                color = uiColors.textPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = "${formatTo12Hour(item.startTime)} - ${formatTo12Hour(item.endTime)}",
+                                color = uiColors.textPrimary.copy(alpha = 0.85f),
+                                fontFamily = FontFamily.Monospace,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Text(
+                            text = item.room ?: "No Room",
+                            color = uiColors.textPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }

@@ -37,6 +37,7 @@ workin.txt
 xml_output.txt
 html_output.txt
 fetch_attendance.js
+*.preferences_pb
 
 # Android
 *.apk
@@ -58,7 +59,6 @@ fetch_attendance.js
 Thumbs.db
 ehthumbs.db
 Icon?
-.DS_Store
 
 .kotlin
 xcuserdata

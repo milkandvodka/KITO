@@ -27,9 +27,12 @@ import kotlinx.datetime.DayOfWeek
 import org.koin.compose.koinInject
 import kotlin.time.Duration.Companion.milliseconds
 
+import com.kito.feature.schedule.presentation.ScheduleScreenViewModel
+
 @Composable
 fun HomeScreen(
     viewmodel: HomeViewModel = koinInject(),
+    scheduleViewModel: ScheduleScreenViewModel = koinInject(),
     prefs: PrefsRepository = koinInject(),
     kaya: KayaRepository = koinInject(),
     rootNavBackStack: NavBackStack<NavKey>,
@@ -52,6 +55,7 @@ fun HomeScreen(
     val eventsAndAds by viewmodel.ads.collectAsState()
     val isScheduleEmpty by viewmodel.isScheduleEmpty.collectAsState()
     val isKhaooGullyEnabled by viewmodel.isKhaooGullyEnabled.collectAsState()
+    val scheduleUiState by scheduleViewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit, isTopScreen, lifecycleOwner) {
         if (isTopScreen) {
@@ -125,6 +129,10 @@ fun HomeScreen(
         isKhaooGullyEnabled = isKhaooGullyEnabled,
         eventsAndAds = eventsAndAds,
         kayaConnected = kayaConnected,
+        scheduleUiState = scheduleUiState,
+        onScheduleEvent = scheduleViewModel::onEvent,
+        // Verify the KAYA login works, then remember the connection. Username is
+        // the user's roll number; returns an error message, or null on success.
         onKayaConnect = { pass ->
             when (val result = kaya.connect(userRoll, pass)) {
                 is KayaResult.Success -> null

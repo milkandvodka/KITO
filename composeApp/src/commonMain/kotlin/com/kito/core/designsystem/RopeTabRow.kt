@@ -28,11 +28,11 @@ import kotlin.math.roundToInt
 @Composable
 fun RopeTabRow(
     tabPosition: Float,
-    onTabSelected: (Int) -> Unit
+    onTabSelected: (Int) -> Unit,
+    tabs: List<String> = listOf("SGPA", "CGPA"),
+    modifier: Modifier = Modifier
 ) {
     val uiColors = UIColors()
-    val tabs = listOf("SGPA", "CGPA")
-
     val tabWidths = remember { mutableStateMapOf<Int, Float>() }
 
 //    val animatedTab by animateFloatAsState(
@@ -49,7 +49,7 @@ fun RopeTabRow(
 
     SecondaryTabRow(
         selectedTabIndex = animatedTab.roundToInt(),
-        modifier = Modifier,
+        modifier = modifier,
         containerColor = Color.Transparent,
         contentColor = uiColors.textSecondary,
         indicator = {

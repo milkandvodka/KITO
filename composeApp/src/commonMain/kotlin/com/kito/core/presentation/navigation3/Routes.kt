@@ -30,6 +30,9 @@ sealed interface Routes: NavKey {
     object FriendView: Routes, NavKey
 
     @Serializable
+    data class FriendSchedule(val roll: String) : Routes, NavKey
+
+    @Serializable
     object HolidayList: Routes, NavKey
 
     @Serializable

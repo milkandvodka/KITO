@@ -24,7 +24,6 @@ import com.kito.feature.auth.presentation.usersetup.UserSetupScreen
 import com.kito.feature.exam.presentation.UpcomingExamScreen
 import com.kito.feature.faculty.presentation.FacultyDetailScreen
 import com.kito.feature.faculty.presentation.FacultyScreen
-import com.kito.feature.friendview.presentation.FriendView
 import com.kito.feature.gpa.presentation.GPAScreen
 import com.kito.feature.holiday.presentation.HolidayListScreen
 import com.kito.feature.khaoogully.presentation.KhaooGullyHomeScreen
@@ -141,7 +140,16 @@ fun RootNavGraph(
                         PromotionsScreen(url = it.url)
                     }
                     entry<Routes.FriendView>(metadata = sharedElementEntryMetadata()) {
-                        FriendView(
+                        com.kito.feature.friendview.presentation.list.FriendListScreen(
+                            onBack = { rootNavBackStack.removeAt(rootNavBackStack.lastIndex) },
+                            onNavigateToSchedule = { roll ->
+                                rootNavBackStack.add(Routes.FriendSchedule(roll = roll))
+                            }
+                        )
+                    }
+                    entry<Routes.FriendSchedule> {
+                        com.kito.feature.friendview.presentation.schedule.FriendScheduleScreen(
+                            roll = it.roll,
                             onBack = { rootNavBackStack.removeAt(rootNavBackStack.lastIndex) }
                         )
                     }

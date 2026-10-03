@@ -128,6 +128,7 @@ class SettingsViewModel(
                 _syncState.value = SyncUiState.Loading
                 delay(1000.milliseconds)
                 prefs.setUserRollNumber(roll)
+                prefs.clearManualSchedule()
                 credentialsRepository.clearSapPassword()
                 attendanceRepository.deleteAllAttendance()
                 appSyncUseCase.syncAll(

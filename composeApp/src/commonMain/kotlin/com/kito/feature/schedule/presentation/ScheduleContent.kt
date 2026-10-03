@@ -29,9 +29,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Report
-import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -53,30 +51,32 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.kito.core.common.util.currentLocalDateTime
-import com.kito.core.designsystem.ExpressiveEasing
 import com.kito.core.designsystem.UIColors
 import com.kito.core.platform.sendEmail
 import com.kito.core.presentation.components.animation.PandaSleepingAnimation
 import com.kito.feature.schedule.domain.model.ScheduleItem
+import com.kito.feature.schedule.domain.model.ScheduleLookupState
+import com.kito.feature.schedule.presentation.components.ManualScheduleBadge
+import com.kito.feature.schedule.presentation.components.ManualScheduleDialogBox
 import com.kito.feature.schedule.presentation.components.ScheduleClassCard
-import com.kito.feature.schedule.presentation.components.todayKey
-import com.kito.feature.schedule.presentation.components.isClassUpcoming
-import com.kito.feature.schedule.presentation.components.isClassOngoing
 import com.kito.feature.schedule.presentation.components.horizontalCarouselTransition
+import com.kito.feature.schedule.presentation.components.isClassOngoing
+import com.kito.feature.schedule.presentation.components.isClassUpcoming
+import com.kito.feature.schedule.presentation.components.todayKey
 import dev.chrisbanes.haze.ExperimentalHazeApi
 import dev.chrisbanes.haze.HazeInputScale
 import dev.chrisbanes.haze.hazeEffect
@@ -84,7 +84,6 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -98,6 +97,8 @@ import kotlin.random.Random
 fun ScheduleContent(
     schedule: Map<WeekDay, List<ScheduleItem>>,
     onBack: () -> Unit,
+    uiState: ScheduleUiState = ScheduleUiState(),
+    onEvent: (ScheduleEvent) -> Unit = {},
     enableAnimations: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -116,7 +117,7 @@ fun ScheduleContent(
     val hazeState = rememberHazeState()
     val weekDays = WeekDay.entries
     val pagerState = rememberPagerState(
-        initialPage = 0,
+        initialPage = currentPage,
         pageCount = {
             weekDays.size
         }
@@ -128,10 +129,8 @@ fun ScheduleContent(
         Color(0xFF753107).copy(alpha = 0.82f), // amber-700
         Color(0xFF62290A).copy(alpha = 0.82f), // amber-800
         Color(0xFF46180C).copy(alpha = 0.82f), // deep orange-brown
-
-        // 🔥 new additions (subtle!)
-        Color(0xFFA14B09).copy(alpha = 0.70f), // muted yellow (amber-500 toned down)
-        Color(0xFF6B1414).copy(alpha = 0.75f), // brick red (not crimson)
+        Color(0xFFA14B09).copy(alpha = 0.70f), // muted yellow
+        Color(0xFF6B1414).copy(alpha = 0.75f), // brick red
     )
     val animatedPointMid = remember { Animatable(.8f) }
     val animatedPointTop = remember { Animatable(.8f) }
@@ -176,16 +175,6 @@ fun ScheduleContent(
                     HapticFeedbackType.Confirm
                 )
             }
-    }
-    LaunchedEffect(Unit) {
-        delay(100)
-        pagerState.animateScrollToPage(
-            page = currentPage,
-            animationSpec = tween(
-                durationMillis = 800,
-                easing = ExpressiveEasing.Emphasized
-            )
-        )
     }
     Box(
         modifier = modifier
@@ -320,30 +309,18 @@ fun ScheduleContent(
                     fontWeight = FontWeight.SemiBold,
                     color = uiColors.textPrimary,
                     style = MaterialTheme.typography.titleLargeEmphasized,
-                    modifier = Modifier
-                        .weight(1f)
+                    modifier = Modifier.weight(1f)
                 )
-                if (false) {
-                    IconButton(
-                        onClick = {
-
-                        },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Color.White.copy(alpha = 0.08f),
-                            contentColor = uiColors.progressAccent
-                        ),
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (true) {
-                                Icons.Default.NotificationsActive
-                            } else {
-                                Icons.Outlined.NotificationsOff
-                            },
-                            contentDescription = "notifications",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                if (uiState.isManualSchedule) {
+                    val sectionText = uiState.manualConfig?.section?.ifBlank { null }
+                        ?: uiState.selectedCoreSection.ifBlank { null }
+                        ?: (uiState.lookupState as? ScheduleLookupState.RollNotFound)?.manualConfig?.section?.ifBlank { null }
+                        ?: "Manual"
+                    ManualScheduleBadge(
+                        section = sectionText,
+                        uiColors = uiColors,
+                        onClick = { onEvent(ScheduleEvent.OpenEditSheet) }
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 IconButton(
@@ -422,6 +399,28 @@ fun ScheduleContent(
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        if (uiState.isEditSheetOpen) {
+            ManualScheduleDialogBox(
+                onDismiss = { onEvent(ScheduleEvent.CloseEditSheet) },
+                onConfirm = { onEvent(ScheduleEvent.SubmitManualSetup) },
+                availableData = uiState.availableData,
+                selectedBatch = uiState.selectedBatch,
+                selectedBranch = uiState.selectedBranch,
+                selectedCoreSection = uiState.selectedCoreSection,
+                selectedElective1 = uiState.selectedElective1,
+                selectedElective2 = uiState.selectedElective2,
+                onSelectBatch = { onEvent(ScheduleEvent.SelectBatch(it)) },
+                onSelectBranch = { onEvent(ScheduleEvent.SelectBranch(it)) },
+                onSelectCoreSection = { onEvent(ScheduleEvent.SelectCoreSection(it)) },
+                onSelectElective1 = { onEvent(ScheduleEvent.SelectElective1(it)) },
+                onSelectElective2 = { onEvent(ScheduleEvent.SelectElective2(it)) },
+                isSubmitting = uiState.isSubmittingSetup,
+                hazeState = hazeState,
+                title = "Edit Timetable",
+                errorMessage = uiState.errorMessage
+            )
         }
     }
 }

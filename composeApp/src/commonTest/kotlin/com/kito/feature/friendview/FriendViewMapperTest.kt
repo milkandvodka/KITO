@@ -26,7 +26,7 @@ class FriendViewMapperTest {
         assertEquals("09:00:00", domain.startTime)
         assertEquals("10:00:00", domain.endTime)
         assertEquals("101", domain.room)
-        assertEquals("Monday", domain.day)
+        assertEquals("MON", domain.day)
         assertEquals("CS-A", domain.section)
         assertEquals("B1", domain.batch)
     }

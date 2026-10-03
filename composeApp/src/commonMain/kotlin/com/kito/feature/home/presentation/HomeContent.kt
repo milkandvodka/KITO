@@ -22,10 +22,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import org.jetbrains.compose.resources.painterResource
+import kito.composeapp.generated.resources.Res
+import kito.composeapp.generated.resources.kaya_logo
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -67,9 +69,11 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
-import kito.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
+
+import com.kito.feature.schedule.presentation.ScheduleEvent
+import com.kito.feature.schedule.presentation.ScheduleUiState
+import com.kito.feature.schedule.presentation.components.ManualScheduleDialogBox
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalHazeApi::class,
     ExperimentalHazeMaterialsApi::class
@@ -88,6 +92,8 @@ fun HomeContent(
     eventsAndAds: List<EventOrAd>,
     kayaConnected: Boolean = false,
     onKayaConnect: suspend (String) -> String? = { null },
+    scheduleUiState: ScheduleUiState = ScheduleUiState(),
+    onScheduleEvent: (ScheduleEvent) -> Unit = {},
     onNavigateToSchedule: () -> Unit,
     onNavigateToAttendance: () -> Unit,
     onNavigateToUtility: (NavKey?) -> Unit,
@@ -102,6 +108,38 @@ fun HomeContent(
     val hazeState = rememberHazeState()
     val haptic = LocalHapticFeedback.current
     var isLoginDialogOpen by remember { mutableStateOf(false) }
+    var isManualScheduleDialogOpen by remember { mutableStateOf(false) }
+
+    // Close manual schedule dialog upon successful setup
+    LaunchedEffect(scheduleUiState.isManualSchedule) {
+        if (scheduleUiState.isManualSchedule) {
+            isManualScheduleDialogOpen = false
+        }
+    }
+
+    if (isManualScheduleDialogOpen) {
+        ManualScheduleDialogBox(
+            onDismiss = { isManualScheduleDialogOpen = false },
+            onConfirm = {
+                onScheduleEvent(ScheduleEvent.SubmitManualSetup)
+            },
+            availableData = scheduleUiState.availableData,
+            selectedBatch = scheduleUiState.selectedBatch,
+            selectedBranch = scheduleUiState.selectedBranch,
+            selectedCoreSection = scheduleUiState.selectedCoreSection,
+            selectedElective1 = scheduleUiState.selectedElective1,
+            selectedElective2 = scheduleUiState.selectedElective2,
+            onSelectBatch = { onScheduleEvent(ScheduleEvent.SelectBatch(it)) },
+            onSelectBranch = { onScheduleEvent(ScheduleEvent.SelectBranch(it)) },
+            onSelectCoreSection = { onScheduleEvent(ScheduleEvent.SelectCoreSection(it)) },
+            onSelectElective1 = { onScheduleEvent(ScheduleEvent.SelectElective1(it)) },
+            onSelectElective2 = { onScheduleEvent(ScheduleEvent.SelectElective2(it)) },
+            isSubmitting = scheduleUiState.isSubmittingSetup,
+            hazeState = hazeState,
+            title = "Set up Timetable",
+            errorMessage = scheduleUiState.errorMessage
+        )
+    }
 
     // KAYA connect: opens only when the user taps the KAYA logo beside "Schedule"
     // (no auto-popup). Reuses the SAP login dialog — password-only, since the
@@ -198,8 +236,7 @@ fun HomeContent(
                                     modifier = Modifier
                                         .weight(1f)
                                 )
-                                // Single Timetable pill: connected → open the timetable;
-                                // otherwise start the connect flow.
+                                // Single Timetable pill: connected -> open schedule; not connected -> open KAYA login dialog
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
@@ -210,8 +247,15 @@ fun HomeContent(
                                         )
                                         .clickable {
                                             haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                                            if (kayaConnected) onNavigateToSchedule()
-                                            else showKayaDialog = true
+                                            if (kayaConnected) {
+                                                if (isScheduleEmpty) {
+                                                    isManualScheduleDialogOpen = true
+                                                } else {
+                                                    onNavigateToSchedule()
+                                                }
+                                            } else {
+                                                showKayaDialog = true
+                                            }
                                         }
                                         .padding(horizontal = 10.dp, vertical = 5.dp)
                                 ) {
@@ -221,6 +265,12 @@ fun HomeContent(
                                         fontWeight = FontWeight.Bold,
                                         fontFamily = FontFamily.Monospace,
                                         style = MaterialTheme.typography.labelMedium
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Image(
+                                        painter = painterResource(Res.drawable.kaya_logo),
+                                        contentDescription = if (kayaConnected) "KAYA connected, open timetable" else "Connect KAYA",
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
@@ -242,7 +292,11 @@ fun HomeContent(
                                     isScheduleEmpty = isScheduleEmpty,
                                     onCLick = {
                                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                                        onNavigateToSchedule()
+                                        if (isScheduleEmpty) {
+                                            isManualScheduleDialogOpen = true
+                                        } else {
+                                            onNavigateToSchedule()
+                                        }
                                     },
                                     enableAnimations = enableAnimations
                                 )
