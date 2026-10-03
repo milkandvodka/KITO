@@ -16,6 +16,7 @@ fun GPAScreen(
     val selectedSemester by viewModel.semester.collectAsState()
     val selectedBranch by viewModel.branch.collectAsState()
     val roll by viewModel.roll.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     SharedExpandContainer(
         routeKey = Routes.GPACalc,
@@ -25,6 +26,8 @@ fun GPAScreen(
             selectedSemester = selectedSemester,
             selectedBranch = selectedBranch,
             roll = roll,
+            uiState = uiState,
+            onEvent = viewModel::onEvent,
             onSemesterSelected = { semester -> viewModel.onEvent(GPAEvent.UpdateSemester(semester)) },
             onBranchSelected = { branch -> viewModel.onEvent(GPAEvent.UpdateBranch(branch)) },
             onBack = onBack

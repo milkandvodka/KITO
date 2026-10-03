@@ -11,10 +11,14 @@ val gradePoints = mapOf(
 )
 
 fun calculateSGPA(subjects: List<Pair<Int, Int>>): Double {
+    return calculateSGPAOrNull(subjects) ?: 0.0
+}
+
+fun calculateSGPAOrNull(subjects: List<Pair<Int, Int>>): Double? {
     val totalCredits = subjects.sumOf { it.first }
+    if (subjects.isEmpty() || totalCredits <= 0) return null
     val totalPoints = subjects.sumOf { it.first * it.second }
-    return if (totalCredits == 0) 0.0
-    else totalPoints.toDouble() / totalCredits
+    return totalPoints.toDouble() / totalCredits
 }
 
 fun calculateCGPA(
