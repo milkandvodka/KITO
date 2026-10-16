@@ -127,6 +127,7 @@ fun MainUI(
                     subclass(TabRoutes.Home::class, TabRoutes.Home.serializer())
                     subclass(TabRoutes.Profile::class, TabRoutes.Profile.serializer())
                     subclass(TabRoutes.Attendance::class, TabRoutes.Attendance.serializer())
+                    subclass(TabRoutes.Calendar::class, TabRoutes.Calendar.serializer())
                 }
             }
         },
@@ -146,12 +147,8 @@ fun MainUI(
         appViewModel.checkResetFix()
     }
     LaunchedEffect(tabBackStack.last()) {
-        selectedTabIndex = when {
-            tabBackStack.last() == TabRoutes.Home -> 0
-            tabBackStack.last() == TabRoutes.Attendance -> 1
-            tabBackStack.last() == TabRoutes.Profile -> 2
-            else -> selectedTabIndex
-        }
+        val index = NavigationItems.indexOfFirst { it.destination == tabBackStack.last() }
+        if (index >= 0) selectedTabIndex = index
     }
 
     IosBottomBarBridge(

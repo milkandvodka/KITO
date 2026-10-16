@@ -1,6 +1,7 @@
 package com.kito.core.presentation.navigation3
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -27,6 +28,12 @@ val NavigationItems = listOf(
         icon = Icons.Filled.CheckCircle,
         color = Color(0xFFFFA574),
         destination = TabRoutes.Attendance
+    ),
+    BottomBarTab(
+        title = "Calendar",
+        icon = Icons.Filled.CalendarMonth,
+        color = Color(0xFFFFA574),
+        destination = TabRoutes.Calendar
     ),
     BottomBarTab(
         title = "Settings",

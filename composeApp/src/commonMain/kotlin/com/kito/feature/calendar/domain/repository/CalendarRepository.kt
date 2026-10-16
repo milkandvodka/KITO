@@ -7,5 +7,6 @@ import com.kito.feature.calendar.domain.model.CalendarEvent
  * pure [CalendarEvent] domain objects. Presentation never sees the DTO.
  */
 interface CalendarRepository {
-    suspend fun getEventsByMonth(year: Int, month: Int): List<CalendarEvent>
+    /** Cached per month; [forceRefresh] bypasses the cache. Falls back to stale data offline. */
+    suspend fun getEventsByMonth(year: Int, month: Int, forceRefresh: Boolean = false): List<CalendarEvent>
 }

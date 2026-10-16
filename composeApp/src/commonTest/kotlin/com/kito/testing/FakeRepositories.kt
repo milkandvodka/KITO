@@ -41,8 +41,10 @@ class FakeAttendanceRepository(
 
 class FakeExamRepository(
     private val items: List<ExamSchedule> = emptyList(),
+    private val fail: Boolean = false,
 ) : ExamRepository {
-    override suspend fun getExamSchedule(roll: String): List<ExamSchedule> = items
+    override suspend fun getExamSchedule(roll: String, forceRefresh: Boolean): List<ExamSchedule> =
+        if (fail) error("offline") else items
 }
 
 class FakeFacultyRepository(
@@ -116,8 +118,15 @@ class FakeHomeRepository(
     override suspend fun getFeatureFlags(): Map<String, Boolean> = featureFlags
 }
 
-class FakeCalendarRepository(private val events: List<CalendarEvent> = emptyList()) : CalendarRepository {
-    override suspend fun getEventsByMonth(year: Int, month: Int): List<CalendarEvent> = events
+class FakeCalendarRepository(
+    private val events: List<CalendarEvent> = emptyList(),
+    private val fail: Boolean = false,
+) : CalendarRepository {
+    val calls = mutableListOf<Triple<Int, Int, Boolean>>()
+    override suspend fun getEventsByMonth(year: Int, month: Int, forceRefresh: Boolean): List<CalendarEvent> {
+        calls += Triple(year, month, forceRefresh)
+        return if (fail) error("offline") else events
+    }
 }
 
 class FakeConnectivityRepository(

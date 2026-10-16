@@ -64,5 +64,8 @@ sealed interface TabRoutes: NavKey {
     object Attendance : TabRoutes,NavKey
 
     @Serializable
+    object Calendar : TabRoutes,NavKey
+
+    @Serializable
     object Profile : TabRoutes,NavKey
 }

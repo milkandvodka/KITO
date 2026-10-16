@@ -35,6 +35,7 @@ final class KitoTabBarController: UITabBarController, UITabBarControllerDelegate
         let items: [(title: String, icon: String)] = [
             ("Home",       "house.fill"),
             ("Attendance", "checkmark.circle.fill"),
+            ("Calendar",   "calendar"),
             ("Settings",   "gearshape.fill"),
         ]
         setViewControllers(items.enumerated().map { index, item in
