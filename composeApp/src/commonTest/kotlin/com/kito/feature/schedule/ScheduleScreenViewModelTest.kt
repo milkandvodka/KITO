@@ -60,7 +60,11 @@ class ScheduleScreenViewModelTest {
         override fun observeIsManualSchedule(): Flow<Boolean> = isManualFlow
         override fun observeManualScheduleConfig(): Flow<ManualScheduleConfig?> = configFlow
         override suspend fun checkRollExists(rollNo: String): Boolean = rollExists
-        override suspend fun getAvailableSections(): AvailableSectionsData = availableData
+        var sectionsCalls = 0
+        override suspend fun getAvailableSections(): AvailableSectionsData {
+            sectionsCalls++
+            return availableData
+        }
         override suspend fun saveManualSchedule(rollNo: String, config: ManualScheduleConfig): Result<Unit> {
             lastSavedConfig = config
             isManualFlow.value = true
@@ -207,5 +211,31 @@ class ScheduleScreenViewModelTest {
         assertEquals("", vm.uiState.value.selectedCoreSection)
 
         job.cancel()
+    }
+
+    @Test
+    fun init_doesNotDownloadSectionLists() = runTest(testDispatcher) {
+        createViewModel()
+        advanceUntilIdle()
+        assertEquals(0, fakeManualScheduleRepo.sectionsCalls)
+    }
+
+    @Test
+    fun loadSections_fetchesOnce() = runTest(testDispatcher) {
+        val vm = createViewModel()
+        vm.onEvent(ScheduleEvent.LoadSections)
+        vm.onEvent(ScheduleEvent.OpenEditSheet)
+        advanceUntilIdle()
+        assertEquals(1, fakeManualScheduleRepo.sectionsCalls)
+    }
+
+    @Test
+    fun retryLookup_refetchesSections() = runTest(testDispatcher) {
+        val vm = createViewModel()
+        vm.onEvent(ScheduleEvent.LoadSections)
+        advanceUntilIdle()
+        vm.onEvent(ScheduleEvent.RetryLookup)
+        advanceUntilIdle()
+        assertEquals(2, fakeManualScheduleRepo.sectionsCalls)
     }
 }

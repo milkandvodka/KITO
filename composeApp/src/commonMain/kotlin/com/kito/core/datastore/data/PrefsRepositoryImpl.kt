@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kito.core.datastore.domain.repository.PrefsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Provided
 
@@ -90,8 +91,10 @@ class PrefsRepositoryImpl(
     override val userNameFlow: Flow<String> = dataStore.data
         .map { it[KEY_USER_NAME] ?: "" }
 
+    // distinctUntilChanged: every DataStore write re-emits, which would restart roll-keyed reads.
     override val userRollFlow: Flow<String> = dataStore.data
         .map { it[KEY_USER_ROLLNUMBER] ?: "" }
+        .distinctUntilChanged()
 
     override val academicYearFlow: Flow<String> = dataStore.data
         .map { it[KEY_ACADEMIC_YEAR] ?: "" }

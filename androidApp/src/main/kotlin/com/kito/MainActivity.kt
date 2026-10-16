@@ -35,8 +35,10 @@ import com.kito.core.platform.SecureStorage
 import com.kito.core.presentation.navigation3.Routes
 import com.kito.core.presentation.theme.KitoTheme
 import com.kito.feature.app.presentation.MainUI
+import com.kito.feature.home.presentation.HomeViewModel
 import com.kito.feature.schedule.notification.NotificationPipelineController
 import kotlinx.coroutines.flow.first
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
@@ -76,6 +78,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        // Start reading the saved timetable now, so Home's first frame already has it (no empty card).
+        get<HomeViewModel>()
         enableEdgeToEdge(
             statusBarStyle = androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
         )

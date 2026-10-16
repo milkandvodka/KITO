@@ -42,6 +42,7 @@ import com.kito.core.common.util.currentLocalDateTime
 import com.kito.core.common.util.formatTo12Hour
 import com.kito.core.designsystem.UIColors
 import com.kito.core.designsystem.meshGradient
+import com.kito.core.designsystem.shimmer
 import com.kito.core.presentation.components.animation.RelaxAnimation
 import com.kito.feature.schedule.domain.model.ScheduleItem
 import kotlinx.coroutines.delay
@@ -54,7 +55,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun ScheduleCard(
     colors: UIColors,
-    isScheduleEmpty: Boolean,
+    /** null = saved timetable not read yet (shimmer); true = nothing saved (setup prompt). */
+    isScheduleEmpty: Boolean?,
     schedule: List<ScheduleItem>,
     nextSchedule: List<ScheduleItem>,
     onCLick: () -> Unit,
@@ -111,7 +113,18 @@ fun ScheduleCard(
                 .background(colors.cardBackground, RoundedCornerShape(22.dp))
                 .padding(horizontal = 8.dp)
         ) {
-            if(!isScheduleEmpty) {
+            if (isScheduleEmpty == null) {
+                items(3) { index ->
+                    Box(
+                        modifier = Modifier
+                            .padding(top = if (index == 0) 12.dp else 0.dp)
+                            .fillMaxWidth()
+                            .height(42.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .shimmer(colors.cardBackgroundHigh, colors.cardSurface)
+                    )
+                }
+            } else if (!isScheduleEmpty) {
                 if (ongoing != null || upcomingList.isNotEmpty() || nextSchedule.isNotEmpty()){
                     item{
                         Spacer(modifier = Modifier.height(4.dp))

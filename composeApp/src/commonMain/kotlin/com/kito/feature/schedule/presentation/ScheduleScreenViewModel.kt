@@ -70,10 +70,13 @@ class ScheduleScreenViewModel(
                 initialValue = emptyMap()
             )
 
+    // Section lists page through whole Supabase tables, so they load only when a picker opens
+    // (LoadSections / OpenEditSheet), not on every app start.
+    private var sectionsRequested = false
+
     init {
         observeManualConfig()
         checkStudentStatus()
-        loadAvailableSections()
     }
 
     private fun observeManualConfig() {
@@ -106,7 +109,9 @@ class ScheduleScreenViewModel(
         }
     }
 
-    private fun loadAvailableSections() {
+    private fun loadAvailableSections(force: Boolean = false) {
+        if (sectionsRequested && !force) return
+        sectionsRequested = true
         viewModelScope.launch(dispatcher) {
             val available = getAvailableSectionsUseCase()
             _uiState.update { it.copy(availableData = available) }
@@ -156,7 +161,9 @@ class ScheduleScreenViewModel(
             }
             ScheduleEvent.OpenEditSheet -> {
                 _uiState.update { it.copy(isEditSheetOpen = true) }
+                loadAvailableSections()
             }
+            ScheduleEvent.LoadSections -> loadAvailableSections()
             ScheduleEvent.CloseEditSheet -> {
                 _uiState.update { it.copy(isEditSheetOpen = false) }
             }
@@ -165,7 +172,7 @@ class ScheduleScreenViewModel(
             }
             ScheduleEvent.RetryLookup -> {
                 checkStudentStatus()
-                loadAvailableSections()
+                loadAvailableSections(force = true)
             }
         }
     }

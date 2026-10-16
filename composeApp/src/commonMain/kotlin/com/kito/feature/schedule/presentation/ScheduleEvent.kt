@@ -8,6 +8,8 @@ sealed interface ScheduleEvent {
     data class SelectElective2(val section: String) : ScheduleEvent
     data object SubmitManualSetup : ScheduleEvent
     data object OpenEditSheet : ScheduleEvent
+    /** The section pickers are about to be shown; fetch their options if not loaded yet. */
+    data object LoadSections : ScheduleEvent
     data object CloseEditSheet : ScheduleEvent
     data object ClearManualSetup : ScheduleEvent
     data object RetryLookup : ScheduleEvent
