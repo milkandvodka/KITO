@@ -179,3 +179,7 @@ The software is provided "AS IS", without warranty of any kind.
 ## 🤝 Contributing
 
 Read **[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)** before opening a PR. It covers the architecture rules, testing requirements, branch conventions, and the PR checklist.
+
+## Project credits
+
+Built by [Curtosis](https://curtosis.in/). Read the [KIITO project story](https://curtosis.in/work/kiito/) for the product background and engineering decisions.
